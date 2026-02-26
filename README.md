@@ -8,6 +8,12 @@
 npm install smh-js-sdk
 ```
 
+## 前提条件
+
+- 浏览器需支持 File API、ArrayBuffer、Fetch API、BigInt、WebAssembly
+- 已开通腾讯云智能媒资托管服务
+- 已通过业务后端获取 accessToken、libraryId、spaceId
+
 ## 快速开始
 
 ### 基本配置
