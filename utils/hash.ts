@@ -50,8 +50,12 @@ export async function calculateBeginningHash(
 
 /**
  * 计算文件的完整 SHA256 哈希（fullHash）
- * 使用链式哈希算法：每 1MB 计算一次哈希，然后将哈希值作为下一个块的输入
- * 用于秒传检测的第二阶段
+ * 使用链式哈希算法：从文件头开始，每 1MB 计算一次 SHA256，
+ * 将哈希结果作为下一个块的链式输入，直到文件末尾
+ * 
+ * 算法与 Node SDK calculateFullHash 保持一致：
+ * 每 1MB 块：update(chunk) → digest() → 新 hasher → update(上一个hash)
+ * 前 1MB 的 digest 结果即为 beginningHash
  * 
  * @param file 浏览器 File 对象
  * @param fileSize 文件大小（字节）
@@ -63,67 +67,32 @@ export async function calculateFullHash(
   fileSize: number,
   onProgress?: (progress: number) => void
 ): Promise<string> {
-  const blockSize = HASH_CHUNK_SIZE; // 1MB
-  let totalBytesRead = 0;
+  const chunkSize = HASH_CHUNK_SIZE; // 1MB
+  const totalChunks = Math.ceil(fileSize / chunkSize);
+  
   let hasher = await createSHA256();
   hasher.init();
   let fullHash = '';
-  let count = 0;
 
-  // 分块读取文件
-  let offset = 0;
-  while (offset < fileSize) {
-    const end = Math.min(offset + blockSize * 4, fileSize); // 每次读取 4MB
-    const blob = file.slice(offset, end);
+  for (let i = 0; i < totalChunks; i++) {
+    const start = i * chunkSize;
+    const end = Math.min(start + chunkSize, fileSize);
+    const blob = file.slice(start, end);
     const buffer = await blobToArrayBuffer(blob);
-    const chunk = new Uint8Array(buffer);
     
-    let position = 0;
-    while (position < chunk.length) {
-      const remaining = blockSize - count;
-      const available = chunk.length - position;
-      
-      if (count + available < blockSize) {
-        // 当前块不足 1MB，继续累积
-        hasher.update(chunk.slice(position));
-        count += available;
-        position = chunk.length;
-      } else {
-        // 当前块达到 1MB，计算哈希
-        hasher.update(chunk.slice(position, position + remaining));
-        fullHash = hasher.digest('hex');
-        
-        // 创建新的哈希器，将上一个哈希值作为输入
-        hasher = await createSHA256();
-        hasher.init();
-        hasher.update(hexToUint8Array(fullHash));
-        
-        position += remaining;
-        count = 0;
-        
-        // 处理剩余数据
-        if (position < chunk.length) {
-          const leftover = chunk.slice(position);
-          hasher.update(leftover);
-          count = leftover.length;
-          position = chunk.length;
-        }
-      }
+    hasher.update(new Uint8Array(buffer));
+    fullHash = hasher.digest('hex');
+    
+    if (i < totalChunks - 1) {
+      hasher = await createSHA256();
+      hasher.init();
+      hasher.update(hexToUint8Array(fullHash));
     }
     
-    totalBytesRead += chunk.length;
-    offset = end;
-    
-    // 更新进度
     if (onProgress) {
-      const progress = Math.min(100, (totalBytesRead / fileSize) * 100);
+      const progress = Math.min(100, ((i + 1) / totalChunks) * 100);
       onProgress(progress);
     }
-  }
-  
-  // 处理最后不足 1MB 的数据
-  if (count !== 0) {
-    fullHash = hasher.digest('hex');
   }
   
   return fullHash;

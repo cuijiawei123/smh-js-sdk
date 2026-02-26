@@ -60,7 +60,8 @@ class UploadManager {
         this.state = state as UploadState
         options.onStateChange(this.state, error)
         
-        logger.log(`上传状态变更: ${state}${error ? ' - ' + error.message : ''}`)
+        const debugInfo = checkpoint ? ` [rapid_upload=${checkpoint.rapid_upload}]` : ''
+        logger.log(`上传状态变更: ${state}${debugInfo}${error ? ' - ' + error.message : ''}`)
       },
       
       onProgress: (info) => {

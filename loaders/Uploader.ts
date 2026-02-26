@@ -295,6 +295,12 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     // 执行上传
     await this.executeUpload();
     
+    // 秒传成功时已在 executeMultipartUpload/executeSimpleUpload 中处理完毕，直接返回
+    if (this.rapid_upload) {
+      this.end_time = Date.now();
+      return;
+    }
+    
     // 上传完成
     this.end_time = Date.now();
     await this.changeState(TaskStatus.SUCCESS);
@@ -312,6 +318,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     const enableInstantUpload = this.options.enableInstantUpload !== false;
     
     const useMultipart = fileSize > threshold;
+    this.logInfo(`Upload strategy: fileSize=${formatSize(fileSize)}, threshold=${formatSize(threshold)}, useMultipart=${useMultipart}, enableInstantUpload=${enableInstantUpload}`);
     
     let beginningHash: string | undefined;
     if (enableInstantUpload && fileSize >= this.MIN_SIZE_FOR_HASH && !this.confirm_key && !this.rapid_upload) {
