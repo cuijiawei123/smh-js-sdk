@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMH JS SDK - 上传下载测试</title>
+  <link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>📦 SMH JS SDK 上传下载测试</h1>
+    
+    <!-- 配置区域 -->
+    <div class="card">
+      <h2>⚙️ SDK 配置</h2>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>Library ID</label>
+          <input type="text" id="libraryId" placeholder="媒体库 ID">
+        </div>
+        <div class="form-group">
+          <label>Space ID</label>
+          <input type="text" id="spaceId" placeholder="空间 ID">
+        </div>
+        <div class="form-group">
+          <label>Access Token</label>
+          <input type="text" id="accessToken" placeholder="访问令牌">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>API Base Path</label>
+          <input type="text" id="basePath" placeholder="API 地址">
+        </div>
+        <div class="form-group">
+          <label>User ID (可选)</label>
+          <input type="text" id="userId" placeholder="用户 ID">
+        </div>
+      </div>
+    </div>
+    
+    <!-- 上传区域 -->
+    <div class="card">
+      <h2>⬆️ 文件上传</h2>
+      
+      <div class="file-input-wrapper">
+        <input type="file" id="fileInput">
+        <label for="fileInput" class="file-input-label" id="fileLabel">
+          📁 点击选择文件或拖拽文件到此处
+        </label>
+      </div>
+      
+      <div class="form-row" style="margin-top: 16px;">
+        <div class="form-group">
+          <label>上传路径</label>
+          <input type="text" id="uploadPath" placeholder="如: /测试目录/文件名.ext">
+        </div>
+        <div class="form-group">
+          <label>分片大小 (MB)</label>
+          <input type="number" id="chunkSize" value="5" min="1" max="100">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>并发数</label>
+          <input type="number" id="parallel" value="2" min="1" max="10">
+        </div>
+        <div class="form-group checkbox-group" style="margin-top: 28px;">
+          <input type="checkbox" id="enableInstantUpload" checked>
+          <label for="enableInstantUpload">启用秒传</label>
+        </div>
+      </div>
+      
+      <div>
+        <button class="btn btn-primary" id="startUploadBtn">🚀 开始上传</button>
+        <button class="btn btn-warning" id="pauseUploadBtn" disabled>⏸️ 暂停</button>
+        <button class="btn btn-success" id="resumeUploadBtn" disabled>▶️ 继续</button>
+        <button class="btn btn-danger" id="cancelUploadBtn" disabled>❌ 取消</button>
+      </div>
+      
+      <div class="progress-container" id="uploadProgress">
+        <div style="margin-bottom: 10px;">
+          <strong>上传状态:</strong>
+          <span class="status-badge status-waiting" id="uploadStatus">等待中</span>
+        </div>
+        <div class="progress-bar-wrapper">
+          <div class="progress-bar" id="uploadProgressBar"></div>
+        </div>
+        <div class="progress-info">
+          <span id="uploadProgressText">0%</span>
+          <span id="uploadSpeedText">0 KB/s</span>
+          <span id="uploadTimeText">剩余时间: --</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 文件列表区域 -->
+    <div class="card">
+      <h2>📂 文件列表</h2>
+      
+      <div class="file-list-header">
+        <div class="form-group">
+          <input type="text" id="listPath" value="/" placeholder="目录路径，如: / 或 /文件夹名">
+        </div>
+        <button class="btn btn-primary" id="refreshListBtn">🔄 刷新列表</button>
+      </div>
+      
+      <div class="breadcrumb" id="breadcrumb">
+        <span class="breadcrumb-item" data-path="/">🏠 根目录</span>
+      </div>
+      
+      <div id="fileListContainer">
+        <div class="empty-list">请先填写配置，然后点击刷新列表</div>
+      </div>
+    </div>
+    
+    <!-- 下载区域 -->
+    <div class="card">
+      <h2>⬇️ 文件下载</h2>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>文件路径</label>
+          <input type="text" id="downloadPath" placeholder="如: /测试目录/文件名.ext">
+        </div>
+        <div class="form-group">
+          <label>分片大小 (MB)</label>
+          <input type="number" id="downloadChunkSize" value="5" min="1" max="100">
+        </div>
+      </div>
+      
+      <div>
+        <button class="btn btn-primary" id="startDownloadBtn">🚀 开始下载</button>
+        <button class="btn btn-warning" id="pauseDownloadBtn" disabled>⏸️ 暂停</button>
+        <button class="btn btn-success" id="resumeDownloadBtn" disabled>▶️ 继续</button>
+        <button class="btn btn-danger" id="cancelDownloadBtn" disabled>❌ 取消</button>
+      </div>
+      
+      <div class="progress-container" id="downloadProgress">
+        <div style="margin-bottom: 10px;">
+          <strong>下载状态:</strong>
+          <span class="status-badge status-waiting" id="downloadStatus">等待中</span>
+        </div>
+        <div class="progress-bar-wrapper">
+          <div class="progress-bar" id="downloadProgressBar"></div>
+        </div>
+        <div class="progress-info">
+          <span id="downloadProgressText">0%</span>
+          <span id="downloadSpeedText">0 KB/s</span>
+          <span id="downloadTimeText">剩余时间: --</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 日志区域 -->
+    <div class="card">
+      <div class="section-title">
+        <h2>📋 日志</h2>
+        <button class="clear-log-btn" id="clearLogBtn">清空日志</button>
+      </div>
+      <div class="log-container" id="logContainer">
+        <div class="log-entry">
+          <span class="log-time">[--:--:--]</span>
+          <span class="log-info">等待操作...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

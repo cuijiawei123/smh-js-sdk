@@ -1,0 +1,19 @@
+# CreateSearchRequestType
+
+搜索类型，可选参数，字符串或字符串数组，可反选（!）。当前支持的类型包括：all-搜索所有类型文件和文件夹，当不传 type 或传空时默认为 all，反选时传 !all；dir-仅搜索目录，不搜索文件，反选时传 !dir；file-仅搜索所有类型文件，不搜索目录，反选时传 !file；doc、xls 或 ppt-仅搜索 Word、Excel 或 Powerpoint 类型文档，对应的文件扩展名为 .doc(x)、.xls(x) 或 .ppt(x)，反选时传 !doc、!xls 或 !ppt；pdf 或 txt-仅搜索 PDF 或纯文本类型文档，对应的文件扩展名为 .pdf 或 .txt，支持反选，反选时传 !pdf 或 !txt；image、video 或 audio-仅搜索图片、视频或音频类型文件，对应的文件 MIME（Content Type）分别为 image/_*、video/_* 或 audio/_*，反选时传 !image、!video 或 !audio；powerpoint-仅搜索演示文稿，如 .ppt、.pptx、.pot、.potx 等，反选时传 !powerpoint；excel-仅搜索表格文件，如 .xls、.xlsx、.ett、.xltx、.csv 等，反选时传 !excel；word-仅搜索文档，如 .doc、.docx、.dot、.wps、.wpt 等，反选时传 !word；text-仅搜索纯文本，如 .txt、.asp、.htm 等，反选时传 !text；
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+
+## Example
+
+```typescript
+import { CreateSearchRequestType } from './api';
+
+const instance: CreateSearchRequestType = {
+};
+```
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
