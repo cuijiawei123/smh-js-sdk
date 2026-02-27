@@ -11,6 +11,25 @@ import { Configuration } from '../configuration';
 import type { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
 
+// 导入上传/下载相关
+import { Uploader } from '../loaders/Uploader';
+import { Downloader, IRemoteFile } from '../loaders/Downloader';
+import type { UploadOptions } from '../loaders/types';
+import type { DownloadOptions } from '../loaders/types';
+
+// 创建上传/下载任务时的选项类型（libraryId、spaceId、accessToken 变为可选）
+type CreateUploadTaskOptions = Omit<UploadOptions, 'libraryId' | 'spaceId' | 'accessToken'> & {
+    libraryId?: string;
+    spaceId?: string;
+    accessToken?: string;
+};
+
+type CreateDownloadTaskOptions = Omit<DownloadOptions, 'libraryId' | 'spaceId' | 'accessToken'> & {
+    libraryId?: string;
+    spaceId?: string;
+    accessToken?: string;
+};
+
 // 导入所有API类
 import { BatchApi } from '../apis/batch-api';
 import { DirectoryApi } from '../apis/directory-api';
@@ -335,6 +354,45 @@ export class SMHClient {
                 };
             }
         });
+    }
+
+    /**
+     * 创建上传任务
+     * 自动注入 libraryId、spaceId、accessToken 和 configuration
+     * @returns Uploader 实例
+     */
+    public createUploadTask(options: CreateUploadTaskOptions): Uploader {
+        const mergedOptions: UploadOptions = {
+            ...options,
+            libraryId: options.libraryId || this.defaultLibraryId || '',
+            spaceId: options.spaceId || this.defaultSpaceId || '',
+            accessToken: options.accessToken || this.defaultAccessToken || '',
+        };
+
+        return new Uploader(mergedOptions, this.configuration);
+    }
+
+    /**
+     * 创建下载任务
+     * 自动注入 libraryId、spaceId、accessToken 和 configuration
+     * @returns Downloader 实例
+     */
+    public createDownloadTask(options: CreateDownloadTaskOptions): Downloader {
+        const mergedOptions: DownloadOptions = {
+            ...options,
+            libraryId: options.libraryId || this.defaultLibraryId || '',
+            spaceId: options.spaceId || this.defaultSpaceId || '',
+            accessToken: options.accessToken || this.defaultAccessToken || '',
+        };
+
+        const remoteFile: IRemoteFile = {
+            name: options.filePath.split('/').pop() || 'unknown',
+            path: options.filePath,
+            size: undefined,
+            type: undefined,
+        };
+
+        return new Downloader(remoteFile, mergedOptions, this.configuration);
     }
 
 }

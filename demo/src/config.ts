@@ -1,4 +1,4 @@
-import { Configuration } from 'smh-js-sdk'
+import { SMHClient } from 'smh-js-sdk'
 
 export interface SDKConfig {
   libraryId: string
@@ -38,9 +38,12 @@ export function saveConfig(config: SDKConfig): void {
   }
 }
 
-export function createConfiguration(config: SDKConfig): Configuration {
-  return new Configuration({
-    basePath: config.basePath
+export function createClient(config: SDKConfig): SMHClient {
+  return new SMHClient({
+    basePath: config.basePath,
+    libraryId: config.libraryId,
+    spaceId: config.spaceId,
+    accessToken: config.accessToken,
   })
 }
 

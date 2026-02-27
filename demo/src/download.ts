@@ -1,4 +1,4 @@
-import { Downloader, Configuration, type DownloadCheckpoint } from 'smh-js-sdk'
+import { type Downloader, type SMHClient, type DownloadCheckpoint } from 'smh-js-sdk'
 import { logger } from './logger'
 import { formatSize } from './utils'
 
@@ -19,11 +19,8 @@ export interface DownloadProgress {
 }
 
 interface DownloadOptions {
-  libraryId: string
-  spaceId: string
   filePath: string
   fileName: string
-  accessToken: string
   userId?: string
   chunkSize: number
   checkpoint?: DownloadCheckpoint
@@ -36,18 +33,9 @@ class DownloadManager {
   private checkpoint: DownloadCheckpoint | null = null
   private state: DownloadState = 'waiting'
 
-  async start(options: DownloadOptions, configuration: Configuration): Promise<Blob> {
-    // 构造远程文件对象
-    const remoteFile = {
-      name: options.fileName,
-      path: options.filePath
-    }
-
-    this.downloader = new Downloader(remoteFile, {
-      libraryId: options.libraryId,
-      spaceId: options.spaceId,
+  async start(options: DownloadOptions, client: SMHClient): Promise<Blob> {
+    this.downloader = client.createDownloadTask({
       filePath: options.filePath,
-      accessToken: options.accessToken,
       userId: options.userId,
       chunkSize: options.chunkSize,
       checkpoint: options.checkpoint,
@@ -69,7 +57,7 @@ class DownloadManager {
       },
       
       verbose: true
-    }, configuration)
+    })
 
     logger.log(`开始下载: ${options.filePath}`)
     const blob = await this.downloader.startAndGetBlob()

@@ -362,6 +362,17 @@ h2 {
   100% { transform: translateX(100%); }
 }
 
+.progress-bar-success {
+  background: linear-gradient(90deg, var(--success-start), var(--success-end));
+  box-shadow: 0 2px 8px rgba(17, 153, 142, 0.3);
+}
+
+.progress-bar-success::after,
+.progress-bar-stopped::after {
+  animation: none;
+  display: none;
+}
+
 .progress-info {
   display: flex;
   justify-content: space-between;

@@ -16,17 +16,15 @@ npm install smh-js-sdk
 
 ## 快速开始
 
-### 基本配置
+> **访问域名**：在 [控制台](https://console.cloud.tencent.com/smh) 创建媒体库后，控制台会展示为您生成的专属域名（格式为 `<libraryId>.api.tencentsmh.cn`），请将该域名作为 `basePath` 使用。
+>
+> 完整的使用示例请参考 [Demo 项目](#demo-项目)。
 
 ```typescript
-import { Configuration, SMHClient } from 'smh-js-sdk'
-
-const configuration = new Configuration({
-  basePath: 'https://api.tencentsmh.cn'
-})
+import { SMHClient } from 'smh-js-sdk'
 
 const client = new SMHClient({
-  basePath: 'https://api.tencentsmh.cn',
+  basePath: 'https://<your-library-id>.api.tencentsmh.cn',
   libraryId: 'your-library-id',
   spaceId: 'your-space-id',
   accessToken: 'your-access-token',
@@ -36,21 +34,12 @@ const client = new SMHClient({
 ### 文件上传
 
 ```typescript
-import { Uploader, Configuration } from 'smh-js-sdk'
-
-const configuration = new Configuration({
-  basePath: 'https://api.tencentsmh.cn'
-})
-
-const uploader = new Uploader({
-  libraryId: 'your-library-id',
-  spaceId: 'your-space-id',
+const uploader = client.createUploadTask({
   filePath: '/remote/path/file.txt',
-  file: fileInput.files[0], // 浏览器 File 对象
-  accessToken: 'your-access-token',
-  enableInstantUpload: true, // 启用秒传
-  chunkSize: 5,              // 分块大小 (MB)
-  parallel: 2,               // 并发数
+  file: fileInput.files[0],
+  enableInstantUpload: true,
+  chunkSize: 5,
+  parallel: 2,
 
   onStateChange: (checkpoint, state, error) => {
     console.log('状态:', state) // start → computing_hash → created → running → success
@@ -61,7 +50,7 @@ const uploader = new Uploader({
   onPartComplete: (checkpoint, partInfo) => {
     console.log(`分片 ${partInfo.part_number} 完成`)
   }
-}, configuration)
+})
 
 await uploader.start()
 
@@ -74,17 +63,8 @@ await uploader.cancel()
 ### 文件下载
 
 ```typescript
-import { Downloader, Configuration } from 'smh-js-sdk'
-
-const configuration = new Configuration({
-  basePath: 'https://api.tencentsmh.cn'
-})
-
-const downloader = new Downloader({
-  libraryId: 'your-library-id',
-  spaceId: 'your-space-id',
+const downloader = client.createDownloadTask({
   filePath: '/remote/path/file.txt',
-  accessToken: 'your-access-token',
   chunkSize: 5,
   parallel: 2,
 
@@ -94,32 +74,32 @@ const downloader = new Downloader({
   onProgress: (info) => {
     console.log(`进度: ${info.progress}%`)
   }
-}, configuration)
+})
 
 const blob = await downloader.start() // 返回 Blob 对象
 ```
 
-### 使用 SMHClient 调用 API
+### API 调用
 
 ```typescript
 // 列出目录
-const result = await client.directoryApi.listDirectory({
+const result = await client.directory.listDirectory({
   filePath: '/',
   limit: 100
 })
 
 // 创建目录
-await client.directoryApi.createDirectory({
+await client.directory.createDirectory({
   filePath: '/new-folder'
 })
 
 // 删除文件
-await client.fileApi.deleteFile({
+await client.file.deleteFile({
   filePath: '/path/to/file.txt'
 })
 
 // 搜索文件
-const searchResult = await client.searchApi.createSearch({
+const searchResult = await client.search.createSearch({
   createSearchRequest: { keyword: 'test' }
 })
 ```
@@ -195,38 +175,49 @@ const searchResult = await client.searchApi.createSearch({
 | `trafficLimit` | number | - | 单链接限速 |
 | `checkpoint` | DownloadCheckpoint | - | 断点续传 checkpoint |
 
-## 上传状态流转
+## Demo 项目
 
-```
-waiting → start → computing_hash → created → running → confirming → success
-                                                                  ↗
-                     (秒传匹配) → rapid_success ────────────────────
+`demo/` 目录下提供了一个完整的浏览器端演示应用，包含文件上传（含秒传）、下载、目录浏览等功能。
 
-任意阶段 → paused / error / canceled
-```
-
-## 构建
+### 运行 Demo
 
 ```bash
-# 安装依赖
+# 1. 先在 SDK 根目录安装依赖并构建
 npm install
-
-# 构建（输出 CommonJS + ESM）
 npm run build
 
-# 运行 Demo
-cd demo && npm install && npm run dev
+# 2. 进入 demo 目录安装依赖
+cd demo
+npm install
+
+# 3. 启动开发服务器
+npm run dev
 ```
 
-## 技术栈
+启动后在浏览器中打开 `http://localhost:5173`，在页面顶部配置区填入 `Library ID`、`Space ID`、`Access Token` 和 `Base Path`，即可体验上传、下载和文件列表功能。
 
-- TypeScript
-- axios — HTTP 请求
-- hash-wasm — WebAssembly SHA256 哈希计算
-- esbuild — ESM 浏览器包构建
-- OpenAPI Generator — API 层和数据模型自动生成
+### Demo 功能
 
-## 环境要求
+- **文件上传** — 选择本地文件，支持分片上传、秒传检测、暂停/恢复/取消，实时显示进度和速度
+- **文件下载** — 输入远端文件路径，支持分片下载、暂停/恢复/取消，下载完成后自动保存
+- **目录浏览** — 列出指定路径下的文件和目录，点击目录可进入，点击文件可快速填充下载路径
+- **日志面板** — 实时展示 SDK 内部日志和操作记录
 
-- Node.js >= 16.0.0
-- 浏览器需支持 `File.slice()`、`ArrayBuffer`、`XMLHttpRequest`、`Fetch API`、`BigInt`
+### Demo 项目结构
+
+```
+demo/
+├── index.html          # 页面入口
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+└── src/
+    ├── main.ts         # 主入口，初始化 SMHClient 并串联各模块
+    ├── config.ts       # 配置管理，创建 SMHClient 实例
+    ├── upload.ts       # 上传管理器
+    ├── download.ts     # 下载管理器
+    ├── file-list.ts    # 目录浏览管理器
+    ├── logger.ts       # 日志面板
+    ├── utils.ts        # 工具函数
+    └── styles.css      # 样式
+```

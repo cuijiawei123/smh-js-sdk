@@ -1,5 +1,4 @@
-import { DirectoryApi, Configuration } from 'smh-js-sdk'
-import { SDKConfig } from './config'
+import { type SMHClient } from 'smh-js-sdk'
 import { logger } from './logger'
 import { formatSize, formatDateTime, getFileIcon } from './utils'
 
@@ -27,8 +26,7 @@ export class FileListManager {
 
   async load(
     path: string,
-    config: SDKConfig,
-    configuration: Configuration
+    client: SMHClient
   ): Promise<void> {
     this.currentPath = path
 
@@ -39,15 +37,10 @@ export class FileListManager {
     this.updateBreadcrumb(path)
 
     try {
-      const directoryApi = new DirectoryApi(configuration)
       const apiPath = path === '/' ? '' : path.replace(/^\//, '')
 
-      const response = await directoryApi.listDirectory({
-        libraryId: config.libraryId,
-        spaceId: config.spaceId,
+      const response = await client.directory.listDirectory({
         filePath: apiPath,
-        accessToken: config.accessToken,
-        userId: config.userId,
         limit: 100
       })
 

@@ -1,5 +1,5 @@
 import './styles.css'
-import { loadConfig, saveConfig, createConfiguration, validateConfig, SDKConfig } from './config'
+import { loadConfig, saveConfig, createClient, validateConfig, SDKConfig } from './config'
 import { logger } from './logger'
 import { uploadManager, UploadState, isUploadRunning, isUploadFinished, UploadProgress } from './upload'
 import { downloadManager, DownloadState, isDownloadRunning, isDownloadFinished, DownloadProgress, saveBlobToFile } from './download'
@@ -136,11 +136,51 @@ function updateUploadProgress(progress: UploadProgress): void {
   elements.uploadTimeText.textContent = '剩余时间: ' + formatTime(progress.leftTime)
 }
 
+function finalizeUploadProgress(state: UploadState): void {
+  if (state === 'success' || state === 'rapid_success') {
+    elements.uploadProgressBar.style.width = '100%'
+    elements.uploadProgressBar.classList.add('progress-bar-success')
+    elements.uploadProgressText.textContent = '100%'
+    elements.uploadSpeedText.textContent = ''
+    elements.uploadTimeText.textContent = state === 'rapid_success' ? '秒传完成' : '上传完成'
+  } else if (state === 'error' || state === 'canceled') {
+    elements.uploadProgressBar.classList.add('progress-bar-stopped')
+    elements.uploadSpeedText.textContent = ''
+    elements.uploadTimeText.textContent = state === 'error' ? '上传失败' : '已取消'
+  } else if (state === 'paused') {
+    elements.uploadProgressBar.classList.add('progress-bar-stopped')
+    elements.uploadSpeedText.textContent = '0 B/s'
+    elements.uploadTimeText.textContent = '已暂停'
+  } else {
+    elements.uploadProgressBar.classList.remove('progress-bar-success', 'progress-bar-stopped')
+  }
+}
+
 function updateDownloadProgress(progress: DownloadProgress): void {
   elements.downloadProgressBar.style.width = progress.progress + '%'
   elements.downloadProgressText.textContent = progress.progress.toFixed(2) + '%'
   elements.downloadSpeedText.textContent = formatSize(progress.speed) + '/s'
   elements.downloadTimeText.textContent = '剩余时间: ' + formatTime(progress.leftTime)
+}
+
+function finalizeDownloadProgress(state: DownloadState): void {
+  if (state === 'success') {
+    elements.downloadProgressBar.style.width = '100%'
+    elements.downloadProgressBar.classList.add('progress-bar-success')
+    elements.downloadProgressText.textContent = '100%'
+    elements.downloadSpeedText.textContent = ''
+    elements.downloadTimeText.textContent = '下载完成'
+  } else if (state === 'error' || state === 'canceled') {
+    elements.downloadProgressBar.classList.add('progress-bar-stopped')
+    elements.downloadSpeedText.textContent = ''
+    elements.downloadTimeText.textContent = state === 'error' ? '下载失败' : '已取消'
+  } else if (state === 'paused') {
+    elements.downloadProgressBar.classList.add('progress-bar-stopped')
+    elements.downloadSpeedText.textContent = '0 B/s'
+    elements.downloadTimeText.textContent = '已暂停'
+  } else {
+    elements.downloadProgressBar.classList.remove('progress-bar-success', 'progress-bar-stopped')
+  }
 }
 
 // ===== Event Handlers =====
@@ -149,8 +189,13 @@ function handleFileSelect(file: File): void {
   elements.fileLabel.textContent = `📄 ${file.name} (${formatSize(file.size)})`
   elements.fileLabel.classList.add('has-file')
   
-  if (!elements.uploadPath.value) {
+  // 每次选择文件时，自动用文件名更新上传路径（保留已有目录前缀）
+  const currentPath = elements.uploadPath.value.trim()
+  if (!currentPath || currentPath === '/') {
     elements.uploadPath.value = '/' + file.name
+  } else {
+    const dir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1) || '/'
+    elements.uploadPath.value = dir + file.name
   }
   
   logger.log(`已选择文件: ${file.name} (${formatSize(file.size)})`)
@@ -177,16 +222,13 @@ async function handleUpload(): Promise<void> {
   
   saveConfig(config)
   
-  const configuration = createConfiguration(config)
+  const client = createClient(config)
   elements.uploadProgress.classList.add('active')
   
   try {
     await uploadManager.start({
-      libraryId: config.libraryId,
-      spaceId: config.spaceId,
       filePath: uploadPath,
       file: selectedFile,
-      accessToken: config.accessToken,
       userId: config.userId,
       chunkSize: parseInt(elements.chunkSize.value) || 5,
       parallel: parseInt(elements.parallel.value) || 2,
@@ -194,6 +236,7 @@ async function handleUpload(): Promise<void> {
         onStateChange: (state, _error) => {
         updateUploadStatus(state)
         updateUploadButtons(state)
+        finalizeUploadProgress(state)
         
         if (isUploadFinished(state)) {
           if (state === 'success' || state === 'rapid_success') {
@@ -203,7 +246,7 @@ async function handleUpload(): Promise<void> {
         }
       },
       onProgress: updateUploadProgress
-    }, configuration)
+    }, client)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     logger.log(`上传失败: ${message}`, 'error')
@@ -226,26 +269,24 @@ async function handleDownload(): Promise<void> {
   
   saveConfig(config)
   
-  const configuration = createConfiguration(config)
+  const client = createClient(config)
   elements.downloadProgress.classList.add('active')
   
   try {
     const fileName = getFileNameFromPath(downloadPath)
     
     const blob = await downloadManager.start({
-      libraryId: config.libraryId,
-      spaceId: config.spaceId,
       filePath: downloadPath,
       fileName: fileName,
-      accessToken: config.accessToken,
       userId: config.userId,
       chunkSize: parseInt(elements.downloadChunkSize.value) || 5,
       onStateChange: (state, _error) => {
         updateDownloadStatus(state)
         updateDownloadButtons(state)
+        finalizeDownloadProgress(state)
       },
       onProgress: updateDownloadProgress
-    }, configuration)
+    }, client)
     
     saveBlobToFile(blob, fileName)
   } catch (error) {
@@ -262,10 +303,10 @@ async function loadFileList(path: string): Promise<void> {
     return
   }
   
-  const configuration = createConfiguration(config)
+  const client = createClient(config)
   elements.listPath.value = path
   
-  await fileListManager.load(path, config, configuration)
+  await fileListManager.load(path, client)
 }
 
 function handleFileSelectFromList(path: string, _name: string): void {

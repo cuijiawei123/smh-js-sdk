@@ -4,6 +4,7 @@
  * 浏览器环境适配版本
  */
 
+import axios, { CancelTokenSource } from 'axios';
 import { FileApi } from '../apis/file-api';
 import { Configuration } from '../configuration';
 import { formatSize, formatTime } from '../utils/Formatter';
@@ -50,6 +51,9 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
   
   // 续期定时器
   private renewTimer?: ReturnType<typeof setTimeout>;
+  
+  // Axios 取消令牌
+  private cancelTokenSource?: CancelTokenSource;
   
   // 常量
   private CHUNK_FILE_SIZE: number;              // 分片上传阈值
@@ -211,13 +215,12 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
         return;
       }
       
-      // AbortError 表示请求被取消，忽略
-      const err = error as Error & { name?: string };
-      if (err?.name === 'AbortError') {
+      // axios 取消错误，忽略
+      if (axios.isCancel(error)) {
         return;
       }
 
-      await this.handleError(err);
+      await this.handleError(error as Error);
     }
   }
   
@@ -229,6 +232,12 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     
     // 清除续期定时器
     this.clearRenewalTimer();
+    
+    // 取消正在进行的 HTTP 请求
+    if (this.cancelTokenSource) {
+      this.cancelTokenSource.cancel('Upload paused');
+      this.cancelTokenSource = undefined;
+    }
     
     if (this.part_info_list && this.part_info_list.length > 0) {
       this.loaded = this.part_info_list.reduce((sum, p) => {
@@ -253,6 +262,12 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
 
     // 清除续期定时器
     this.clearRenewalTimer();
+
+    // 取消正在进行的 HTTP 请求
+    if (this.cancelTokenSource) {
+      this.cancelTokenSource.cancel('Upload canceled');
+      this.cancelTokenSource = undefined;
+    }
 
     // 取消时通知服务器清理资源
     if (this.confirm_key) {
@@ -492,7 +507,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
   }
   
   /**
-   * 简单上传（使用 XMLHttpRequest 支持进度回调）
+   * 简单上传（使用 axios）
    */
   private async simpleUpload(uploadData: any): Promise<void> {
     const headers = uploadData.headers || {};
@@ -503,55 +518,24 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     // 计算 CRC64
     this.crc64 = await calculateBlobCRC64(this.options.file);
     
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      
-      // 保存引用以便取消
-      const abortController = this.createAbortController();
-      abortController.signal.addEventListener('abort', () => {
-        xhr.abort();
-      });
-      
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          this.updateProgress(e.loaded);
+    this.cancelTokenSource = axios.CancelToken.source();
+    
+    await axios.put(url, this.options.file, {
+      headers: {
+        ...headers,
+      },
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
+      timeout: Math.max(5 * 60 * 1000, Math.ceil(this.file.size / (100 * 1024)) * 1000),
+      cancelToken: this.cancelTokenSource.token,
+      onUploadProgress: (progressEvent: any) => {
+        if (progressEvent.loaded) {
+          this.updateProgress(progressEvent.loaded);
         }
-      };
-      
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          this.updateProgress(this.file.size, { immediately: true });
-          resolve();
-        } else {
-          reject(new Error(`Upload failed with status ${xhr.status}: ${xhr.statusText}`));
-        }
-      };
-      
-      xhr.onerror = () => {
-        reject(new Error('Network error during upload'));
-      };
-      
-      xhr.ontimeout = () => {
-        reject(new Error('Upload timeout'));
-      };
-      
-      xhr.onabort = () => {
-        reject(new Error('Upload aborted'));
-      };
-      
-      xhr.open('PUT', url);
-      
-      // 设置请求头
-      Object.entries(headers).forEach(([key, value]) => {
-        xhr.setRequestHeader(key, value as string);
-      });
-      xhr.setRequestHeader('Content-Length', this.file.size.toString());
-      
-      // 设置超时
-      xhr.timeout = Math.max(5 * 60 * 1000, Math.ceil(this.file.size / (100 * 1024)) * 1000);
-      
-      xhr.send(this.options.file);
+      }
     });
+    
+    this.updateProgress(this.file.size, { immediately: true });
   }
   
   /**
@@ -710,47 +694,28 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     let partContribution = 0;
 
     try {
-      await new Promise<void>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        
-        const abortController = this.createAbortController();
-        abortController.signal.addEventListener('abort', () => {
-          xhr.abort();
-        });
-        
-        xhr.upload.onprogress = (e) => {
-          if (e.lengthComputable) {
-            const delta = e.loaded - lastPartLoaded;
-            lastPartLoaded = e.loaded;
+      this.cancelTokenSource = axios.CancelToken.source();
+      
+      const response = await axios.put(partUrl, partBlob, {
+        headers: {
+          ...headers,
+        },
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+        timeout: Math.max(5 * 60 * 1000, Math.ceil(part.chunk_size / (100 * 1024)) * 1000),
+        cancelToken: this.cancelTokenSource.token,
+        onUploadProgress: (progressEvent: any) => {
+          if (progressEvent.loaded) {
+            const delta = progressEvent.loaded - lastPartLoaded;
+            lastPartLoaded = progressEvent.loaded;
             partContribution += delta;
             this.loaded += delta;
             this.updateProgress(this.loaded);
           }
-        };
-        
-        xhr.onload = () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            part.etag = xhr.getResponseHeader('ETag') || xhr.getResponseHeader('etag') || '';
-            resolve();
-          } else {
-            reject(new Error(`Part upload failed with status ${xhr.status}`));
-          }
-        };
-        
-        xhr.onerror = () => reject(new Error('Network error'));
-        xhr.ontimeout = () => reject(new Error('Timeout'));
-        xhr.onabort = () => reject(new Error('Aborted'));
-        
-        xhr.open('PUT', partUrl);
-        Object.entries(headers).forEach(([key, value]) => {
-          xhr.setRequestHeader(key, value);
-        });
-        xhr.setRequestHeader('Content-Length', part.chunk_size.toString());
-        xhr.timeout = Math.max(5 * 60 * 1000, Math.ceil(part.chunk_size / (100 * 1024)) * 1000);
-        
-        xhr.send(partBlob);
+        }
       });
 
+      part.etag = response.headers['etag'] || response.headers['ETag'] || '';
       part.end_time = Date.now();
 
       // 计算分片 CRC64
@@ -765,6 +730,10 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
       this.loaded -= partContribution;
 
       if (this.pauseFlag || this.cancelFlag) {
+        throw error;
+      }
+      
+      if (axios.isCancel(error)) {
         throw error;
       }
 

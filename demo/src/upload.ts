@@ -1,6 +1,17 @@
-import { Uploader, Configuration, type UploadCheckpoint } from 'smh-js-sdk'
+import { type Uploader, type SMHClient, type UploadCheckpoint } from 'smh-js-sdk'
 import { logger } from './logger'
 import { formatSize } from './utils'
+
+// 拦截 console.info（SDK 的 logInfo 用的是 console.info），将 SDK 内部日志转发到 demo 日志面板
+const _origConsoleInfo = console.info
+console.info = (...args: any[]) => {
+  _origConsoleInfo.apply(console, args)
+  const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')
+  // 只转发 SDK 的 [U] (Upload) 和 [D] (Download) 前缀日志
+  if (msg.includes('[U]') || msg.includes('[D]')) {
+    logger.log(`[SDK] ${msg}`)
+  }
+}
 
 export type UploadState = 
   | 'waiting' 
@@ -22,11 +33,8 @@ export interface UploadProgress {
 }
 
 interface UploadOptions {
-  libraryId: string
-  spaceId: string
   filePath: string
   file: File
-  accessToken: string
   userId?: string
   chunkSize: number
   parallel: number
@@ -42,13 +50,10 @@ class UploadManager {
   private checkpoint: UploadCheckpoint | null = null
   private state: UploadState = 'waiting'
 
-  async start(options: UploadOptions, configuration: Configuration): Promise<void> {
-    this.uploader = new Uploader({
-      libraryId: options.libraryId,
-      spaceId: options.spaceId,
+  async start(options: UploadOptions, client: SMHClient): Promise<void> {
+    this.uploader = client.createUploadTask({
       filePath: options.filePath,
       file: options.file,
-      accessToken: options.accessToken,
       userId: options.userId,
       chunkSize: options.chunkSize,
       parallel: options.parallel,
@@ -81,7 +86,7 @@ class UploadManager {
       },
       
       verbose: true
-    }, configuration)
+    })
 
     logger.log(`开始上传: ${options.file.name} -> ${options.filePath}`)
     await this.uploader.start()
