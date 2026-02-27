@@ -15,13 +15,16 @@ export class FileListManager {
   private items: FileItem[] = []
   private onNavigateCallback?: (path: string) => void
   private onSelectFileCallback?: (path: string, name: string) => void
+  private onDeleteCallback?: (path: string, name: string, type: 'file' | 'dir') => void
 
   init(
     onNavigate: (path: string) => void,
-    onSelectFile: (path: string, name: string) => void
+    onSelectFile: (path: string, name: string) => void,
+    onDelete?: (path: string, name: string, type: 'file' | 'dir') => void
   ): void {
     this.onNavigateCallback = onNavigate
     this.onSelectFileCallback = onSelectFile
+    this.onDeleteCallback = onDelete
   }
 
   async load(
@@ -107,6 +110,7 @@ export class FileListManager {
               ? `<button class="file-action-btn open-btn" data-path="${item.path}">打开</button>`
               : `<button class="file-action-btn download" data-path="${item.path}" data-name="${item.name}">下载</button>`
             }
+            <button class="file-action-btn delete-btn" data-path="${item.path}" data-name="${item.name}" data-type="${item.type}">删除</button>
           </td>
         </tr>
       `
@@ -152,6 +156,19 @@ export class FileListManager {
         const name = (btn as HTMLElement).dataset.name
         if (path && name && this.onSelectFileCallback) {
           this.onSelectFileCallback(path, name)
+        }
+      })
+    })
+
+    // 删除按钮
+    container.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const path = (btn as HTMLElement).dataset.path
+        const name = (btn as HTMLElement).dataset.name
+        const type = (btn as HTMLElement).dataset.type as 'file' | 'dir'
+        if (path && name && this.onDeleteCallback) {
+          this.onDeleteCallback(path, name, type)
         }
       })
     })

@@ -315,6 +315,37 @@ function handleFileSelectFromList(path: string, _name: string): void {
   elements.downloadPath.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
+async function handleDeleteFromList(path: string, name: string, type: 'file' | 'dir'): Promise<void> {
+  const typeText = type === 'dir' ? '文件夹' : '文件'
+  if (!confirm(`确定要删除${typeText} "${name}" 吗？`)) {
+    return
+  }
+
+  const config = getConfig()
+  const error = validateConfig(config)
+  if (error) {
+    logger.log(error, 'error')
+    return
+  }
+
+  const client = createClient(config)
+  const filePath = path.replace(/^\//, '')
+
+  try {
+    if (type === 'dir') {
+      await client.directory.deleteDirectory({ filePath })
+    } else {
+      await client.file.deleteFile({ filePath })
+    }
+    logger.log(`已删除${typeText}: ${name}`)
+    // 刷新当前目录
+    await loadFileList(fileListManager.getCurrentPath())
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    logger.log(`删除${typeText}失败: ${message}`, 'error')
+  }
+}
+
 // ===== Initialization =====
 function initConfig(): void {
   const config = loadConfig()
@@ -381,7 +412,8 @@ function initDownload(): void {
 function initFileList(): void {
   fileListManager.init(
     (path) => loadFileList(path),
-    (path, name) => handleFileSelectFromList(path, name)
+    (path, name) => handleFileSelectFromList(path, name),
+    (path, name, type) => handleDeleteFromList(path, name, type)
   )
   
   elements.refreshListBtn.addEventListener('click', () => {

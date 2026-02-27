@@ -4,7 +4,7 @@
  * 浏览器环境适配版本
  */
 
-import axios, { CancelTokenSource } from 'axios';
+import axios from 'axios';
 import { FileApi } from '../apis/file-api';
 import { Configuration } from '../configuration';
 import { formatSize, formatTime } from '../utils/Formatter';
@@ -51,9 +51,6 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
   
   // 续期定时器
   private renewTimer?: ReturnType<typeof setTimeout>;
-  
-  // Axios 取消令牌
-  private cancelTokenSource?: CancelTokenSource;
   
   // 常量
   private CHUNK_FILE_SIZE: number;              // 分片上传阈值
@@ -233,12 +230,6 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     // 清除续期定时器
     this.clearRenewalTimer();
     
-    // 取消正在进行的 HTTP 请求
-    if (this.cancelTokenSource) {
-      this.cancelTokenSource.cancel('Upload paused');
-      this.cancelTokenSource = undefined;
-    }
-    
     if (this.part_info_list && this.part_info_list.length > 0) {
       this.loaded = this.part_info_list.reduce((sum, p) => {
         return p.etag ? sum + p.chunk_size : sum;
@@ -262,12 +253,6 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
 
     // 清除续期定时器
     this.clearRenewalTimer();
-
-    // 取消正在进行的 HTTP 请求
-    if (this.cancelTokenSource) {
-      this.cancelTokenSource.cancel('Upload canceled');
-      this.cancelTokenSource = undefined;
-    }
 
     // 取消时通知服务器清理资源
     if (this.confirm_key) {
@@ -518,7 +503,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     // 计算 CRC64
     this.crc64 = await calculateBlobCRC64(this.options.file);
     
-    this.cancelTokenSource = axios.CancelToken.source();
+    const abortController = this.createAbortController();
     
     await axios.put(url, this.options.file, {
       headers: {
@@ -527,7 +512,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
       maxContentLength: Infinity,
       maxBodyLength: Infinity,
       timeout: Math.max(5 * 60 * 1000, Math.ceil(this.file.size / (100 * 1024)) * 1000),
-      cancelToken: this.cancelTokenSource.token,
+      signal: abortController.signal,
       onUploadProgress: (progressEvent: any) => {
         if (progressEvent.loaded) {
           this.updateProgress(progressEvent.loaded);
@@ -694,7 +679,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     let partContribution = 0;
 
     try {
-      this.cancelTokenSource = axios.CancelToken.source();
+      const abortController = this.createAbortController();
       
       const response = await axios.put(partUrl, partBlob, {
         headers: {
@@ -703,7 +688,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
         maxContentLength: Infinity,
         maxBodyLength: Infinity,
         timeout: Math.max(5 * 60 * 1000, Math.ceil(part.chunk_size / (100 * 1024)) * 1000),
-        cancelToken: this.cancelTokenSource.token,
+        signal: abortController.signal,
         onUploadProgress: (progressEvent: any) => {
           if (progressEvent.loaded) {
             const delta = progressEvent.loaded - lastPartLoaded;
