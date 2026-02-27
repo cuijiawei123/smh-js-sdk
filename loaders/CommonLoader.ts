@@ -53,8 +53,8 @@ export abstract class CommonLoader<TCheckpoint = any> extends EventEmitter {
   protected cancelFlag: boolean = false;
   public error?: SMHError;
   
-  // 取消控制器（用于取消 fetch 请求）
-  protected abortController?: AbortController;
+  // 取消控制器集合（支持多个并发请求同时 abort）
+  protected abortControllers: Set<AbortController> = new Set();
   
   // 定时器
   protected tid_speed?: ReturnType<typeof setInterval>;
@@ -143,21 +143,30 @@ export abstract class CommonLoader<TCheckpoint = any> extends EventEmitter {
   abstract start(): Promise<void>;
   
   /**
-   * 取消正在进行的 HTTP 请求
+   * 取消所有正在进行的 HTTP 请求
    */
   protected abortRequest(): void {
-    if (this.abortController) {
-      this.abortController.abort();
-      this.abortController = undefined;
+    for (const controller of this.abortControllers) {
+      controller.abort();
     }
+    this.abortControllers.clear();
   }
   
   /**
    * 创建新的取消控制器
+   * 每个并发请求都持有独立的 AbortController，暂停时全部 abort
    */
   protected createAbortController(): AbortController {
-    this.abortController = new AbortController();
-    return this.abortController;
+    const controller = new AbortController();
+    this.abortControllers.add(controller);
+    return controller;
+  }
+
+  /**
+   * 移除已完成请求的取消控制器
+   */
+  protected removeAbortController(controller: AbortController): void {
+    this.abortControllers.delete(controller);
   }
   
   /**

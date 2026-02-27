@@ -21,7 +21,8 @@ import {
   IFile,
   IDownPartInfo,
   DownloadCheckpoint,
-  DownloadOptions 
+  DownloadOptions,
+  UrlDownloadOptions
 } from './types';
 
 /**
@@ -39,6 +40,68 @@ export interface IRemoteFile {
  * 支持简单下载、分片下载、断点续传
  */
 export class Downloader extends CommonLoader<DownloadCheckpoint> {
+
+  /**
+   * 通过浏览器 URL 方式下载文件（推荐用于 Web 端）
+   * 获取 cosUrl 后通过 <a> 标签触发浏览器原生下载，
+   * 不会将文件内容加载到内存中，适合任意大小的文件。
+   * 
+   * @param options - URL 下载选项
+   * @param configuration - SDK 配置
+   * 
+   * @example
+   * ```typescript
+   * await Downloader.downloadByUrl({
+   *   libraryId: 'lib-xxx',
+   *   spaceId: 'space-xxx',
+   *   filePath: 'docs/file.pdf',
+   *   accessToken: 'token-xxx',
+   *   fileName: 'my-file.pdf'  // 可选，自定义保存文件名
+   * }, configuration);
+   * ```
+   */
+  static async downloadByUrl(
+    options: UrlDownloadOptions,
+    configuration: Configuration
+  ): Promise<void> {
+    const fileApi = new FileApi(configuration);
+
+    // 传 contentDisposition: 'attachment' 让后端返回的 cosUrl 签名中包含
+    // response-content-disposition 参数，浏览器才能正确识别下载文件名
+    const res = await fileApi.infoFile({
+      libraryId: options.libraryId,
+      spaceId: options.spaceId,
+      filePath: options.filePath,
+      info: 1,
+      contentDisposition: 'attachment',
+      accessToken: options.accessToken,
+      userId: options.userId,
+      trafficLimit: options.trafficLimit,
+      purpose: 'download'
+    } as FileApiInfoFileRequest);
+
+    const data = res.data as any;
+    const cosUrl = data?.cosUrl;
+
+    if (!cosUrl) {
+      throw newError(
+        ErrorCode.OPERATION_FAILED,
+        'Failed to get download URL: cosUrl not found in response',
+        undefined,
+        { filePath: options.filePath }
+      );
+    }
+
+    const fileName = options.fileName || options.filePath.split('/').pop() || 'download';
+
+    const a = document.createElement('a');
+    a.href = cosUrl;
+    a.download = fileName;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
 
   // 选项与API
   private options: DownloadOptions;
@@ -236,14 +299,6 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
    * 暂停下载
    */
   async pause(): Promise<void> {
-    if (this.is_multipart && this.part_info_list && this.part_info_list.length > 0) {
-      this.loaded = this.part_info_list.reduce((sum, p) => {
-        return p.done ? sum + p.size : sum;
-      }, 0);
-      this.lastProgressLoaded = this.loaded;
-      this.progress = this.file.size ? (this.loaded / this.file.size) * 100 : 0;
-    }
-
     // 简单下载暂停时清理数据
     if (!this.is_multipart) {
       this.local_crc64 = CRC64_INIT_VALUE;
@@ -492,6 +547,9 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
       reader.releaseLock();
     }
 
+    // 请求完成，移除 controller
+    this.removeAbortController(abortController);
+
     // 合并所有数据块
     this.resultBlob = new Blob(chunks, { type: this.file.type || 'application/octet-stream' });
   }
@@ -522,8 +580,6 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
       this.throwIfStopped('during multipart download');
       
       if (part.done && part.blob) return;
-      
-      let partContribution = 0;
       
       try {
         const abortController = this.createAbortController();
@@ -557,31 +613,29 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
             if (done) break;
             
             if (value) {
-              // 转换 Uint8Array 为 ArrayBuffer
               chunks.push(value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength) as ArrayBuffer);
               partCrc64 = updateCRC64(partCrc64, value);
-              
-              const delta = value.length;
-              partContribution += delta;
-              this.loaded += delta;
-              this.updateProgress(this.loaded);
             }
           }
         } finally {
           reader.releaseLock();
         }
 
+        this.removeAbortController(abortController);
+
         // 保存分片数据
         part.blob = new Blob(chunks);
         part.crc64 = finalizeCRC64(partCrc64);
         part.done = true;
 
+        // 分片完成后才更新全局进度，避免暂停时进度倒退
+        this.loaded += part.size;
+        this.updateProgress(this.loaded, { immediately: true });
+
         this.notifyPartCompleted(part);
         
         this.logInfo(`Part ${part.part_number}/${this.part_info_list.length} downloaded, size: ${formatSize(part.size)}, crc64: ${part.crc64}`);
       } catch (error) {
-        this.loaded -= partContribution;
-        
         if (this.pauseFlag || this.cancelFlag) {
           throw error;
         }

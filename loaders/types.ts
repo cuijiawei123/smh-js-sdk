@@ -179,6 +179,20 @@ export interface DownloadOptions {
 }
 
 /**
+ * 浏览器 URL 下载选项
+ */
+export interface UrlDownloadOptions {
+  libraryId: string;
+  spaceId: string;
+  filePath: string;
+  accessToken: string;
+  userId?: string;
+  trafficLimit?: number;
+  /** 下载保存的文件名，默认从 filePath 提取 */
+  fileName?: string;
+}
+
+/**
  * CommonLoader 构造选项
  */
 export interface CommonLoaderOptions {

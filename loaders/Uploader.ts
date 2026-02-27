@@ -230,14 +230,6 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     // 清除续期定时器
     this.clearRenewalTimer();
     
-    if (this.part_info_list && this.part_info_list.length > 0) {
-      this.loaded = this.part_info_list.reduce((sum, p) => {
-        return p.etag ? sum + p.chunk_size : sum;
-      }, 0);
-      this.lastProgressLoaded = this.loaded;
-      this.progress = this.file.size ? (this.loaded / this.file.size) * 100 : 0;
-    }
-    
     this.logInfo(`Task paused: ${this.file.name}, progress: ${this.progress.toFixed(2)}%`);
     
     await super.pause();
@@ -520,6 +512,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
       }
     });
     
+    this.removeAbortController(abortController);
     this.updateProgress(this.file.size, { immediately: true });
   }
   
@@ -675,9 +668,6 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     // 获取分片 Blob
     const partBlob = this.options.file.slice(part.from, part.to);
 
-    let lastPartLoaded = 0;
-    let partContribution = 0;
-
     try {
       const abortController = this.createAbortController();
       
@@ -689,16 +679,9 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
         maxBodyLength: Infinity,
         timeout: Math.max(5 * 60 * 1000, Math.ceil(part.chunk_size / (100 * 1024)) * 1000),
         signal: abortController.signal,
-        onUploadProgress: (progressEvent: any) => {
-          if (progressEvent.loaded) {
-            const delta = progressEvent.loaded - lastPartLoaded;
-            lastPartLoaded = progressEvent.loaded;
-            partContribution += delta;
-            this.loaded += delta;
-            this.updateProgress(this.loaded);
-          }
-        }
       });
+
+      this.removeAbortController(abortController);
 
       part.etag = response.headers['etag'] || response.headers['ETag'] || '';
       part.end_time = Date.now();
@@ -708,12 +691,14 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
         part.crc64 = await calculateBlobCRC64(partBlob);
       }
 
+      // 分片完成后才更新全局进度，避免暂停时进度倒退
+      this.loaded += part.chunk_size;
+      this.updateProgress(this.loaded, { immediately: true });
+
       this.notifyPartCompleted(part);
       
       this.logInfo(`Part ${part.part_number}/${this.part_info_list.length} uploaded, size: ${formatSize(part.chunk_size)}`);
     } catch (error) {
-      this.loaded -= partContribution;
-
       if (this.pauseFlag || this.cancelFlag) {
         throw error;
       }

@@ -34,6 +34,7 @@ export {
   type IDownPartInfo,
   type DownloadCheckpoint,
   type DownloadOptions,
+  type UrlDownloadOptions,
   type IRemoteFile
 } from "./loaders";
 

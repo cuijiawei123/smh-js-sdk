@@ -2,7 +2,7 @@ import './styles.css'
 import { loadConfig, saveConfig, createClient, validateConfig, SDKConfig } from './config'
 import { logger } from './logger'
 import { uploadManager, UploadState, isUploadRunning, isUploadFinished, UploadProgress } from './upload'
-import { downloadManager, DownloadState, isDownloadRunning, isDownloadFinished, DownloadProgress, saveBlobToFile } from './download'
+import { downloadManager, DownloadState, isDownloadRunning, isDownloadFinished, DownloadProgress, saveBlobToFile, downloadByUrl } from './download'
 import { fileListManager } from './file-list'
 import { formatSize, formatTime, getFileNameFromPath, getParentPath } from './utils'
 
@@ -41,6 +41,7 @@ const elements = {
   downloadPath: document.getElementById('downloadPath') as HTMLInputElement,
   downloadChunkSize: document.getElementById('downloadChunkSize') as HTMLInputElement,
   startDownloadBtn: document.getElementById('startDownloadBtn') as HTMLButtonElement,
+  urlDownloadBtn: document.getElementById('urlDownloadBtn') as HTMLButtonElement,
   pauseDownloadBtn: document.getElementById('pauseDownloadBtn') as HTMLButtonElement,
   resumeDownloadBtn: document.getElementById('resumeDownloadBtn') as HTMLButtonElement,
   cancelDownloadBtn: document.getElementById('cancelDownloadBtn') as HTMLButtonElement,
@@ -295,6 +296,33 @@ async function handleDownload(): Promise<void> {
   }
 }
 
+async function handleUrlDownload(): Promise<void> {
+  const config = getConfig()
+  const error = validateConfig(config)
+  if (error) {
+    logger.log(error, 'error')
+    return
+  }
+
+  const downloadPath = elements.downloadPath.value.trim()
+  if (!downloadPath) {
+    logger.log('请填写下载文件路径', 'error')
+    return
+  }
+
+  saveConfig(config)
+
+  const client = createClient(config)
+  const fileName = getFileNameFromPath(downloadPath)
+
+  try {
+    await downloadByUrl(client, downloadPath, fileName)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    logger.log(`浏览器URL下载失败: ${message}`, 'error')
+  }
+}
+
 async function loadFileList(path: string): Promise<void> {
   const config = getConfig()
   const error = validateConfig(config)
@@ -404,6 +432,7 @@ function initUpload(): void {
 
 function initDownload(): void {
   elements.startDownloadBtn.addEventListener('click', handleDownload)
+  elements.urlDownloadBtn.addEventListener('click', handleUrlDownload)
   elements.pauseDownloadBtn.addEventListener('click', () => downloadManager.pause())
   elements.resumeDownloadBtn.addEventListener('click', () => downloadManager.resume())
   elements.cancelDownloadBtn.addEventListener('click', () => downloadManager.cancel())

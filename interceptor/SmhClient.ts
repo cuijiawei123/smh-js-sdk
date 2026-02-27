@@ -15,7 +15,7 @@ import axios from 'axios';
 import { Uploader } from '../loaders/Uploader';
 import { Downloader, IRemoteFile } from '../loaders/Downloader';
 import type { UploadOptions } from '../loaders/types';
-import type { DownloadOptions } from '../loaders/types';
+import type { DownloadOptions, UrlDownloadOptions } from '../loaders/types';
 
 // 创建上传/下载任务时的选项类型（libraryId、spaceId、accessToken 变为可选）
 type CreateUploadTaskOptions = Omit<UploadOptions, 'libraryId' | 'spaceId' | 'accessToken'> & {
@@ -25,6 +25,12 @@ type CreateUploadTaskOptions = Omit<UploadOptions, 'libraryId' | 'spaceId' | 'ac
 };
 
 type CreateDownloadTaskOptions = Omit<DownloadOptions, 'libraryId' | 'spaceId' | 'accessToken'> & {
+    libraryId?: string;
+    spaceId?: string;
+    accessToken?: string;
+};
+
+type UrlDownloadClientOptions = Omit<UrlDownloadOptions, 'libraryId' | 'spaceId' | 'accessToken'> & {
     libraryId?: string;
     spaceId?: string;
     accessToken?: string;
@@ -393,6 +399,30 @@ export class SMHClient {
         };
 
         return new Downloader(remoteFile, mergedOptions, this.configuration);
+    }
+
+    /**
+     * 通过浏览器 URL 方式下载文件（推荐用于 Web 端）
+     * 获取 cosUrl 后通过 <a> 标签触发浏览器原生下载，
+     * 不需要将文件内容加载到内存中，适合任意大小的文件。
+     * 
+     * @example
+     * ```typescript
+     * await client.downloadByUrl({
+     *   filePath: 'docs/file.pdf',
+     *   fileName: 'my-file.pdf'  // 可选，自定义保存文件名
+     * });
+     * ```
+     */
+    public async downloadByUrl(options: UrlDownloadClientOptions): Promise<void> {
+        const mergedOptions: UrlDownloadOptions = {
+            ...options,
+            libraryId: options.libraryId || this.defaultLibraryId || '',
+            spaceId: options.spaceId || this.defaultSpaceId || '',
+            accessToken: options.accessToken || this.defaultAccessToken || '',
+        };
+
+        return Downloader.downloadByUrl(mergedOptions, this.configuration);
     }
 
 }

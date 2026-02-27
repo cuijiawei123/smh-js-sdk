@@ -23,5 +23,6 @@ export {
   type IDownPartInfo,
   type DownloadCheckpoint,
   type DownloadOptions,
+  type UrlDownloadOptions,
   type CommonLoaderOptions
 } from './types';

@@ -117,3 +117,17 @@ export function saveBlobToFile(blob: Blob, fileName: string): void {
   document.body.removeChild(a)
   URL.revokeObjectURL(url)
 }
+
+/**
+ * 通过浏览器 URL 直接下载文件（推荐方式）
+ * 不会将文件加载到内存，适合任意大小的文件
+ */
+export async function downloadByUrl(
+  client: SMHClient,
+  filePath: string,
+  fileName?: string
+): Promise<void> {
+  logger.log(`开始浏览器URL下载: ${filePath}`)
+  await client.downloadByUrl({ filePath, fileName })
+  logger.log(`已触发浏览器下载: ${fileName || filePath.split('/').pop()}`)
+}
