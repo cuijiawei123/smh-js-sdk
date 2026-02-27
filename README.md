@@ -62,6 +62,21 @@ await uploader.cancel()
 
 ### 文件下载
 
+#### 方式一：浏览器 URL 下载（推荐）
+
+不占用内存，适合任意大小的文件：
+
+```typescript
+await client.downloadByUrl({
+  filePath: '/remote/path/file.pdf',
+  fileName: '自定义文件名.pdf'  // 可选，不传则使用远端文件名
+})
+```
+
+#### 方式二：内存下载
+
+文件内容下载到内存中（Blob），适合需要二次处理的场景：
+
 ```typescript
 const downloader = client.createDownloadTask({
   filePath: '/remote/path/file.txt',
@@ -76,7 +91,12 @@ const downloader = client.createDownloadTask({
   }
 })
 
-const blob = await downloader.start() // 返回 Blob 对象
+const blob = await downloader.startAndGetBlob() // 返回 Blob 对象
+
+// 暂停 / 恢复 / 取消
+await downloader.pause()
+await downloader.start() // 恢复（自动断点续传）
+await downloader.cancel()
 ```
 
 ### API 调用
@@ -122,6 +142,7 @@ const searchResult = await client.search.createSearch({
 - **分片下载** — 大文件 Range 请求并发下载
 - **断点续传** — 保存/恢复下载进度
 - **CRC64 校验** — 下载完成后校验数据完整性
+- **浏览器 URL 下载** — 通过 `<a>` 标签触发浏览器原生下载，不占用内存，适合任意大小文件
 
 ### API
 
@@ -162,18 +183,28 @@ const searchResult = await client.search.createSearch({
 
 ## 下载配置项
 
+### `downloadByUrl` 配置项
+
 | 参数 | 类型 | 默认值 | 说明 |
 |------|------|-------|------|
-| `libraryId` | string | (必填) | 媒体库 ID |
-| `spaceId` | string | (必填) | 空间 ID |
 | `filePath` | string | (必填) | 远端文件路径 |
-| `accessToken` | string | (必填) | 访问令牌 |
+| `fileName` | string | - | 自定义下载文件名，不传则使用远端文件名 |
+| `libraryId` | string | - | 媒体库 ID（已在 client 配置时可省略） |
+| `spaceId` | string | - | 空间 ID（已在 client 配置时可省略） |
+| `accessToken` | string | - | 访问令牌（已在 client 配置时可省略） |
 | `userId` | string | - | 用户 ID |
+
+### `createDownloadTask` 配置项
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|-------|------|
+| `filePath` | string | (必填) | 远端文件路径 |
 | `chunkSize` | number | 5 | 分块大小 (MB) |
 | `parallel` | number | 2 | 并发数 |
 | `partFileSize` | number | 32 | 分块下载阈值 (MB) |
 | `trafficLimit` | number | - | 单链接限速 |
 | `checkpoint` | DownloadCheckpoint | - | 断点续传 checkpoint |
+| `verbose` | boolean | false | 详细日志 |
 
 ## Demo 项目
 
@@ -199,7 +230,7 @@ npm run dev
 ### Demo 功能
 
 - **文件上传** — 选择本地文件，支持分片上传、秒传检测、暂停/恢复/取消，实时显示进度和速度
-- **文件下载** — 输入远端文件路径，支持分片下载、暂停/恢复/取消，下载完成后自动保存
+- **文件下载** — 支持内存下载（分片下载、暂停/恢复/取消）和浏览器 URL 直接下载两种方式
 - **目录浏览** — 列出指定路径下的文件和目录，点击目录可进入，点击文件可快速填充下载路径
 - **日志面板** — 实时展示 SDK 内部日志和操作记录
 
