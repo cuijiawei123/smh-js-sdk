@@ -49,16 +49,6 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
    * @param options - URL 下载选项
    * @param configuration - SDK 配置
    * 
-   * @example
-   * ```typescript
-   * await Downloader.downloadByUrl({
-   *   libraryId: 'lib-xxx',
-   *   spaceId: 'space-xxx',
-   *   filePath: 'docs/file.pdf',
-   *   accessToken: 'token-xxx',
-   *   fileName: 'my-file.pdf'  // 可选，自定义保存文件名
-   * }, configuration);
-   * ```
    */
   static async downloadByUrl(
     options: UrlDownloadOptions,
@@ -66,8 +56,6 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
   ): Promise<void> {
     const fileApi = new FileApi(configuration);
 
-    // 传 contentDisposition: 'attachment' 让后端返回的 cosUrl 签名中包含
-    // response-content-disposition 参数，浏览器才能正确识别下载文件名
     const res = await fileApi.infoFile({
       libraryId: options.libraryId,
       spaceId: options.spaceId,
@@ -361,14 +349,14 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
       
       await this.changeState(TaskStatus.RUNNING);
       
-      this.upload_start_time = Date.now();
+      this.task_start_time = Date.now();
       this.startCalcSpeed();
       await this.multipartDownload();
       this.pauseCalcSpeed();
       this.calcTotalAvgSpeed();
     } else {
       await this.changeState(TaskStatus.RUNNING);
-      this.upload_start_time = Date.now();
+      this.task_start_time = Date.now();
       this.startCalcSpeed();
       await this.simpleDownloadWithRetry();
       this.pauseCalcSpeed();
@@ -496,14 +484,12 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
   private async simpleDownload(): Promise<void> {
     this.updateProgress(0, { immediately: true });
     
-    const abortController = this.createAbortController();
-    
     // 初始化 CRC64
     this.local_crc64 = CRC64_INIT_VALUE;
 
     const response = await fetch(this.download_url!, {
       method: 'GET',
-      signal: abortController.signal
+      signal: this.abortSignal
     });
 
     if (!response.ok) {
@@ -547,9 +533,7 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
       reader.releaseLock();
     }
 
-    // 请求完成，移除 controller
-    this.removeAbortController(abortController);
-
+    // 请求完成
     // 合并所有数据块
     this.resultBlob = new Blob(chunks, { type: this.file.type || 'application/octet-stream' });
   }
@@ -582,8 +566,6 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
       if (part.done && part.blob) return;
       
       try {
-        const abortController = this.createAbortController();
-        
         const headers: Record<string, string> = {
           'Range': `bytes=${part.start}-${part.end}`
         };
@@ -591,7 +573,7 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
         const response = await fetch(this.download_url!, {
           method: 'GET',
           headers,
-          signal: abortController.signal
+          signal: this.abortSignal
         });
 
         if (!response.ok && response.status !== 206) {
@@ -620,8 +602,6 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
         } finally {
           reader.releaseLock();
         }
-
-        this.removeAbortController(abortController);
 
         // 保存分片数据
         part.blob = new Blob(chunks);

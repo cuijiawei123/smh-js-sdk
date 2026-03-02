@@ -19,23 +19,15 @@ const defaultConfig: SDKConfig = {
 }
 
 export function loadConfig(): SDKConfig {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      return { ...defaultConfig, ...JSON.parse(stored) }
-    }
-  } catch {
-    // 忽略存储读取错误
+  const stored = localStorage.getItem(STORAGE_KEY)
+  if (stored) {
+    return { ...defaultConfig, ...JSON.parse(stored) }
   }
   return { ...defaultConfig }
 }
 
 export function saveConfig(config: SDKConfig): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
-  } catch {
-    // 忽略存储写入错误
-  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
 }
 
 export function createClient(config: SDKConfig): SMHClient {

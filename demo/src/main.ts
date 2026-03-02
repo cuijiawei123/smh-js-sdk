@@ -139,9 +139,8 @@ function updateUploadProgress(progress: UploadProgress): void {
 
 function finalizeUploadProgress(state: UploadState): void {
   if (state === 'success' || state === 'rapid_success') {
-    elements.uploadProgressBar.style.width = '100%'
+    // 不兜底设置进度，直接展示 SDK 返回的实际进度值
     elements.uploadProgressBar.classList.add('progress-bar-success')
-    elements.uploadProgressText.textContent = '100%'
     elements.uploadSpeedText.textContent = ''
     elements.uploadTimeText.textContent = state === 'rapid_success' ? '秒传完成' : '上传完成'
   } else if (state === 'error' || state === 'canceled') {
@@ -166,9 +165,8 @@ function updateDownloadProgress(progress: DownloadProgress): void {
 
 function finalizeDownloadProgress(state: DownloadState): void {
   if (state === 'success') {
-    elements.downloadProgressBar.style.width = '100%'
+    // 不兜底设置进度，直接展示 SDK 返回的实际进度值
     elements.downloadProgressBar.classList.add('progress-bar-success')
-    elements.downloadProgressText.textContent = '100%'
     elements.downloadSpeedText.textContent = ''
     elements.downloadTimeText.textContent = '下载完成'
   } else if (state === 'error' || state === 'canceled') {

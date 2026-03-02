@@ -53,8 +53,8 @@ export abstract class CommonLoader<TCheckpoint = any> extends EventEmitter {
   protected cancelFlag: boolean = false;
   public error?: SMHError;
   
-  // 取消控制器集合（支持多个并发请求同时 abort）
-  protected abortControllers: Set<AbortController> = new Set();
+  // 取消控制器（所有并发请求共用同一个，abort 一次全部取消）
+  protected abortController: AbortController = new AbortController();
   
   // 定时器
   protected tid_speed?: ReturnType<typeof setInterval>;
@@ -62,7 +62,7 @@ export abstract class CommonLoader<TCheckpoint = any> extends EventEmitter {
   // 速度计算
   protected speedList: number[] = [];
   protected speed_0_count: number = 0;
-  protected upload_start_time: number = 0;
+  protected task_start_time: number = 0;
   protected start_done_part_loaded: number = 0;
   
   // 常量
@@ -143,30 +143,18 @@ export abstract class CommonLoader<TCheckpoint = any> extends EventEmitter {
   abstract start(): Promise<void>;
   
   /**
-   * 取消所有正在进行的 HTTP 请求
+   * 取消所有正在进行的 HTTP 请求，并重建控制器供后续使用（恢复场景）
    */
   protected abortRequest(): void {
-    for (const controller of this.abortControllers) {
-      controller.abort();
-    }
-    this.abortControllers.clear();
-  }
-  
-  /**
-   * 创建新的取消控制器
-   * 每个并发请求都持有独立的 AbortController，暂停时全部 abort
-   */
-  protected createAbortController(): AbortController {
-    const controller = new AbortController();
-    this.abortControllers.add(controller);
-    return controller;
+    this.abortController.abort();
+    this.abortController = new AbortController();
   }
 
   /**
-   * 移除已完成请求的取消控制器
+   * 获取当前的 AbortSignal，供 fetch/axios 请求使用
    */
-  protected removeAbortController(controller: AbortController): void {
-    this.abortControllers.delete(controller);
+  protected get abortSignal(): AbortSignal {
+    return this.abortController.signal;
   }
   
   /**
@@ -254,7 +242,7 @@ export abstract class CommonLoader<TCheckpoint = any> extends EventEmitter {
    * 计算总平均速度
    */
   protected calcTotalAvgSpeed(): void {
-    const cur_time_len = Date.now() - this.upload_start_time;
+    const cur_time_len = Date.now() - this.task_start_time;
     const cur_loaded_size = this.loaded - (this.start_done_part_loaded || 0);
     
     if (this.used_time_len && this.used_avg_speed) {
@@ -292,6 +280,7 @@ export abstract class CommonLoader<TCheckpoint = any> extends EventEmitter {
       this.startSize = loaded;
       this.loaded = loaded;
       this.lastProgressLoaded = loaded;
+      // init 阶段：空文件进度为 0%（还未开始），有数据的文件按实际 loaded 计算
       this.progress = this.file.size > 0 ? (loaded / this.file.size) * 100 : 0;
       this.lastEmittedProgress = this.progress;
       this.notifyProgress('running', this.progress);
@@ -299,7 +288,8 @@ export abstract class CommonLoader<TCheckpoint = any> extends EventEmitter {
     }
     
     this.loaded = loaded;
-    this.progress = this.file.size > 0 ? (loaded / this.file.size) * 100 : 0;
+    // 正常更新：空文件在此处表示已完成，进度为 100%
+    this.progress = this.file.size > 0 ? (loaded / this.file.size) * 100 : 100;
     
     if (this.speed > 0) {
       const remainingBytes = this.file.size > loaded ? this.file.size - loaded : 0;

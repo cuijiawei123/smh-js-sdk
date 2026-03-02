@@ -39,41 +39,34 @@ export class FileListManager {
     container.innerHTML = '<div class="empty-list"><span class="loading-spinner"></span>加载中...</div>'
     this.updateBreadcrumb(path)
 
-    try {
-      const apiPath = path === '/' ? '' : path.replace(/^\//, '')
+    const apiPath = path === '/' ? '' : path.replace(/^\//, '')
 
-      const response = await client.directory.listDirectory({
-        filePath: apiPath,
-        limit: 100
-      })
+    const response = await client.directory.listDirectory({
+      filePath: apiPath,
+      limit: 100
+    })
 
-      const data = response.data
-      const contents = (data.contents || []) as Array<{ name?: string; type?: string; size?: string | number; modificationTime?: string }>
+    const data = response.data
+    const contents = (data.contents || []) as Array<{ name?: string; type?: string; size?: string | number; modificationTime?: string }>
 
-      if (contents.length === 0) {
-        container.innerHTML = '<div class="empty-list">📂 该目录为空</div>'
-        logger.log(`已加载目录: ${path} (空目录)`)
-        return
-      }
-
-      this.items = contents
-        .filter(item => item.name && item.type)
-        .map(item => ({
-          name: item.name!,
-          path: path === '/' ? '/' + item.name : path + '/' + item.name,
-          type: item.type as 'file' | 'dir',
-          size: typeof item.size === 'string' ? parseInt(item.size, 10) : item.size,
-          modificationTime: item.modificationTime
-        }))
-
-      this.render()
-      logger.log(`已加载目录: ${path} (${contents.length} 项)`)
-
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      container.innerHTML = `<div class="empty-list" style="color: #f45c43;">❌ 加载失败: ${message}</div>`
-      logger.log(`加载文件列表失败: ${message}`, 'error')
+    if (contents.length === 0) {
+      container.innerHTML = '<div class="empty-list">📂 该目录为空</div>'
+      logger.log(`已加载目录: ${path} (空目录)`)
+      return
     }
+
+    this.items = contents
+      .filter(item => item.name && item.type)
+      .map(item => ({
+        name: item.name!,
+        path: path === '/' ? '/' + item.name : path + '/' + item.name,
+        type: item.type as 'file' | 'dir',
+        size: typeof item.size === 'string' ? parseInt(item.size, 10) : item.size,
+        modificationTime: item.modificationTime
+      }))
+
+    this.render()
+    logger.log(`已加载目录: ${path} (${contents.length} 项)`)
   }
 
   private render(): void {

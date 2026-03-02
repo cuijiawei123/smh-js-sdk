@@ -412,7 +412,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     
     // 开始上传
     await this.changeState(TaskStatus.RUNNING);
-    this.upload_start_time = Date.now();
+    this.task_start_time = Date.now();
     this.startCalcSpeed();
     
     await this.simpleUploadWithRetry(uploadData);
@@ -495,8 +495,6 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     // 计算 CRC64
     this.crc64 = await calculateBlobCRC64(this.options.file);
     
-    const abortController = this.createAbortController();
-    
     await axios.put(url, this.options.file, {
       headers: {
         ...headers,
@@ -504,15 +502,13 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
       maxContentLength: Infinity,
       maxBodyLength: Infinity,
       timeout: Math.max(5 * 60 * 1000, Math.ceil(this.file.size / (100 * 1024)) * 1000),
-      signal: abortController.signal,
+      signal: this.abortSignal,
       onUploadProgress: (progressEvent: any) => {
         if (progressEvent.loaded) {
           this.updateProgress(progressEvent.loaded);
         }
       }
     });
-    
-    this.removeAbortController(abortController);
     this.updateProgress(this.file.size, { immediately: true });
   }
   
@@ -625,7 +621,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     
     // 开始上传
     await this.changeState(TaskStatus.RUNNING);
-    this.upload_start_time = Date.now();
+    this.task_start_time = Date.now();
     this.startCalcSpeed();
     
     await this.multipartUpload(uploadData);
@@ -669,8 +665,6 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     const partBlob = this.options.file.slice(part.from, part.to);
 
     try {
-      const abortController = this.createAbortController();
-      
       const response = await axios.put(partUrl, partBlob, {
         headers: {
           ...headers,
@@ -678,10 +672,8 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
         maxContentLength: Infinity,
         maxBodyLength: Infinity,
         timeout: Math.max(5 * 60 * 1000, Math.ceil(part.chunk_size / (100 * 1024)) * 1000),
-        signal: abortController.signal,
+        signal: this.abortSignal,
       });
-
-      this.removeAbortController(abortController);
 
       part.etag = response.headers['etag'] || response.headers['ETag'] || '';
       part.end_time = Date.now();
