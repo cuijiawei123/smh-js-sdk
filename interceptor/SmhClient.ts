@@ -137,27 +137,24 @@ export class SMHClient {
         // 创建配置
         this.configuration = new Configuration({
             basePath: options.basePath,
-            baseOptions: {
-                ...options.baseOptions,
-                // 使用自定义的axios实例
-                adapter: this.axiosInstance.defaults.adapter
-            }
+            baseOptions: options.baseOptions
         });
 
-        // 初始化所有原始API实例
-        this._batch = new BatchApi(this.configuration);
-        this._directory = new DirectoryApi(this.configuration);
-        this._favorite = new FavoriteApi(this.configuration);
-        this._file = new FileApi(this.configuration);
-        this._history = new HistoryApi(this.configuration);
-        this._quota = new QuotaApi(this.configuration);
-        this._recent = new RecentApi(this.configuration);
-        this._recycled = new RecycledApi(this.configuration);
-        this._search = new SearchApi(this.configuration);
-        this._space = new SpaceApi(this.configuration);
-        this._task = new TaskApi(this.configuration);
-        this._token = new TokenApi(this.configuration);
-        this._usage = new UsageApi(this.configuration);
+        // 初始化所有原始API实例，传入 axiosInstance 使重试拦截器生效
+        const basePath = this.configuration.basePath;
+        this._batch = new BatchApi(this.configuration, basePath, this.axiosInstance);
+        this._directory = new DirectoryApi(this.configuration, basePath, this.axiosInstance);
+        this._favorite = new FavoriteApi(this.configuration, basePath, this.axiosInstance);
+        this._file = new FileApi(this.configuration, basePath, this.axiosInstance);
+        this._history = new HistoryApi(this.configuration, basePath, this.axiosInstance);
+        this._quota = new QuotaApi(this.configuration, basePath, this.axiosInstance);
+        this._recent = new RecentApi(this.configuration, basePath, this.axiosInstance);
+        this._recycled = new RecycledApi(this.configuration, basePath, this.axiosInstance);
+        this._search = new SearchApi(this.configuration, basePath, this.axiosInstance);
+        this._space = new SpaceApi(this.configuration, basePath, this.axiosInstance);
+        this._task = new TaskApi(this.configuration, basePath, this.axiosInstance);
+        this._token = new TokenApi(this.configuration, basePath, this.axiosInstance);
+        this._usage = new UsageApi(this.configuration, basePath, this.axiosInstance);
 
         // 创建包装后的API实例
         this.batch = this.wrapApi(this._batch);
@@ -173,9 +170,6 @@ export class SMHClient {
         this.task = this.wrapApi(this._task);
         this.token = this.wrapApi(this._token);
         this.usage = this.wrapApi(this._usage);
-
-        // 设置全局axios实例
-        this.setupGlobalAxios();
     }
 
 
@@ -211,22 +205,6 @@ export class SMHClient {
             
             return Promise.reject(error);
         });
-    }
-
-    /**
-     * 设置全局axios实例
-     */
-    private setupGlobalAxios(): void {
-        // 替换全局axios实例，确保所有API使用相同的配置
-        const originalCreate = axios.create;
-        axios.create = (config) => {
-            return this.axiosInstance;
-        };
-        
-        // 恢复原始create方法
-        setTimeout(() => {
-            axios.create = originalCreate;
-        }, 0);
     }
 
     /**
@@ -323,9 +301,9 @@ export class SMHClient {
 
                 // 返回包装后的方法
                 return async (...args: any[]) => {
-                    // 第一个参数通常是 requestParameters 对象
+                    // 第一个参数通常是 requestParameters 对象，浅拷贝避免修改调用者原始对象
                     if (args.length > 0 && typeof args[0] === 'object' && args[0] !== null) {
-                        const requestParams = args[0];
+                        const requestParams = { ...args[0] };
                         
                         // 自动注入 libraryId（如果未提供且有默认值）
                         if (prop !== 'createToken' && prop !== 'renewToken') {
@@ -341,9 +319,10 @@ export class SMHClient {
                         if (!requestParams.accessToken && this.defaultAccessToken) {
                             requestParams.accessToken = this.defaultAccessToken;
                         }
+
+                        args[0] = requestParams;
                     }
 
-                    
                     // 调用原始方法
                     const result = await originalMethod.apply(target, args);
 
