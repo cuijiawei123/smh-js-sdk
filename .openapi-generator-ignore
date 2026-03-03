@@ -12,8 +12,6 @@ tasks/**
 
 utils/**
 
-docs/**
-
 demo/**
 
 # 保护测试配置和工具文件
