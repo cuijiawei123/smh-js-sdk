@@ -26,6 +26,8 @@ import type { RecycleInfo200Response } from '../models';
 // @ts-ignore
 import type { RecycleList200Response } from '../models';
 // @ts-ignore
+import type { RecycleListByPage200Response } from '../models';
+// @ts-ignore
 import type { RecyclePreview200Response } from '../models';
 // @ts-ignore
 import type { RecycleRestore200Response } from '../models';
@@ -147,14 +149,13 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
             };
         },
         /**
-         * 用于列出回收站项目。目录内容的列出顺序为：默认无排序，根据传入参数 orderBy 和 orderByType 来决定排列顺序。
+         * 用于列出回收站项目。 目录内容的列出顺序为：默认无排序，根据传入参数 orderBy 和 orderByType 来决定排列顺序。 
          * @summary 列出回收站项目
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} [marker] 用于顺序列出分页的标识，不能与 page 和 page_size 参数同时使用
-         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，不能与 page 和 page_size 参数同时使用
-         * @param {number} [page] 分页码，默认第一页，不能与 marker 和 limit 参数同时使用
-         * @param {number} [pageSize] 分页大小，默认 20，不能与 marker 和 limit 参数同时使用
+         * @param {RecycleListByMarkerEnum} byMarker 固定传 1，表示使用 marker 方式分页
+         * @param {string} [marker] 用于顺序列出分页的标识
+         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，不传默认值 20，最大返回 100
          * @param {RecycleListOrderByEnum} [orderBy] 排序字段，按名称排序为 name，按修改时间排序为 modificationTime，按文件大小排序为 size，按删除时间排序为 removalTime，按剩余时间排序为 remainingTime
          * @param {RecycleListOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
@@ -162,11 +163,13 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        recycleList: async (libraryId: string, spaceId: string, marker?: string, limit?: number, page?: number, pageSize?: number, orderBy?: RecycleListOrderByEnum, orderByType?: RecycleListOrderByTypeEnum, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        recycleList: async (libraryId: string, spaceId: string, byMarker: RecycleListByMarkerEnum, marker?: string, limit?: number, orderBy?: RecycleListOrderByEnum, orderByType?: RecycleListOrderByTypeEnum, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('recycleList', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('recycleList', 'spaceId', spaceId)
+            // verify required parameter 'byMarker' is not null or undefined
+            assertParamExists('recycleList', 'byMarker', byMarker)
             const localVarPath = `/api/v1/recycled/{LibraryId}/{SpaceId}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)));
@@ -181,12 +184,83 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            if (byMarker !== undefined) {
+                localVarQueryParameter['by-marker'] = byMarker;
+            }
+
             if (marker !== undefined) {
                 localVarQueryParameter['marker'] = marker;
             }
 
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['order_by'] = orderBy;
+            }
+
+            if (orderByType !== undefined) {
+                localVarQueryParameter['order_by_type'] = orderByType;
+            }
+
+            if (accessToken !== undefined) {
+                localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 用于列出回收站项目。 目录内容的列出顺序为：默认无排序，根据传入参数 orderBy 和 orderByType 来决定排列顺序。 page 翻页的深度会有限制，强烈建议业务方改用 marker 翻页的形式。 
+         * @summary 列出回收站项目（by-page）
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {RecycleListByPageByPageEnum} byPage 固定传 1，表示使用 page 方式分页
+         * @param {number} [page] 分页码，默认第一页，最大翻页的条目数（Page*PageSize 的大小）是 1 万
+         * @param {number} [pageSize] 分页大小，默认 20，最大翻页的条目数（Page*PageSize 的大小）是 1 万
+         * @param {RecycleListByPageOrderByEnum} [orderBy] 排序字段，按名称排序为 name，按修改时间排序为 modificationTime，按文件大小排序为 size，按删除时间排序为 removalTime，按剩余时间排序为 remainingTime
+         * @param {RecycleListByPageOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        recycleListByPage: async (libraryId: string, spaceId: string, byPage: RecycleListByPageByPageEnum, page?: number, pageSize?: number, orderBy?: RecycleListByPageOrderByEnum, orderByType?: RecycleListByPageOrderByTypeEnum, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'libraryId' is not null or undefined
+            assertParamExists('recycleListByPage', 'libraryId', libraryId)
+            // verify required parameter 'spaceId' is not null or undefined
+            assertParamExists('recycleListByPage', 'spaceId', spaceId)
+            // verify required parameter 'byPage' is not null or undefined
+            assertParamExists('recycleListByPage', 'byPage', byPage)
+            const localVarPath = `/api/v1/recycled/{LibraryId}/{SpaceId}#3`
+                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
+                .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (byPage !== undefined) {
+                localVarQueryParameter['by-page'] = byPage;
             }
 
             if (page !== undefined) {
@@ -665,14 +739,13 @@ export const RecycledApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 用于列出回收站项目。目录内容的列出顺序为：默认无排序，根据传入参数 orderBy 和 orderByType 来决定排列顺序。
+         * 用于列出回收站项目。 目录内容的列出顺序为：默认无排序，根据传入参数 orderBy 和 orderByType 来决定排列顺序。 
          * @summary 列出回收站项目
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} [marker] 用于顺序列出分页的标识，不能与 page 和 page_size 参数同时使用
-         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，不能与 page 和 page_size 参数同时使用
-         * @param {number} [page] 分页码，默认第一页，不能与 marker 和 limit 参数同时使用
-         * @param {number} [pageSize] 分页大小，默认 20，不能与 marker 和 limit 参数同时使用
+         * @param {RecycleListByMarkerEnum} byMarker 固定传 1，表示使用 marker 方式分页
+         * @param {string} [marker] 用于顺序列出分页的标识
+         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，不传默认值 20，最大返回 100
          * @param {RecycleListOrderByEnum} [orderBy] 排序字段，按名称排序为 name，按修改时间排序为 modificationTime，按文件大小排序为 size，按删除时间排序为 removalTime，按剩余时间排序为 remainingTime
          * @param {RecycleListOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
@@ -680,10 +753,31 @@ export const RecycledApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async recycleList(libraryId: string, spaceId: string, marker?: string, limit?: number, page?: number, pageSize?: number, orderBy?: RecycleListOrderByEnum, orderByType?: RecycleListOrderByTypeEnum, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecycleList200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleList(libraryId, spaceId, marker, limit, page, pageSize, orderBy, orderByType, accessToken, userId, options);
+        async recycleList(libraryId: string, spaceId: string, byMarker: RecycleListByMarkerEnum, marker?: string, limit?: number, orderBy?: RecycleListOrderByEnum, orderByType?: RecycleListOrderByTypeEnum, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecycleList200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleList(libraryId, spaceId, byMarker, marker, limit, orderBy, orderByType, accessToken, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RecycledApi.recycleList']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 用于列出回收站项目。 目录内容的列出顺序为：默认无排序，根据传入参数 orderBy 和 orderByType 来决定排列顺序。 page 翻页的深度会有限制，强烈建议业务方改用 marker 翻页的形式。 
+         * @summary 列出回收站项目（by-page）
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {RecycleListByPageByPageEnum} byPage 固定传 1，表示使用 page 方式分页
+         * @param {number} [page] 分页码，默认第一页，最大翻页的条目数（Page*PageSize 的大小）是 1 万
+         * @param {number} [pageSize] 分页大小，默认 20，最大翻页的条目数（Page*PageSize 的大小）是 1 万
+         * @param {RecycleListByPageOrderByEnum} [orderBy] 排序字段，按名称排序为 name，按修改时间排序为 modificationTime，按文件大小排序为 size，按删除时间排序为 removalTime，按剩余时间排序为 remainingTime
+         * @param {RecycleListByPageOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async recycleListByPage(libraryId: string, spaceId: string, byPage: RecycleListByPageByPageEnum, page?: number, pageSize?: number, orderBy?: RecycleListByPageOrderByEnum, orderByType?: RecycleListByPageOrderByTypeEnum, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecycleListByPage200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleListByPage(libraryId, spaceId, byPage, page, pageSize, orderBy, orderByType, accessToken, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['RecycledApi.recycleListByPage']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -830,14 +924,24 @@ export const RecycledApiFactory = function (configuration?: Configuration, baseP
             return localVarFp.recycleInfo(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.info, requestParameters.accessToken, options).then((request) => request(axios, basePath));
         },
         /**
-         * 用于列出回收站项目。目录内容的列出顺序为：默认无排序，根据传入参数 orderBy 和 orderByType 来决定排列顺序。
+         * 用于列出回收站项目。 目录内容的列出顺序为：默认无排序，根据传入参数 orderBy 和 orderByType 来决定排列顺序。 
          * @summary 列出回收站项目
          * @param {RecycledApiRecycleListRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         recycleList(requestParameters: RecycledApiRecycleListRequest, options?: RawAxiosRequestConfig): AxiosPromise<RecycleList200Response> {
-            return localVarFp.recycleList(requestParameters.libraryId, requestParameters.spaceId, requestParameters.marker, requestParameters.limit, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.recycleList(requestParameters.libraryId, requestParameters.spaceId, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 用于列出回收站项目。 目录内容的列出顺序为：默认无排序，根据传入参数 orderBy 和 orderByType 来决定排列顺序。 page 翻页的深度会有限制，强烈建议业务方改用 marker 翻页的形式。 
+         * @summary 列出回收站项目（by-page）
+         * @param {RecycledApiRecycleListByPageRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        recycleListByPage(requestParameters: RecycledApiRecycleListByPageRequest, options?: RawAxiosRequestConfig): AxiosPromise<RecycleListByPage200Response> {
+            return localVarFp.recycleListByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 可用于预览文档、图片、视频等文件类型；文档类型可返回HTML或JPG格式；视频返回首帧图片；照片或视频封面支持智能裁剪为指定大小，未识别到人脸时居中缩放裁剪；当未指定 size 参数时使用原图；接口返回302并跳转到可直接用于展示或下载的文件URL。
@@ -972,24 +1076,19 @@ export interface RecycledApiRecycleListRequest {
     readonly spaceId: string
 
     /**
-     * 用于顺序列出分页的标识，不能与 page 和 page_size 参数同时使用
+     * 固定传 1，表示使用 marker 方式分页
+     */
+    readonly byMarker: RecycleListByMarkerEnum
+
+    /**
+     * 用于顺序列出分页的标识
      */
     readonly marker?: string
 
     /**
-     * 用于顺序列出分页时本地列出的项目数限制，不能与 page 和 page_size 参数同时使用
+     * 用于顺序列出分页时本地列出的项目数限制，不传默认值 20，最大返回 100
      */
     readonly limit?: number
-
-    /**
-     * 分页码，默认第一页，不能与 marker 和 limit 参数同时使用
-     */
-    readonly page?: number
-
-    /**
-     * 分页大小，默认 20，不能与 marker 和 limit 参数同时使用
-     */
-    readonly pageSize?: number
 
     /**
      * 排序字段，按名称排序为 name，按修改时间排序为 modificationTime，按文件大小排序为 size，按删除时间排序为 removalTime，按剩余时间排序为 remainingTime
@@ -1000,6 +1099,56 @@ export interface RecycledApiRecycleListRequest {
      * 排序方式，升序为 asc，降序为 desc
      */
     readonly orderByType?: RecycleListOrderByTypeEnum
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+     */
+    readonly userId?: string
+}
+
+/**
+ * Request parameters for recycleListByPage operation in RecycledApi.
+ */
+export interface RecycledApiRecycleListByPageRequest {
+    /**
+     * 媒体库 ID，必选参数
+     */
+    readonly libraryId: string
+
+    /**
+     * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+     */
+    readonly spaceId: string
+
+    /**
+     * 固定传 1，表示使用 page 方式分页
+     */
+    readonly byPage: RecycleListByPageByPageEnum
+
+    /**
+     * 分页码，默认第一页，最大翻页的条目数（Page*PageSize 的大小）是 1 万
+     */
+    readonly page?: number
+
+    /**
+     * 分页大小，默认 20，最大翻页的条目数（Page*PageSize 的大小）是 1 万
+     */
+    readonly pageSize?: number
+
+    /**
+     * 排序字段，按名称排序为 name，按修改时间排序为 modificationTime，按文件大小排序为 size，按删除时间排序为 removalTime，按剩余时间排序为 remainingTime
+     */
+    readonly orderBy?: RecycleListByPageOrderByEnum
+
+    /**
+     * 排序方式，升序为 asc，降序为 desc
+     */
+    readonly orderByType?: RecycleListByPageOrderByTypeEnum
 
     /**
      * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
@@ -1270,14 +1419,25 @@ export class RecycledApi extends BaseAPI {
     }
 
     /**
-     * 用于列出回收站项目。目录内容的列出顺序为：默认无排序，根据传入参数 orderBy 和 orderByType 来决定排列顺序。
+     * 用于列出回收站项目。 目录内容的列出顺序为：默认无排序，根据传入参数 orderBy 和 orderByType 来决定排列顺序。 
      * @summary 列出回收站项目
      * @param {RecycledApiRecycleListRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     public recycleList(requestParameters: RecycledApiRecycleListRequest, options?: RawAxiosRequestConfig) {
-        return RecycledApiFp(this.configuration).recycleList(requestParameters.libraryId, requestParameters.spaceId, requestParameters.marker, requestParameters.limit, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return RecycledApiFp(this.configuration).recycleList(requestParameters.libraryId, requestParameters.spaceId, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 用于列出回收站项目。 目录内容的列出顺序为：默认无排序，根据传入参数 orderBy 和 orderByType 来决定排列顺序。 page 翻页的深度会有限制，强烈建议业务方改用 marker 翻页的形式。 
+     * @summary 列出回收站项目（by-page）
+     * @param {RecycledApiRecycleListByPageRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public recycleListByPage(requestParameters: RecycledApiRecycleListByPageRequest, options?: RawAxiosRequestConfig) {
+        return RecycledApiFp(this.configuration).recycleListByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1347,6 +1507,10 @@ export class RecycledApi extends BaseAPI {
     }
 }
 
+export const RecycleListByMarkerEnum = {
+    NUMBER_1: 1
+} as const;
+export type RecycleListByMarkerEnum = typeof RecycleListByMarkerEnum[keyof typeof RecycleListByMarkerEnum];
 export const RecycleListOrderByEnum = {
     Name: 'name',
     ModificationTime: 'modificationTime',
@@ -1360,6 +1524,23 @@ export const RecycleListOrderByTypeEnum = {
     Desc: 'desc'
 } as const;
 export type RecycleListOrderByTypeEnum = typeof RecycleListOrderByTypeEnum[keyof typeof RecycleListOrderByTypeEnum];
+export const RecycleListByPageByPageEnum = {
+    NUMBER_1: 1
+} as const;
+export type RecycleListByPageByPageEnum = typeof RecycleListByPageByPageEnum[keyof typeof RecycleListByPageByPageEnum];
+export const RecycleListByPageOrderByEnum = {
+    Name: 'name',
+    ModificationTime: 'modificationTime',
+    Size: 'size',
+    RemovalTime: 'removalTime',
+    RemainingTime: 'remainingTime'
+} as const;
+export type RecycleListByPageOrderByEnum = typeof RecycleListByPageOrderByEnum[keyof typeof RecycleListByPageOrderByEnum];
+export const RecycleListByPageOrderByTypeEnum = {
+    Asc: 'asc',
+    Desc: 'desc'
+} as const;
+export type RecycleListByPageOrderByTypeEnum = typeof RecycleListByPageOrderByTypeEnum[keyof typeof RecycleListByPageOrderByTypeEnum];
 export const RecycleRestoreRestoreEnum = {
     NUMBER_1: 1
 } as const;

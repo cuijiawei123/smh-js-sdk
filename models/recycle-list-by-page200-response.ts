@@ -15,17 +15,13 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { ListDirectory200ResponseContentsInner } from './list-directory200-response-contents-inner';
+import type { RecycleList200ResponseContentsInner } from './recycle-list200-response-contents-inner';
 
-export interface ListDirectory200Response {
+export interface RecycleListByPage200Response {
     /**
-     * 返回当前请求的目录结构，如果当前请求的是根目录，则该字段为空数组
+     * 回收站所有文件和文件夹总数
      */
-    'path'?: Array<string>;
-    /**
-     * 用于顺序列出分页的标识
-     */
-    'nextMarker'?: string;
-    'contents'?: Array<ListDirectory200ResponseContentsInner>;
+    'totalNum'?: number;
+    'contents'?: Array<RecycleList200ResponseContentsInner>;
 }
 

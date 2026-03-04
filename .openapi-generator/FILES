@@ -15,7 +15,6 @@ apis/usage-api.ts
 base.ts
 common.ts
 configuration.ts
-git_push.sh
 index.ts
 models/batch-copy-request-inner.ts
 models/batch-copy200-response-result-inner.ts
@@ -33,6 +32,7 @@ models/batch-move200-response-result-inner.ts
 models/batch-move200-response.ts
 models/batch-move202-response.ts
 models/batch-move207-response.ts
+models/check-file-deletion200-response.ts
 models/complete-file-upload-request.ts
 models/complete-file-upload200-response.ts
 models/convert-file-request.ts
@@ -47,10 +47,6 @@ models/create-favorite-request.ts
 models/create-favorite200-response.ts
 models/create-quota-request.ts
 models/create-quota201-response.ts
-models/create-search-request-type.ts
-models/create-search-request.ts
-models/create-search200-response-contents-inner.ts
-models/create-search200-response.ts
 models/create-space-request.ts
 models/create-space201-response.ts
 models/create-symlink-request.ts
@@ -79,8 +75,8 @@ models/get-usage200-response-inner.ts
 models/index.ts
 models/info-file-or-directory200-response.ts
 models/info-file200-response.ts
+models/list-directory-by-page200-response.ts
 models/list-directory200-response-contents-inner.ts
-models/list-directory200-response-next-marker.ts
 models/list-directory200-response.ts
 models/list-favorite200-response-contents-inner.ts
 models/list-favorite200-response.ts
@@ -102,6 +98,7 @@ models/query-library-task200-response-inner.ts
 models/query-task200-response-inner-result.ts
 models/query-task200-response-inner.ts
 models/recycle-info200-response.ts
+models/recycle-list-by-page200-response.ts
 models/recycle-list200-response-contents-inner.ts
 models/recycle-list200-response.ts
 models/recycle-preview200-response.ts
@@ -111,9 +108,10 @@ models/recycle-restore-batch202-response.ts
 models/recycle-restore-batch207-response.ts
 models/recycle-restore200-response.ts
 models/recycle-set-lifecycle-request.ts
-models/renew-multipart-upload200-response-headers.ts
 models/renew-multipart-upload200-response.ts
-models/search-more200-response.ts
+models/search-fs-request.ts
+models/search-fs200-response-contents-inner.ts
+models/search-fs200-response.ts
 models/set-history-config-request.ts
 models/set-history-latest200-response.ts
 models/set-space-traffic-limit-request.ts

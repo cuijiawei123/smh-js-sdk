@@ -15,17 +15,16 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { ListDirectory200ResponseContentsInner } from './list-directory200-response-contents-inner';
+import type { SearchFs200ResponseContentsInner } from './search-fs200-response-contents-inner';
 
-export interface ListDirectory200Response {
+export interface SearchFs200Response {
     /**
-     * 返回当前请求的目录结构，如果当前请求的是根目录，则该字段为空数组
-     */
-    'path'?: Array<string>;
-    /**
-     * 用于顺序列出分页的标识
+     * 用于获取后续页的分页标识，为空时表示已经翻页完毕
      */
     'nextMarker'?: string;
-    'contents'?: Array<ListDirectory200ResponseContentsInner>;
+    /**
+     * 第一页搜索结果，可能为空数组
+     */
+    'contents'?: Array<SearchFs200ResponseContentsInner>;
 }
 

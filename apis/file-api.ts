@@ -22,6 +22,8 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { CheckFileDeletion200Response } from '../models';
+// @ts-ignore
 import type { CompleteFileUpload200Response } from '../models';
 // @ts-ignore
 import type { CompleteFileUploadRequest } from '../models';
@@ -122,6 +124,55 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 用于查询文件删除的原因，可能是用户主动删除或者 quota 超限删除。 要求权限：admin 或 space_admin 
+         * @summary 查询文件删除原因
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} inode 文件的 Inode
+         * @param {string} accessToken 访问令牌，必选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkFileDeletion: async (libraryId: string, spaceId: string, inode: string, accessToken: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'libraryId' is not null or undefined
+            assertParamExists('checkFileDeletion', 'libraryId', libraryId)
+            // verify required parameter 'spaceId' is not null or undefined
+            assertParamExists('checkFileDeletion', 'spaceId', spaceId)
+            // verify required parameter 'inode' is not null or undefined
+            assertParamExists('checkFileDeletion', 'inode', inode)
+            // verify required parameter 'accessToken' is not null or undefined
+            assertParamExists('checkFileDeletion', 'accessToken', accessToken)
+            const localVarPath = `/api/v1/file-deletion-check/{LibraryId}/{SpaceId}/{Inode}`
+                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
+                .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
+                .replace(`{${"Inode"}}`, encodeURIComponent(String(inode)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (accessToken !== undefined) {
+                localVarQueryParameter['access_token'] = accessToken;
             }
 
 
@@ -1359,6 +1410,22 @@ export const FileApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 用于查询文件删除的原因，可能是用户主动删除或者 quota 超限删除。 要求权限：admin 或 space_admin 
+         * @summary 查询文件删除原因
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} inode 文件的 Inode
+         * @param {string} accessToken 访问令牌，必选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async checkFileDeletion(libraryId: string, spaceId: string, inode: string, accessToken: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CheckFileDeletion200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.checkFileDeletion(libraryId, spaceId, inode, accessToken, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FileApi.checkFileDeletion']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 用于检查文件状态
          * @summary 检查文件状态
          * @param {string} libraryId 媒体库 ID，必选参数
@@ -1722,6 +1789,16 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
             return localVarFp.abortFileUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.upload, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
+         * 用于查询文件删除的原因，可能是用户主动删除或者 quota 超限删除。 要求权限：admin 或 space_admin 
+         * @summary 查询文件删除原因
+         * @param {FileApiCheckFileDeletionRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkFileDeletion(requestParameters: FileApiCheckFileDeletionRequest, options?: RawAxiosRequestConfig): AxiosPromise<CheckFileDeletion200Response> {
+            return localVarFp.checkFileDeletion(requestParameters.libraryId, requestParameters.spaceId, requestParameters.inode, requestParameters.accessToken, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 用于检查文件状态
          * @summary 检查文件状态
          * @param {FileApiCheckFileStatusRequest} requestParameters Request parameters.
@@ -1927,6 +2004,31 @@ export interface FileApiAbortFileUploadRequest {
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
+}
+
+/**
+ * Request parameters for checkFileDeletion operation in FileApi.
+ */
+export interface FileApiCheckFileDeletionRequest {
+    /**
+     * 媒体库 ID，必选参数
+     */
+    readonly libraryId: string
+
+    /**
+     * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+     */
+    readonly spaceId: string
+
+    /**
+     * 文件的 Inode
+     */
+    readonly inode: string
+
+    /**
+     * 访问令牌，必选参数
+     */
+    readonly accessToken: string
 }
 
 /**
@@ -2703,6 +2805,17 @@ export class FileApi extends BaseAPI {
      */
     public abortFileUpload(requestParameters: FileApiAbortFileUploadRequest, options?: RawAxiosRequestConfig) {
         return FileApiFp(this.configuration).abortFileUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.upload, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 用于查询文件删除的原因，可能是用户主动删除或者 quota 超限删除。 要求权限：admin 或 space_admin 
+     * @summary 查询文件删除原因
+     * @param {FileApiCheckFileDeletionRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public checkFileDeletion(requestParameters: FileApiCheckFileDeletionRequest, options?: RawAxiosRequestConfig) {
+        return FileApiFp(this.configuration).checkFileDeletion(requestParameters.libraryId, requestParameters.spaceId, requestParameters.inode, requestParameters.accessToken, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

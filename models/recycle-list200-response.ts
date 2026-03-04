@@ -19,10 +19,6 @@ import type { RecycleList200ResponseContentsInner } from './recycle-list200-resp
 
 export interface RecycleList200Response {
     /**
-     * 回收站所有文件和文件夹总数
-     */
-    'totalNum'?: number;
-    /**
      * 用于顺序列出分页的标识
      */
     'nextMarker'?: string;

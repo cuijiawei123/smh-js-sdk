@@ -22,39 +22,36 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { CreateSearch200Response } from '../models';
+import type { SearchFs200Response } from '../models';
 // @ts-ignore
-import type { CreateSearchRequest } from '../models';
-// @ts-ignore
-import type { SearchMore200Response } from '../models';
+import type { SearchFsRequest } from '../models';
 /**
  * SearchApi - axios parameter creator
  */
 export const SearchApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 用于搜索目录与文件。 使用本接口发起异步搜索任务时，接口将在大约 2s 的时间返回，如果在返回时有部分或全部搜索结果，则返回已搜索出的结果的第一页（每页 20 个），如果暂未搜索到结果则返回空数组，因此该接口实际返回的 contents 数量可能为 0 到 20 之间不等，且是否还有更多搜索结果，不应参考 contents 的数量，而应参考 hasMore 字段； 当需要获取后续页时，使用【继续获取搜索结果】接口； 
+         * 用于搜索目录与文件。 使用本接口搜索时，如果在返回时有部分或全部搜索结果，则返回已搜索出的结果的第一页（每页 20 个），如果暂未搜索到结果则返回空数组，因此该接口实际返回的 contents 数量可能为 0 到 20 之间不等，且是否还有更多搜索结果，不应参考 contents 的数量，而应参考 nextMarker 字段； 当需要获取后续页时，传入marker参数进行翻页； 本接口QPS使用上限为10，此接口不可用于业务的高频操作页面，比如空间首页列表的查询等，如有更大QPS的需求请提工单联系智能媒资托管团队； 
          * @summary 搜索目录与文件
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} accessToken 访问令牌，必选参数
-         * @param {CreateSearchRequest} createSearchRequest 
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-         * @param {CreateSearchWithInodeEnum} [withInode] 0 或 1，是否返回 inode，即文件目录 ID，可选，默认不返回
-         * @param {CreateSearchWithFavoriteStatusEnum} [withFavoriteStatus] 0 或 1，是否返回收藏状态，可选，默认不返回
+         * @param {string} [marker] 用于顺序列出分页的标识，可选参数，建议将marker放入请求体中传入
+         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，可选参数，取值范围[1,100]
+         * @param {SearchFsWithFavoriteStatusEnum} [withFavoriteStatus] 0 或 1，是否返回收藏状态，可选，默认不返回
+         * @param {SearchFsRequest} [searchFsRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createSearch: async (libraryId: string, spaceId: string, accessToken: string, createSearchRequest: CreateSearchRequest, userId?: string, withInode?: CreateSearchWithInodeEnum, withFavoriteStatus?: CreateSearchWithFavoriteStatusEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        searchFs: async (libraryId: string, spaceId: string, accessToken: string, userId?: string, marker?: string, limit?: number, withFavoriteStatus?: SearchFsWithFavoriteStatusEnum, searchFsRequest?: SearchFsRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
-            assertParamExists('createSearch', 'libraryId', libraryId)
+            assertParamExists('searchFs', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
-            assertParamExists('createSearch', 'spaceId', spaceId)
+            assertParamExists('searchFs', 'spaceId', spaceId)
             // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('createSearch', 'accessToken', accessToken)
-            // verify required parameter 'createSearchRequest' is not null or undefined
-            assertParamExists('createSearch', 'createSearchRequest', createSearchRequest)
-            const localVarPath = `/api/v1/search/{LibraryId}/{SpaceId}/space-contents`
+            assertParamExists('searchFs', 'accessToken', accessToken)
+            const localVarPath = `/api/v1/search/{LibraryId}/{SpaceId}/search-fs`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -76,8 +73,12 @@ export const SearchApiAxiosParamCreator = function (configuration?: Configuratio
                 localVarQueryParameter['user_id'] = userId;
             }
 
-            if (withInode !== undefined) {
-                localVarQueryParameter['with_inode'] = withInode;
+            if (marker !== undefined) {
+                localVarQueryParameter['marker'] = marker;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
             }
 
             if (withFavoriteStatus !== undefined) {
@@ -91,132 +92,7 @@ export const SearchApiAxiosParamCreator = function (configuration?: Configuratio
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(createSearchRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 用于删除搜索任务。 当客户端跳出搜索界面或更新搜索条件时，建议调用本接口结束并删除前次搜索任务。 
-         * @summary 删除搜索任务
-         * @param {string} libraryId 媒体库 ID，必选参数
-         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} searchId 搜索任务 ID
-         * @param {string} accessToken 访问令牌，必选参数
-         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        deleteSearch: async (libraryId: string, spaceId: string, searchId: string, accessToken: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'libraryId' is not null or undefined
-            assertParamExists('deleteSearch', 'libraryId', libraryId)
-            // verify required parameter 'spaceId' is not null or undefined
-            assertParamExists('deleteSearch', 'spaceId', spaceId)
-            // verify required parameter 'searchId' is not null or undefined
-            assertParamExists('deleteSearch', 'searchId', searchId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('deleteSearch', 'accessToken', accessToken)
-            const localVarPath = `/api/v1/search/{LibraryId}/{SpaceId}/{SearchId}`
-                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
-                .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
-                .replace(`{${"SearchId"}}`, encodeURIComponent(String(searchId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (accessToken !== undefined) {
-                localVarQueryParameter['access_token'] = accessToken;
-            }
-
-            if (userId !== undefined) {
-                localVarQueryParameter['user_id'] = userId;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 用于继续获取搜索结果
-         * @summary 继续获取搜索结果
-         * @param {string} libraryId 媒体库 ID，必选参数
-         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} searchId 搜索任务 ID
-         * @param {string} marker 分页标识，创建搜索任务时或继续获取搜索结果时返回的 nextMarker 字段
-         * @param {string} accessToken 访问令牌，必选参数
-         * @param {SearchMoreWithInodeEnum} [withInode] 0 或 1，是否返回 inode，即文件目录 ID，可选，默认不返回
-         * @param {SearchMoreWithFavoriteStatusEnum} [withFavoriteStatus] 0 或 1，是否返回收藏状态，可选，默认不返回
-         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        searchMore: async (libraryId: string, spaceId: string, searchId: string, marker: string, accessToken: string, withInode?: SearchMoreWithInodeEnum, withFavoriteStatus?: SearchMoreWithFavoriteStatusEnum, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'libraryId' is not null or undefined
-            assertParamExists('searchMore', 'libraryId', libraryId)
-            // verify required parameter 'spaceId' is not null or undefined
-            assertParamExists('searchMore', 'spaceId', spaceId)
-            // verify required parameter 'searchId' is not null or undefined
-            assertParamExists('searchMore', 'searchId', searchId)
-            // verify required parameter 'marker' is not null or undefined
-            assertParamExists('searchMore', 'marker', marker)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('searchMore', 'accessToken', accessToken)
-            const localVarPath = `/api/v1/search/{LibraryId}/{SpaceId}/{SearchId}`
-                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
-                .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
-                .replace(`{${"SearchId"}}`, encodeURIComponent(String(searchId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (marker !== undefined) {
-                localVarQueryParameter['marker'] = marker;
-            }
-
-            if (accessToken !== undefined) {
-                localVarQueryParameter['access_token'] = accessToken;
-            }
-
-            if (withInode !== undefined) {
-                localVarQueryParameter['with_inode'] = withInode;
-            }
-
-            if (withFavoriteStatus !== undefined) {
-                localVarQueryParameter['with_favorite_status'] = withFavoriteStatus;
-            }
-
-            if (userId !== undefined) {
-                localVarQueryParameter['user_id'] = userId;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(searchFsRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -233,59 +109,23 @@ export const SearchApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = SearchApiAxiosParamCreator(configuration)
     return {
         /**
-         * 用于搜索目录与文件。 使用本接口发起异步搜索任务时，接口将在大约 2s 的时间返回，如果在返回时有部分或全部搜索结果，则返回已搜索出的结果的第一页（每页 20 个），如果暂未搜索到结果则返回空数组，因此该接口实际返回的 contents 数量可能为 0 到 20 之间不等，且是否还有更多搜索结果，不应参考 contents 的数量，而应参考 hasMore 字段； 当需要获取后续页时，使用【继续获取搜索结果】接口； 
+         * 用于搜索目录与文件。 使用本接口搜索时，如果在返回时有部分或全部搜索结果，则返回已搜索出的结果的第一页（每页 20 个），如果暂未搜索到结果则返回空数组，因此该接口实际返回的 contents 数量可能为 0 到 20 之间不等，且是否还有更多搜索结果，不应参考 contents 的数量，而应参考 nextMarker 字段； 当需要获取后续页时，传入marker参数进行翻页； 本接口QPS使用上限为10，此接口不可用于业务的高频操作页面，比如空间首页列表的查询等，如有更大QPS的需求请提工单联系智能媒资托管团队； 
          * @summary 搜索目录与文件
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} accessToken 访问令牌，必选参数
-         * @param {CreateSearchRequest} createSearchRequest 
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-         * @param {CreateSearchWithInodeEnum} [withInode] 0 或 1，是否返回 inode，即文件目录 ID，可选，默认不返回
-         * @param {CreateSearchWithFavoriteStatusEnum} [withFavoriteStatus] 0 或 1，是否返回收藏状态，可选，默认不返回
+         * @param {string} [marker] 用于顺序列出分页的标识，可选参数，建议将marker放入请求体中传入
+         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，可选参数，取值范围[1,100]
+         * @param {SearchFsWithFavoriteStatusEnum} [withFavoriteStatus] 0 或 1，是否返回收藏状态，可选，默认不返回
+         * @param {SearchFsRequest} [searchFsRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createSearch(libraryId: string, spaceId: string, accessToken: string, createSearchRequest: CreateSearchRequest, userId?: string, withInode?: CreateSearchWithInodeEnum, withFavoriteStatus?: CreateSearchWithFavoriteStatusEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateSearch200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createSearch(libraryId, spaceId, accessToken, createSearchRequest, userId, withInode, withFavoriteStatus, options);
+        async searchFs(libraryId: string, spaceId: string, accessToken: string, userId?: string, marker?: string, limit?: number, withFavoriteStatus?: SearchFsWithFavoriteStatusEnum, searchFsRequest?: SearchFsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchFs200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchFs(libraryId, spaceId, accessToken, userId, marker, limit, withFavoriteStatus, searchFsRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['SearchApi.createSearch']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 用于删除搜索任务。 当客户端跳出搜索界面或更新搜索条件时，建议调用本接口结束并删除前次搜索任务。 
-         * @summary 删除搜索任务
-         * @param {string} libraryId 媒体库 ID，必选参数
-         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} searchId 搜索任务 ID
-         * @param {string} accessToken 访问令牌，必选参数
-         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async deleteSearch(libraryId: string, spaceId: string, searchId: string, accessToken: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteSearch(libraryId, spaceId, searchId, accessToken, userId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['SearchApi.deleteSearch']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 用于继续获取搜索结果
-         * @summary 继续获取搜索结果
-         * @param {string} libraryId 媒体库 ID，必选参数
-         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} searchId 搜索任务 ID
-         * @param {string} marker 分页标识，创建搜索任务时或继续获取搜索结果时返回的 nextMarker 字段
-         * @param {string} accessToken 访问令牌，必选参数
-         * @param {SearchMoreWithInodeEnum} [withInode] 0 或 1，是否返回 inode，即文件目录 ID，可选，默认不返回
-         * @param {SearchMoreWithFavoriteStatusEnum} [withFavoriteStatus] 0 或 1，是否返回收藏状态，可选，默认不返回
-         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async searchMore(libraryId: string, spaceId: string, searchId: string, marker: string, accessToken: string, withInode?: SearchMoreWithInodeEnum, withFavoriteStatus?: SearchMoreWithFavoriteStatusEnum, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchMore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.searchMore(libraryId, spaceId, searchId, marker, accessToken, withInode, withFavoriteStatus, userId, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['SearchApi.searchMore']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SearchApi.searchFs']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -298,42 +138,22 @@ export const SearchApiFactory = function (configuration?: Configuration, basePat
     const localVarFp = SearchApiFp(configuration)
     return {
         /**
-         * 用于搜索目录与文件。 使用本接口发起异步搜索任务时，接口将在大约 2s 的时间返回，如果在返回时有部分或全部搜索结果，则返回已搜索出的结果的第一页（每页 20 个），如果暂未搜索到结果则返回空数组，因此该接口实际返回的 contents 数量可能为 0 到 20 之间不等，且是否还有更多搜索结果，不应参考 contents 的数量，而应参考 hasMore 字段； 当需要获取后续页时，使用【继续获取搜索结果】接口； 
+         * 用于搜索目录与文件。 使用本接口搜索时，如果在返回时有部分或全部搜索结果，则返回已搜索出的结果的第一页（每页 20 个），如果暂未搜索到结果则返回空数组，因此该接口实际返回的 contents 数量可能为 0 到 20 之间不等，且是否还有更多搜索结果，不应参考 contents 的数量，而应参考 nextMarker 字段； 当需要获取后续页时，传入marker参数进行翻页； 本接口QPS使用上限为10，此接口不可用于业务的高频操作页面，比如空间首页列表的查询等，如有更大QPS的需求请提工单联系智能媒资托管团队； 
          * @summary 搜索目录与文件
-         * @param {SearchApiCreateSearchRequest} requestParameters Request parameters.
+         * @param {SearchApiSearchFsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createSearch(requestParameters: SearchApiCreateSearchRequest, options?: RawAxiosRequestConfig): AxiosPromise<CreateSearch200Response> {
-            return localVarFp.createSearch(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.createSearchRequest, requestParameters.userId, requestParameters.withInode, requestParameters.withFavoriteStatus, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 用于删除搜索任务。 当客户端跳出搜索界面或更新搜索条件时，建议调用本接口结束并删除前次搜索任务。 
-         * @summary 删除搜索任务
-         * @param {SearchApiDeleteSearchRequest} requestParameters Request parameters.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        deleteSearch(requestParameters: SearchApiDeleteSearchRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deleteSearch(requestParameters.libraryId, requestParameters.spaceId, requestParameters.searchId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 用于继续获取搜索结果
-         * @summary 继续获取搜索结果
-         * @param {SearchApiSearchMoreRequest} requestParameters Request parameters.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        searchMore(requestParameters: SearchApiSearchMoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<SearchMore200Response> {
-            return localVarFp.searchMore(requestParameters.libraryId, requestParameters.spaceId, requestParameters.searchId, requestParameters.marker, requestParameters.accessToken, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.userId, options).then((request) => request(axios, basePath));
+        searchFs(requestParameters: SearchApiSearchFsRequest, options?: RawAxiosRequestConfig): AxiosPromise<SearchFs200Response> {
+            return localVarFp.searchFs(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.userId, requestParameters.marker, requestParameters.limit, requestParameters.withFavoriteStatus, requestParameters.searchFsRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
 
 /**
- * Request parameters for createSearch operation in SearchApi.
+ * Request parameters for searchFs operation in SearchApi.
  */
-export interface SearchApiCreateSearchRequest {
+export interface SearchApiSearchFsRequest {
     /**
      * 媒体库 ID，必选参数
      */
@@ -349,97 +169,27 @@ export interface SearchApiCreateSearchRequest {
      */
     readonly accessToken: string
 
-    readonly createSearchRequest: CreateSearchRequest
-
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
 
     /**
-     * 0 或 1，是否返回 inode，即文件目录 ID，可选，默认不返回
+     * 用于顺序列出分页的标识，可选参数，建议将marker放入请求体中传入
      */
-    readonly withInode?: CreateSearchWithInodeEnum
+    readonly marker?: string
+
+    /**
+     * 用于顺序列出分页时本地列出的项目数限制，可选参数，取值范围[1,100]
+     */
+    readonly limit?: number
 
     /**
      * 0 或 1，是否返回收藏状态，可选，默认不返回
      */
-    readonly withFavoriteStatus?: CreateSearchWithFavoriteStatusEnum
-}
+    readonly withFavoriteStatus?: SearchFsWithFavoriteStatusEnum
 
-/**
- * Request parameters for deleteSearch operation in SearchApi.
- */
-export interface SearchApiDeleteSearchRequest {
-    /**
-     * 媒体库 ID，必选参数
-     */
-    readonly libraryId: string
-
-    /**
-     * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-     */
-    readonly spaceId: string
-
-    /**
-     * 搜索任务 ID
-     */
-    readonly searchId: string
-
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
-    /**
-     * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-     */
-    readonly userId?: string
-}
-
-/**
- * Request parameters for searchMore operation in SearchApi.
- */
-export interface SearchApiSearchMoreRequest {
-    /**
-     * 媒体库 ID，必选参数
-     */
-    readonly libraryId: string
-
-    /**
-     * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-     */
-    readonly spaceId: string
-
-    /**
-     * 搜索任务 ID
-     */
-    readonly searchId: string
-
-    /**
-     * 分页标识，创建搜索任务时或继续获取搜索结果时返回的 nextMarker 字段
-     */
-    readonly marker: string
-
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
-    /**
-     * 0 或 1，是否返回 inode，即文件目录 ID，可选，默认不返回
-     */
-    readonly withInode?: SearchMoreWithInodeEnum
-
-    /**
-     * 0 或 1，是否返回收藏状态，可选，默认不返回
-     */
-    readonly withFavoriteStatus?: SearchMoreWithFavoriteStatusEnum
-
-    /**
-     * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-     */
-    readonly userId?: string
+    readonly searchFsRequest?: SearchFsRequest
 }
 
 /**
@@ -447,56 +197,19 @@ export interface SearchApiSearchMoreRequest {
  */
 export class SearchApi extends BaseAPI {
     /**
-     * 用于搜索目录与文件。 使用本接口发起异步搜索任务时，接口将在大约 2s 的时间返回，如果在返回时有部分或全部搜索结果，则返回已搜索出的结果的第一页（每页 20 个），如果暂未搜索到结果则返回空数组，因此该接口实际返回的 contents 数量可能为 0 到 20 之间不等，且是否还有更多搜索结果，不应参考 contents 的数量，而应参考 hasMore 字段； 当需要获取后续页时，使用【继续获取搜索结果】接口； 
+     * 用于搜索目录与文件。 使用本接口搜索时，如果在返回时有部分或全部搜索结果，则返回已搜索出的结果的第一页（每页 20 个），如果暂未搜索到结果则返回空数组，因此该接口实际返回的 contents 数量可能为 0 到 20 之间不等，且是否还有更多搜索结果，不应参考 contents 的数量，而应参考 nextMarker 字段； 当需要获取后续页时，传入marker参数进行翻页； 本接口QPS使用上限为10，此接口不可用于业务的高频操作页面，比如空间首页列表的查询等，如有更大QPS的需求请提工单联系智能媒资托管团队； 
      * @summary 搜索目录与文件
-     * @param {SearchApiCreateSearchRequest} requestParameters Request parameters.
+     * @param {SearchApiSearchFsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public createSearch(requestParameters: SearchApiCreateSearchRequest, options?: RawAxiosRequestConfig) {
-        return SearchApiFp(this.configuration).createSearch(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.createSearchRequest, requestParameters.userId, requestParameters.withInode, requestParameters.withFavoriteStatus, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 用于删除搜索任务。 当客户端跳出搜索界面或更新搜索条件时，建议调用本接口结束并删除前次搜索任务。 
-     * @summary 删除搜索任务
-     * @param {SearchApiDeleteSearchRequest} requestParameters Request parameters.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public deleteSearch(requestParameters: SearchApiDeleteSearchRequest, options?: RawAxiosRequestConfig) {
-        return SearchApiFp(this.configuration).deleteSearch(requestParameters.libraryId, requestParameters.spaceId, requestParameters.searchId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 用于继续获取搜索结果
-     * @summary 继续获取搜索结果
-     * @param {SearchApiSearchMoreRequest} requestParameters Request parameters.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public searchMore(requestParameters: SearchApiSearchMoreRequest, options?: RawAxiosRequestConfig) {
-        return SearchApiFp(this.configuration).searchMore(requestParameters.libraryId, requestParameters.spaceId, requestParameters.searchId, requestParameters.marker, requestParameters.accessToken, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+    public searchFs(requestParameters: SearchApiSearchFsRequest, options?: RawAxiosRequestConfig) {
+        return SearchApiFp(this.configuration).searchFs(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.userId, requestParameters.marker, requestParameters.limit, requestParameters.withFavoriteStatus, requestParameters.searchFsRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
-export const CreateSearchWithInodeEnum = {
+export const SearchFsWithFavoriteStatusEnum = {
     NUMBER_0: 0,
     NUMBER_1: 1
 } as const;
-export type CreateSearchWithInodeEnum = typeof CreateSearchWithInodeEnum[keyof typeof CreateSearchWithInodeEnum];
-export const CreateSearchWithFavoriteStatusEnum = {
-    NUMBER_0: 0,
-    NUMBER_1: 1
-} as const;
-export type CreateSearchWithFavoriteStatusEnum = typeof CreateSearchWithFavoriteStatusEnum[keyof typeof CreateSearchWithFavoriteStatusEnum];
-export const SearchMoreWithInodeEnum = {
-    NUMBER_0: 0,
-    NUMBER_1: 1
-} as const;
-export type SearchMoreWithInodeEnum = typeof SearchMoreWithInodeEnum[keyof typeof SearchMoreWithInodeEnum];
-export const SearchMoreWithFavoriteStatusEnum = {
-    NUMBER_0: 0,
-    NUMBER_1: 1
-} as const;
-export type SearchMoreWithFavoriteStatusEnum = typeof SearchMoreWithFavoriteStatusEnum[keyof typeof SearchMoreWithFavoriteStatusEnum];
+export type SearchFsWithFavoriteStatusEnum = typeof SearchFsWithFavoriteStatusEnum[keyof typeof SearchFsWithFavoriteStatusEnum];

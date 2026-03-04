@@ -13,9 +13,6 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { RenewMultipartUpload200ResponseHeaders } from './renew-multipart-upload200-response-headers';
 
 export interface RenewMultipartUpload200Response {
     /**
@@ -30,7 +27,10 @@ export interface RenewMultipartUpload200Response {
      * 实际文件上传时需指定的请求参数
      */
     'uploadId'?: string;
-    'headers'?: RenewMultipartUpload200ResponseHeaders;
+    /**
+     * 实际上传时需指定的请求头部
+     */
+    'headers'?: { [key: string]: string; };
     /**
      * 用于完成文件上传的确认参数
      */

@@ -36,6 +36,8 @@ import type { InfoFileOrDirectory200Response } from '../models';
 // @ts-ignore
 import type { ListDirectory200Response } from '../models';
 // @ts-ignore
+import type { ListDirectoryByPage200Response } from '../models';
+// @ts-ignore
 import type { MoveDirectoryRequest } from '../models';
 // @ts-ignore
 import type { UpdateDirectoryLabelsRequest } from '../models';
@@ -356,11 +358,10 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} [marker] 用于顺序列出分页的标识，不能与 page 和 page_size 参数同时使用
-         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，不能与 page 和 page_size 参数同时使用
-         * @param {number} [page] 分页码，默认第一页，不能与 marker 和 limit 参数同时使用
-         * @param {number} [pageSize] 分页大小，默认 20，不能与 marker 和 limit 参数同时使用
-         * @param {ListDirectoryOrderByEnum} [orderBy] 排序字段，name|modificationTime|size|creationTime|localCreationTime|localModificationTime
+         * @param {ListDirectoryByMarkerEnum} byMarker 固定传 1，表示使用 marker 方式分页
+         * @param {string} [marker] 用于顺序列出分页的标识
+         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，不传默认值20，最大返回100
+         * @param {ListDirectoryOrderByEnum} [orderBy] 排序字段
          * @param {ListDirectoryOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc
          * @param {ListDirectoryFilterEnum} [filter] 筛选方式，不传返回全部，onlyDir 只返回文件夹，onlyFile 只返回文件
          * @param {ListDirectorySortTypeEnum} [sortType] 排序方式，不传则文件和文件夹单独排序，先返回文件夹，后返回文件。union 文件和文件夹拉通排序
@@ -371,13 +372,15 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listDirectory: async (libraryId: string, spaceId: string, filePath: string, marker?: string, limit?: number, page?: number, pageSize?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listDirectory: async (libraryId: string, spaceId: string, filePath: string, byMarker: ListDirectoryByMarkerEnum, marker?: string, limit?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('listDirectory', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('listDirectory', 'spaceId', spaceId)
             // verify required parameter 'filePath' is not null or undefined
             assertParamExists('listDirectory', 'filePath', filePath)
+            // verify required parameter 'byMarker' is not null or undefined
+            assertParamExists('listDirectory', 'byMarker', byMarker)
             const localVarPath = `/api/v1/directory/{LibraryId}/{SpaceId}/{FilePath}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -393,12 +396,107 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            if (byMarker !== undefined) {
+                localVarQueryParameter['by-marker'] = byMarker;
+            }
+
             if (marker !== undefined) {
                 localVarQueryParameter['marker'] = marker;
             }
 
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['order_by'] = orderBy;
+            }
+
+            if (orderByType !== undefined) {
+                localVarQueryParameter['order_by_type'] = orderByType;
+            }
+
+            if (filter !== undefined) {
+                localVarQueryParameter['filter'] = filter;
+            }
+
+            if (sortType !== undefined) {
+                localVarQueryParameter['sort_type'] = sortType;
+            }
+
+            if (withInode !== undefined) {
+                localVarQueryParameter['with_inode'] = withInode;
+            }
+
+            if (withFavoriteStatus !== undefined) {
+                localVarQueryParameter['with_favorite_status'] = withFavoriteStatus;
+            }
+
+            if (accessToken !== undefined) {
+                localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 用于列出目录或相簿内容。 目录内容的列出顺序为：首先按照字典序列出子目录，随后根据上传时间列出媒体库中的媒体资源，或根据文件名列出文件库中的文件资源。 page翻页的深度会有限制，强烈建议业务方改用marker翻页的形式。 
+         * @summary 列出目录或相簿内容（传统分页）
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+         * @param {ListDirectoryByPageByPageEnum} byPage 固定传 1，表示使用 page 方式分页
+         * @param {number} [page] 分页码，默认第一页，最大翻页的条目数（Page*PageSize的大小）是1万
+         * @param {number} [pageSize] 分页大小，默认 20，最大翻页的条目数（Page*PageSize的大小）是1万
+         * @param {ListDirectoryByPageOrderByEnum} [orderBy] 排序字段
+         * @param {ListDirectoryByPageOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc
+         * @param {ListDirectoryByPageFilterEnum} [filter] 筛选方式，不传返回全部，onlyDir 只返回文件夹，onlyFile 只返回文件
+         * @param {ListDirectoryByPageSortTypeEnum} [sortType] 排序方式，不传则文件和文件夹单独排序，先返回文件夹，后返回文件。union 文件和文件夹拉通排序
+         * @param {ListDirectoryByPageWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
+         * @param {ListDirectoryByPageWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listDirectoryByPage: async (libraryId: string, spaceId: string, filePath: string, byPage: ListDirectoryByPageByPageEnum, page?: number, pageSize?: number, orderBy?: ListDirectoryByPageOrderByEnum, orderByType?: ListDirectoryByPageOrderByTypeEnum, filter?: ListDirectoryByPageFilterEnum, sortType?: ListDirectoryByPageSortTypeEnum, withInode?: ListDirectoryByPageWithInodeEnum, withFavoriteStatus?: ListDirectoryByPageWithFavoriteStatusEnum, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'libraryId' is not null or undefined
+            assertParamExists('listDirectoryByPage', 'libraryId', libraryId)
+            // verify required parameter 'spaceId' is not null or undefined
+            assertParamExists('listDirectoryByPage', 'spaceId', spaceId)
+            // verify required parameter 'filePath' is not null or undefined
+            assertParamExists('listDirectoryByPage', 'filePath', filePath)
+            // verify required parameter 'byPage' is not null or undefined
+            assertParamExists('listDirectoryByPage', 'byPage', byPage)
+            const localVarPath = `/api/v1/directory/{LibraryId}/{SpaceId}/{FilePath}#2`
+                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
+                .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
+                .replace(`{${"FilePath"}}`, encodeURIComponent(String(filePath)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (byPage !== undefined) {
+                localVarQueryParameter['by-page'] = byPage;
             }
 
             if (page !== undefined) {
@@ -742,11 +840,10 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} [marker] 用于顺序列出分页的标识，不能与 page 和 page_size 参数同时使用
-         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，不能与 page 和 page_size 参数同时使用
-         * @param {number} [page] 分页码，默认第一页，不能与 marker 和 limit 参数同时使用
-         * @param {number} [pageSize] 分页大小，默认 20，不能与 marker 和 limit 参数同时使用
-         * @param {ListDirectoryOrderByEnum} [orderBy] 排序字段，name|modificationTime|size|creationTime|localCreationTime|localModificationTime
+         * @param {ListDirectoryByMarkerEnum} byMarker 固定传 1，表示使用 marker 方式分页
+         * @param {string} [marker] 用于顺序列出分页的标识
+         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，不传默认值20，最大返回100
+         * @param {ListDirectoryOrderByEnum} [orderBy] 排序字段
          * @param {ListDirectoryOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc
          * @param {ListDirectoryFilterEnum} [filter] 筛选方式，不传返回全部，onlyDir 只返回文件夹，onlyFile 只返回文件
          * @param {ListDirectorySortTypeEnum} [sortType] 排序方式，不传则文件和文件夹单独排序，先返回文件夹，后返回文件。union 文件和文件夹拉通排序
@@ -757,10 +854,36 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listDirectory(libraryId: string, spaceId: string, filePath: string, marker?: string, limit?: number, page?: number, pageSize?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListDirectory200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listDirectory(libraryId, spaceId, filePath, marker, limit, page, pageSize, orderBy, orderByType, filter, sortType, withInode, withFavoriteStatus, accessToken, userId, options);
+        async listDirectory(libraryId: string, spaceId: string, filePath: string, byMarker: ListDirectoryByMarkerEnum, marker?: string, limit?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListDirectory200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listDirectory(libraryId, spaceId, filePath, byMarker, marker, limit, orderBy, orderByType, filter, sortType, withInode, withFavoriteStatus, accessToken, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.listDirectory']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 用于列出目录或相簿内容。 目录内容的列出顺序为：首先按照字典序列出子目录，随后根据上传时间列出媒体库中的媒体资源，或根据文件名列出文件库中的文件资源。 page翻页的深度会有限制，强烈建议业务方改用marker翻页的形式。 
+         * @summary 列出目录或相簿内容（传统分页）
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+         * @param {ListDirectoryByPageByPageEnum} byPage 固定传 1，表示使用 page 方式分页
+         * @param {number} [page] 分页码，默认第一页，最大翻页的条目数（Page*PageSize的大小）是1万
+         * @param {number} [pageSize] 分页大小，默认 20，最大翻页的条目数（Page*PageSize的大小）是1万
+         * @param {ListDirectoryByPageOrderByEnum} [orderBy] 排序字段
+         * @param {ListDirectoryByPageOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc
+         * @param {ListDirectoryByPageFilterEnum} [filter] 筛选方式，不传返回全部，onlyDir 只返回文件夹，onlyFile 只返回文件
+         * @param {ListDirectoryByPageSortTypeEnum} [sortType] 排序方式，不传则文件和文件夹单独排序，先返回文件夹，后返回文件。union 文件和文件夹拉通排序
+         * @param {ListDirectoryByPageWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
+         * @param {ListDirectoryByPageWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listDirectoryByPage(libraryId: string, spaceId: string, filePath: string, byPage: ListDirectoryByPageByPageEnum, page?: number, pageSize?: number, orderBy?: ListDirectoryByPageOrderByEnum, orderByType?: ListDirectoryByPageOrderByTypeEnum, filter?: ListDirectoryByPageFilterEnum, sortType?: ListDirectoryByPageSortTypeEnum, withInode?: ListDirectoryByPageWithInodeEnum, withFavoriteStatus?: ListDirectoryByPageWithFavoriteStatusEnum, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListDirectoryByPage200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listDirectoryByPage(libraryId, spaceId, filePath, byPage, page, pageSize, orderBy, orderByType, filter, sortType, withInode, withFavoriteStatus, accessToken, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DirectoryApi.listDirectoryByPage']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -885,7 +1008,17 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         listDirectory(requestParameters: DirectoryApiListDirectoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<ListDirectory200Response> {
-            return localVarFp.listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.marker, requestParameters.limit, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 用于列出目录或相簿内容。 目录内容的列出顺序为：首先按照字典序列出子目录，随后根据上传时间列出媒体库中的媒体资源，或根据文件名列出文件库中的文件资源。 page翻页的深度会有限制，强烈建议业务方改用marker翻页的形式。 
+         * @summary 列出目录或相簿内容（传统分页）
+         * @param {DirectoryApiListDirectoryByPageRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listDirectoryByPage(requestParameters: DirectoryApiListDirectoryByPageRequest, options?: RawAxiosRequestConfig): AxiosPromise<ListDirectoryByPage200Response> {
+            return localVarFp.listDirectoryByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于重命名或移动目录或相簿。 要求权限： admin、space_admin 或 move_directory。 该接口的源和目标均需要指定完整的目录路径或相簿名；对于文件类型媒体库，源与目标可以跨越多层级多目录，来实现将目录移动到任意其他父目录下的功能，且支持同时修改目录名； 自动创建中间所需的各级父目录。 
@@ -1122,27 +1255,22 @@ export interface DirectoryApiListDirectoryRequest {
     readonly filePath: string
 
     /**
-     * 用于顺序列出分页的标识，不能与 page 和 page_size 参数同时使用
+     * 固定传 1，表示使用 marker 方式分页
+     */
+    readonly byMarker: ListDirectoryByMarkerEnum
+
+    /**
+     * 用于顺序列出分页的标识
      */
     readonly marker?: string
 
     /**
-     * 用于顺序列出分页时本地列出的项目数限制，不能与 page 和 page_size 参数同时使用
+     * 用于顺序列出分页时本地列出的项目数限制，不传默认值20，最大返回100
      */
     readonly limit?: number
 
     /**
-     * 分页码，默认第一页，不能与 marker 和 limit 参数同时使用
-     */
-    readonly page?: number
-
-    /**
-     * 分页大小，默认 20，不能与 marker 和 limit 参数同时使用
-     */
-    readonly pageSize?: number
-
-    /**
-     * 排序字段，name|modificationTime|size|creationTime|localCreationTime|localModificationTime
+     * 排序字段
      */
     readonly orderBy?: ListDirectoryOrderByEnum
 
@@ -1170,6 +1298,81 @@ export interface DirectoryApiListDirectoryRequest {
      * 是否返回收藏状态，0 或 1，默认不返回
      */
     readonly withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+     */
+    readonly userId?: string
+}
+
+/**
+ * Request parameters for listDirectoryByPage operation in DirectoryApi.
+ */
+export interface DirectoryApiListDirectoryByPageRequest {
+    /**
+     * 媒体库 ID，必选参数
+     */
+    readonly libraryId: string
+
+    /**
+     * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+     */
+    readonly spaceId: string
+
+    /**
+     * 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+     */
+    readonly filePath: string
+
+    /**
+     * 固定传 1，表示使用 page 方式分页
+     */
+    readonly byPage: ListDirectoryByPageByPageEnum
+
+    /**
+     * 分页码，默认第一页，最大翻页的条目数（Page*PageSize的大小）是1万
+     */
+    readonly page?: number
+
+    /**
+     * 分页大小，默认 20，最大翻页的条目数（Page*PageSize的大小）是1万
+     */
+    readonly pageSize?: number
+
+    /**
+     * 排序字段
+     */
+    readonly orderBy?: ListDirectoryByPageOrderByEnum
+
+    /**
+     * 排序方式，升序为 asc，降序为 desc
+     */
+    readonly orderByType?: ListDirectoryByPageOrderByTypeEnum
+
+    /**
+     * 筛选方式，不传返回全部，onlyDir 只返回文件夹，onlyFile 只返回文件
+     */
+    readonly filter?: ListDirectoryByPageFilterEnum
+
+    /**
+     * 排序方式，不传则文件和文件夹单独排序，先返回文件夹，后返回文件。union 文件和文件夹拉通排序
+     */
+    readonly sortType?: ListDirectoryByPageSortTypeEnum
+
+    /**
+     * 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
+     */
+    readonly withInode?: ListDirectoryByPageWithInodeEnum
+
+    /**
+     * 是否返回收藏状态，0 或 1，默认不返回
+     */
+    readonly withFavoriteStatus?: ListDirectoryByPageWithFavoriteStatusEnum
 
     /**
      * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
@@ -1350,7 +1553,18 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public listDirectory(requestParameters: DirectoryApiListDirectoryRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.marker, requestParameters.limit, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 用于列出目录或相簿内容。 目录内容的列出顺序为：首先按照字典序列出子目录，随后根据上传时间列出媒体库中的媒体资源，或根据文件名列出文件库中的文件资源。 page翻页的深度会有限制，强烈建议业务方改用marker翻页的形式。 
+     * @summary 列出目录或相簿内容（传统分页）
+     * @param {DirectoryApiListDirectoryByPageRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public listDirectoryByPage(requestParameters: DirectoryApiListDirectoryByPageRequest, options?: RawAxiosRequestConfig) {
+        return DirectoryApiFp(this.configuration).listDirectoryByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1421,13 +1635,16 @@ export const InfoFileOrDirectoryWithFavoriteStatusEnum = {
     NUMBER_1: 1
 } as const;
 export type InfoFileOrDirectoryWithFavoriteStatusEnum = typeof InfoFileOrDirectoryWithFavoriteStatusEnum[keyof typeof InfoFileOrDirectoryWithFavoriteStatusEnum];
+export const ListDirectoryByMarkerEnum = {
+    NUMBER_1: 1
+} as const;
+export type ListDirectoryByMarkerEnum = typeof ListDirectoryByMarkerEnum[keyof typeof ListDirectoryByMarkerEnum];
 export const ListDirectoryOrderByEnum = {
     Name: 'name',
     ModificationTime: 'modificationTime',
     Size: 'size',
     CreationTime: 'creationTime',
-    LocalCreationTime: 'localCreationTime',
-    LocalModificationTime: 'localModificationTime'
+    LocalCreationTime: 'localCreationTime'
 } as const;
 export type ListDirectoryOrderByEnum = typeof ListDirectoryOrderByEnum[keyof typeof ListDirectoryOrderByEnum];
 export const ListDirectoryOrderByTypeEnum = {
@@ -1454,6 +1671,42 @@ export const ListDirectoryWithFavoriteStatusEnum = {
     NUMBER_1: 1
 } as const;
 export type ListDirectoryWithFavoriteStatusEnum = typeof ListDirectoryWithFavoriteStatusEnum[keyof typeof ListDirectoryWithFavoriteStatusEnum];
+export const ListDirectoryByPageByPageEnum = {
+    NUMBER_1: 1
+} as const;
+export type ListDirectoryByPageByPageEnum = typeof ListDirectoryByPageByPageEnum[keyof typeof ListDirectoryByPageByPageEnum];
+export const ListDirectoryByPageOrderByEnum = {
+    Name: 'name',
+    ModificationTime: 'modificationTime',
+    Size: 'size',
+    CreationTime: 'creationTime',
+    LocalCreationTime: 'localCreationTime'
+} as const;
+export type ListDirectoryByPageOrderByEnum = typeof ListDirectoryByPageOrderByEnum[keyof typeof ListDirectoryByPageOrderByEnum];
+export const ListDirectoryByPageOrderByTypeEnum = {
+    Asc: 'asc',
+    Desc: 'desc'
+} as const;
+export type ListDirectoryByPageOrderByTypeEnum = typeof ListDirectoryByPageOrderByTypeEnum[keyof typeof ListDirectoryByPageOrderByTypeEnum];
+export const ListDirectoryByPageFilterEnum = {
+    OnlyDir: 'onlyDir',
+    OnlyFile: 'onlyFile'
+} as const;
+export type ListDirectoryByPageFilterEnum = typeof ListDirectoryByPageFilterEnum[keyof typeof ListDirectoryByPageFilterEnum];
+export const ListDirectoryByPageSortTypeEnum = {
+    Union: 'union'
+} as const;
+export type ListDirectoryByPageSortTypeEnum = typeof ListDirectoryByPageSortTypeEnum[keyof typeof ListDirectoryByPageSortTypeEnum];
+export const ListDirectoryByPageWithInodeEnum = {
+    NUMBER_0: 0,
+    NUMBER_1: 1
+} as const;
+export type ListDirectoryByPageWithInodeEnum = typeof ListDirectoryByPageWithInodeEnum[keyof typeof ListDirectoryByPageWithInodeEnum];
+export const ListDirectoryByPageWithFavoriteStatusEnum = {
+    NUMBER_0: 0,
+    NUMBER_1: 1
+} as const;
+export type ListDirectoryByPageWithFavoriteStatusEnum = typeof ListDirectoryByPageWithFavoriteStatusEnum[keyof typeof ListDirectoryByPageWithFavoriteStatusEnum];
 export const MoveDirectoryConflictResolutionStrategyEnum = {
     Ask: 'ask',
     Rename: 'rename'
