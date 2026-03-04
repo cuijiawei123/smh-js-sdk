@@ -40,6 +40,8 @@ SDK-REGENERATION-GUIDE.md
 .gitignore
 .npmignore
 
+index.ts
+
 
 
 

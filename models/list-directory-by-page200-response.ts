@@ -17,15 +17,23 @@
 // @ts-ignore
 import type { ListDirectory200ResponseContentsInner } from './list-directory200-response-contents-inner';
 
-export interface ListDirectory200Response {
+export interface ListDirectoryByPage200Response {
     /**
      * 返回当前请求的目录结构，如果当前请求的是根目录，则该字段为空数组
      */
     'path'?: Array<string>;
     /**
-     * 用于顺序列出分页的标识
+     * 当前目录中的文件数（不包含孙子级）
      */
-    'nextMarker'?: string;
+    'fileCount'?: number;
+    /**
+     * 当前目录中的子目录数（不包含孙子级）
+     */
+    'subDirCount'?: number;
+    /**
+     * 当前目录中的所有文件和子目录数量（不包含孙子级）
+     */
+    'totalNum'?: number;
     'contents'?: Array<ListDirectory200ResponseContentsInner>;
 }
 

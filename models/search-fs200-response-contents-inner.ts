@@ -14,27 +14,19 @@
 
 
 
-export interface ListDirectory200ResponseContentsInner {
+export interface SearchFs200ResponseContentsInner {
     /**
-     * 目录或相簿名或文件名
+     * 条目类型：dir-目录或相簿；file-文件，仅用于文件类型媒体库；image-图片，仅用于媒体类型媒体库；video-视频，仅用于媒体类型媒体库；symlink-符号链接
      */
-    'name'?: string;
-    /**
-     * 文件具体目录
-     */
-    'path'?: Array<string>;
+    'type'?: SearchFs200ResponseContentsInnerTypeEnum;
     /**
      * 文件目录ID
      */
     'inode'?: string;
     /**
-     * 版本号
+     * 目录或相簿名或文件名
      */
-    'versionId'?: number | null;
-    /**
-     * 条目类型
-     */
-    'type'?: ListDirectory200ResponseContentsInnerTypeEnum;
+    'name'?: string;
     /**
      * ISO 8601格式的日期与时间字符串，表示目录或相簿的创建时间或文件的上传时间
      */
@@ -48,25 +40,33 @@ export interface ListDirectory200ResponseContentsInner {
      */
     'contentType'?: string;
     /**
-     * 文件大小，字符串格式以避免精度问题
+     * 版本号
+     */
+    'versionId'?: number;
+    /**
+     * 文件大小，为了避免数字精度问题，这里为字符串格式
      */
     'size'?: string;
-    /**
-     * 子目录或文件的 ETag
-     */
-    'eTag'?: string;
     /**
      * 是否被收藏，当 WithFavoriteStatus = 1 时返回
      */
     'isFavorite'?: boolean;
     /**
-     * 文件的 CRC64-ECMA182 校验值，字符串格式
+     * 文件 ETag
+     */
+    'eTag'?: string;
+    /**
+     * 文件的 CRC64-ECMA182 校验值，为了避免数字精度问题，这里为字符串格式
      */
     'crc64'?: string;
     /**
      * 文件元数据信息
      */
     'metaData'?: { [key: string]: string; };
+    /**
+     * 创建/更新者 用户 ID
+     */
+    'userId'?: string;
     /**
      * 是否可通过 wps 预览
      */
@@ -76,25 +76,17 @@ export interface ListDirectory200ResponseContentsInner {
      */
     'previewByCI'?: boolean;
     /**
-     * 是否可用预览图作为 icon
+     * 是否可使用预览图当做 icon
      */
     'previewAsIcon'?: boolean;
-    /**
-     * 是否因为配额超限而被删除文件（仅非目录或相簿返回）
-     */
-    'removedByQuota'?: boolean;
-    /**
-     * 文件类型：excel、powerpoint 等
-     */
-    'fileType'?: string;
-    /**
-     * 文件分类，比如 image、video、doc 等
-     */
-    'category'?: string;
     /**
      * 简易文件标签，字符串数组
      */
     'labels'?: Array<string>;
+    /**
+     * 自定义文件分类，比如image、video、doc等
+     */
+    'category'?: string;
     /**
      * 文件对应的本地创建时间
      */
@@ -105,7 +97,7 @@ export interface ListDirectory200ResponseContentsInner {
     'localModificationTime'?: string;
 }
 
-export const ListDirectory200ResponseContentsInnerTypeEnum = {
+export const SearchFs200ResponseContentsInnerTypeEnum = {
     Dir: 'dir',
     File: 'file',
     Image: 'image',
@@ -113,6 +105,6 @@ export const ListDirectory200ResponseContentsInnerTypeEnum = {
     Symlink: 'symlink'
 } as const;
 
-export type ListDirectory200ResponseContentsInnerTypeEnum = typeof ListDirectory200ResponseContentsInnerTypeEnum[keyof typeof ListDirectory200ResponseContentsInnerTypeEnum];
+export type SearchFs200ResponseContentsInnerTypeEnum = typeof SearchFs200ResponseContentsInnerTypeEnum[keyof typeof SearchFs200ResponseContentsInnerTypeEnum];
 
 

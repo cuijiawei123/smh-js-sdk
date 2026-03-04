@@ -28,6 +28,10 @@ export interface MultipartUploadFile200Response {
      */
     'type'?: string;
     /**
+     * 文件目录ID
+     */
+    'inode'?: string;
+    /**
      * 文件首次完成上传的时间
      */
     'creationTime'?: string;

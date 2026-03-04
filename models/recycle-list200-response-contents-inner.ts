@@ -16,7 +16,7 @@
 
 export interface RecycleList200ResponseContentsInner {
     /**
-     * 回收站id
+     * 回收站 ID
      */
     'recycledItemId'?: number;
     /**
@@ -52,19 +52,19 @@ export interface RecycleList200ResponseContentsInner {
      */
     'name'?: string;
     /**
-     * 条目类型：dir-目录或相簿，file-文件，image-图片，video-视频
+     * 条目类型
      */
     'type'?: RecycleList200ResponseContentsInnerTypeEnum;
     /**
-     * 目录或相簿的创建时间或文件的上传时间
+     * ISO 8601格式的日期与时间字符串，表示目录或相簿的创建时间或文件的上传时间
      */
     'creationTime'?: string;
     /**
-     * 目录或相簿的修改时间
+     * ISO 8601格式的日期与时间字符串，表示目录或相簿的修改时间
      */
     'modificationTime'?: string;
     /**
-     * 目录或相簿的删除时间
+     * ISO 8601格式的日期与时间字符串，表示目录或相簿的删除时间
      */
     'removalTime'?: string;
     /**
