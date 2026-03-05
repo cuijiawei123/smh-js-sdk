@@ -151,7 +151,34 @@ const searchResult = await client.search.createSearch({
 | **FileApi** | 文件上传（简单/分片/表单）、下载、复制、移动、删除、详情查询 |
 | **DirectoryApi** | 目录创建、列表、复制、移动、删除、标签管理 |
 | **BatchApi** | 批量复制、移动、删除 |
-| **SpaceApi** | 空间创建、列表、扩展信息、容量查询 |
+| **SpaceApi** | 空间创建、列表、扩展信息、容量查询、删除 |
+
+> **删除空间注意事项**：`deleteSpace` 要求传入的 `accessToken` 必须是**针对待删除空间签发的**。如果当前 client 的 token 是绑定到其他 spaceId 的，需要先用 `createToken` 为目标 spaceId 重新签发一个 token，再将其通过 `accessToken` 参数传入：
+>
+> ```typescript
+> // 1. 创建空间
+> const createRes = await client.space.createSpace({
+>   createSpaceRequest: { spaceTag: 'my_space' },
+> });
+> const newSpaceId = createRes.data.spaceId;
+>
+> // 2. 为新空间签发专属 token
+> const tokenRes = await client.token.createToken({
+>   libraryId: 'your-library-id',
+>   librarySecret: 'your-library-secret',
+>   spaceId: newSpaceId,
+>   userId: 'your-user-id',
+>   grant: 'admin',
+> });
+> const newToken = tokenRes.data.accessToken;
+>
+> // 3. 使用新 token 删除空间
+> await client.space.deleteSpace({
+>   spaceId: newSpaceId,
+>   accessToken: newToken,
+>   force: 1,
+> });
+> ```
 | **SearchApi** | 文件搜索 |
 | **RecycledApi** | 回收站列表、恢复、删除 |
 | **HistoryApi** | 历史版本管理 |

@@ -8,18 +8,38 @@ import { getConfig, createTestClient, skipIfNoConfig } from './helpers';
 
 const shouldSkip = skipIfNoConfig();
 
+function getHttpStatus(error: any): number | undefined {
+  return error?.response?.status;
+}
+
+async function getQuotaIfSupported(client: SMHClient): Promise<{ supported: true; response: any } | { supported: false }> {
+  try {
+    const response = await client.quota.getQuota({});
+    return { supported: true, response };
+  } catch (error: any) {
+    if (getHttpStatus(error) === 404) {
+      return { supported: false };
+    }
+    throw error;
+  }
+}
+
 describe.skipIf(shouldSkip)('SMHClient 集成测试', () => {
   let client: SMHClient;
 
-  beforeAll(() => {
-    client = createTestClient();
+  beforeAll(async () => {
+    client = await createTestClient();
   });
 
   describe('Quota / Usage API', () => {
-    it('应能查询租户空间配额', async () => {
-      const res = await client.quota.getQuota({});
-      expect(res.status).toBe(200);
-      expect(res.data).toBeDefined();
+    it('应能查询租户空间配额（环境未开通配额能力时跳过）', async (ctx: any) => {
+      const quotaResult = await getQuotaIfSupported(client);
+      if (!quotaResult.supported) {
+        ctx.skip('quota 接口返回 404，当前环境未开通配额能力');
+        return;
+      }
+      expect(quotaResult.response.status).toBe(200);
+      expect(quotaResult.response.data).toBeDefined();
     });
 
     it('应能查询媒体库容量信息', async () => {
@@ -31,29 +51,33 @@ describe.skipIf(shouldSkip)('SMHClient 集成测试', () => {
 
   describe('参数自动注入', () => {
     it('不传 libraryId/spaceId/accessToken 时应自动注入默认值', async () => {
-      // 如果自动注入失败，这个请求会 401 或 400
-      const res = await client.quota.getQuota({});
-      expect(res.status).toBe(200);
+      const quotaResult = await getQuotaIfSupported(client);
+      if (quotaResult.supported) {
+        expect(quotaResult.response.status).toBe(200);
+        return;
+      }
+
+      const usageRes = await client.usage.getLibraryUsage({});
+      expect(usageRes.status).toBe(200);
     });
 
     it('手动传入的参数应覆盖默认值', async () => {
-      // 用一个错误的 accessToken，应该收到 401
-      try {
-        await client.quota.getQuota({
-          accessToken: 'invalid_token_for_test',
-        });
-        // 如果没抛错，也算通过（某些 API 可能不校验 token 格式）
-      } catch (error: any) {
-        // 预期 401 或 403
-        expect(error.response?.status).toBeGreaterThanOrEqual(400);
-      }
+      await expect(
+        client.usage.getLibraryUsage({
+          libraryId: 'invalid_library_for_integration_test',
+        })
+      ).rejects.toMatchObject({
+        response: {
+          status: expect.any(Number),
+        },
+      });
     });
   });
 
   describe('setter/getter', () => {
-    it('setDefaultAccessToken 后请求应使用新 token', () => {
-      const config = getConfig();
-      const newClient = createTestClient();
+    it('setDefaultAccessToken 后请求应使用新 token', async () => {
+      const config = await getConfig();
+      const newClient = await createTestClient();
       newClient.setDefaultAccessToken('new_test_token');
       expect(newClient.getDefaultAccessToken()).toBe('new_test_token');
 
@@ -62,8 +86,8 @@ describe.skipIf(shouldSkip)('SMHClient 集成测试', () => {
       expect(newClient.getDefaultAccessToken()).toBe(config.accessToken);
     });
 
-    it('setDefaultLibraryId / setDefaultSpaceId 应正确更新', () => {
-      const newClient = createTestClient();
+    it('setDefaultLibraryId / setDefaultSpaceId 应正确更新', async () => {
+      const newClient = await createTestClient();
 
       newClient.setDefaultLibraryId('new_lib');
       expect(newClient.getDefaultLibraryId()).toBe('new_lib');

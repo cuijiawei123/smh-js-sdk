@@ -6,6 +6,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { SMHClient } from '../../interceptor/SmhClient';
 import {
   createTestClient,
+  getTestRootDir,
   skipIfNoConfig,
   sleep,
 } from './helpers';
@@ -14,11 +15,11 @@ const shouldSkip = skipIfNoConfig();
 
 describe.skipIf(shouldSkip)('目录操作集成测试', () => {
   let client: SMHClient;
-  const testDirBase = `__sdk_test__/dir_${Date.now()}`;
+  const testDirBase = `${getTestRootDir()}/dir_${Date.now()}`;
   const createdDirs: string[] = [];
 
-  beforeAll(() => {
-    client = createTestClient();
+  beforeAll(async () => {
+    client = await createTestClient();
   });
 
   afterAll(async () => {
@@ -37,11 +38,6 @@ describe.skipIf(shouldSkip)('目录操作集成测试', () => {
       // 忽略
     }
 
-    try {
-      await client.directory.deleteDirectory({ filePath: '__sdk_test__' });
-    } catch {
-      // 忽略
-    }
   });
 
   describe('创建目录', () => {
@@ -74,8 +70,8 @@ describe.skipIf(shouldSkip)('目录操作集成测试', () => {
 
       await sleep(1000);
 
-      // 列举父目录
-      const res = await client.directory.listDirectory({ filePath: testDirBase });
+      // 列举父目录（byMarker 是必传参数）
+      const res = await client.directory.listDirectory({ filePath: testDirBase, byMarker: 1 as any });
       expect(res.status).toBe(200);
       expect(res.data).toBeDefined();
     });
@@ -94,9 +90,9 @@ describe.skipIf(shouldSkip)('目录操作集成测试', () => {
   });
 
   describe('目录重命名/移动', () => {
-    it('应能重命名目录', async () => {
-      const oldPath = `${testDirBase}/before-rename`;
-      const newPath = `${testDirBase}/after-rename`;
+    it('应能重命名目录', async (ctx: any) => {
+      const oldPath = `${testDirBase}/before-rename-${Date.now()}`;
+      const newPath = `${testDirBase}/after-rename-${Date.now()}`;
       createdDirs.push(newPath);
 
       await client.directory.createDirectory({ filePath: oldPath });
@@ -106,11 +102,14 @@ describe.skipIf(shouldSkip)('目录操作集成测试', () => {
         const res = await client.directory.moveDirectory({
           filePath: oldPath,
           moveDirectoryRequest: { path: newPath },
+          conflictResolutionStrategy: 'rename',
         } as any);
-        expect([200, 204]).toContain(res.status);
+        expect([200, 201, 204]).toContain(res.status);
       } catch (error: any) {
-        // 某些环境可能不支持此接口，跳过
-        console.log('目录重命名接口不支持或参数格式不同，跳过:', error.message);
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`目录重命名能力不可用或无权限: ${error?.response?.status}`);
+        }
+        throw error;
       }
     });
   });

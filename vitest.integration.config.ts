@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    // SDK 主测试入口：真实环境集成测试
     globals: true,
     environment: 'node',
     include: ['__tests__/integration/**/*.test.ts'],

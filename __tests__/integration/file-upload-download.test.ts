@@ -10,37 +10,18 @@ import { TaskStatus, ProgressInfo, IUpPartInfo, UploadCheckpoint } from '../../l
 import { calculateBufferCRC64 } from '../../utils/crc64';
 import { InfoFileInfoEnum } from '../../apis/file-api';
 import {
+  createMockFile,
   createTestClient,
   generateRandomBuffer,
+  getTestRootDir,
   uniquePath,
   skipIfNoConfig,
   sleep,
+  waitForUploadEnd,
 } from './helpers';
 
 const shouldSkip = skipIfNoConfig();
 
-/** 等待 uploader 到达终态（SUCCESS / RAPID_SUCCESS / ERROR / CANCELED） */
-function waitForUploadEnd(uploader: ReturnType<SMHClient['createUploadTask']>): Promise<TaskStatus> {
-  return new Promise<TaskStatus>((resolve, reject) => {
-    uploader.on('statechange', ({ state }: { state: TaskStatus }) => {
-      if (state === TaskStatus.SUCCESS || state === TaskStatus.RAPID_SUCCESS) {
-        resolve(state);
-      }
-      if (state === TaskStatus.ERROR) {
-        reject(new Error(`上传失败: ${(uploader as any).message}`));
-      }
-      if (state === TaskStatus.CANCELED) {
-        resolve(state);
-      }
-    });
-  });
-}
-
-// 模拟浏览器 File 对象（Node 环境下）
-function createMockFile(name: string, content: Buffer): File {
-  const blob = new Blob([content]);
-  return new File([blob], name, { type: 'application/octet-stream' });
-}
 
 describe.skipIf(shouldSkip)('文件上传 / 下载 E2E', () => {
   let client: SMHClient;
@@ -48,10 +29,10 @@ describe.skipIf(shouldSkip)('文件上传 / 下载 E2E', () => {
   const uploadedFiles: string[] = [];
 
   beforeAll(async () => {
-    client = createTestClient();
+    client = await createTestClient();
     // 先创建测试目录，上传到子目录时需要父目录存在
     try {
-      await client.directory.createDirectory({ filePath: '__sdk_test__' });
+      await client.directory.createDirectory({ filePath: getTestRootDir() });
     } catch {
       // 目录可能已存在，忽略
     }
@@ -67,12 +48,7 @@ describe.skipIf(shouldSkip)('文件上传 / 下载 E2E', () => {
       }
     }
 
-    // 尝试删除测试目录
-    try {
-      await client.directory.deleteDirectory({ filePath: '__sdk_test__' });
-    } catch {
-      // 忽略
-    }
+    // 不删除共享根目录，避免并行集成测试互相影响
   });
 
   // ─── 小文件简单上传 ──────────────────────────────────────
@@ -772,12 +748,15 @@ describe.skipIf(shouldSkip)('文件上传 / 下载 E2E', () => {
       const deleteRes = await client.file.deleteFile({ filePath });
       expect([200, 204]).toContain(deleteRes.status);
 
-      // 再查询应该 404
-      try {
-        await client.file.infoFile({ filePath, info: InfoFileInfoEnum.NUMBER_1 });
-        // 如果没抛错，也可以（某些实现可能返回特定状态）
-      } catch (error: any) {
-        expect(error.response?.status).toBe(404);
+      // 再查询应该 404（无论是 reject 还是 resolve，都必须体现 404）
+      const infoResult = await client.file.infoFile({ filePath, info: InfoFileInfoEnum.NUMBER_1 })
+        .then((res) => ({ ok: true as const, res }))
+        .catch((error: any) => ({ ok: false as const, error }));
+
+      if (infoResult.ok) {
+        expect(infoResult.res.status).toBe(404);
+      } else {
+        expect(infoResult.error.response?.status).toBe(404);
       }
     });
   });

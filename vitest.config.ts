@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    // 仅用于轻量单测（不包含 integration）
     globals: true,
     environment: 'node',
     include: ['__tests__/**/*.test.ts'],
