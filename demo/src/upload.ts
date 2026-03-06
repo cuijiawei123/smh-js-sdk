@@ -19,6 +19,7 @@ export type UploadState =
   | 'created' 
   | 'computing_hash' 
   | 'running' 
+  | 'complete'
   | 'confirming' 
   | 'success' 
   | 'rapid_success' 
@@ -40,7 +41,7 @@ interface UploadOptions {
   parallel: number
   enableInstantUpload: boolean
   checkpoint?: UploadCheckpoint
-  onStateChange: (state: UploadState, error?: Error) => void
+  onStateChange: (state: UploadState, checkpoint: UploadCheckpoint | null, error?: Error) => void
   onProgress: (progress: UploadProgress) => void
   onPartComplete?: (partInfo: { part_number: number; chunk_size: number }) => void
 }
@@ -63,7 +64,7 @@ class UploadManager {
       onStateChange: (checkpoint, state, error) => {
         this.checkpoint = checkpoint
         this.state = state as UploadState
-        options.onStateChange(this.state, error)
+        options.onStateChange(this.state, checkpoint, error)
         
         const debugInfo = checkpoint 
           ? ` [rapid_upload=${checkpoint.rapid_upload}, loaded=${checkpoint.loaded}, progress=${checkpoint.progress?.toFixed(2)}%, size=${checkpoint.file?.size}]` 
@@ -129,7 +130,12 @@ class UploadManager {
 export const uploadManager = new UploadManager()
 
 export function isUploadRunning(state: UploadState): boolean {
-  return ['start', 'created', 'computing_hash', 'running', 'confirming'].includes(state)
+  return ['start', 'created', 'computing_hash', 'running'].includes(state)
+}
+
+/** confirming/complete 状态：任务仍在进行中但不可暂停/取消 */
+export function isUploadConfirming(state: UploadState): boolean {
+  return ['confirming', 'complete'].includes(state)
 }
 
 export function isUploadFinished(state: UploadState): boolean {

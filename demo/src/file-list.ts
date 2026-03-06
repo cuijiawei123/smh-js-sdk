@@ -8,11 +8,33 @@ export interface FileItem {
   type: 'file' | 'dir'
   size?: number
   modificationTime?: string
+  isFavorite?: boolean
+}
+
+/** listDirectory 的排序/筛选/分页选项 */
+export interface ListDirectoryOptions {
+  /** 排序字段：name | modificationTime | size | creationTime | localCreationTime */
+  orderBy?: 'name' | 'modificationTime' | 'size' | 'creationTime' | 'localCreationTime'
+  /** 排序方向 */
+  orderByType?: 'asc' | 'desc'
+  /** 筛选：onlyDir 只返回文件夹，onlyFile 只返回文件 */
+  filter?: 'onlyDir' | 'onlyFile'
+  /** 设为 union 则文件和文件夹拉通排序，不传则文件夹在前、文件在后 */
+  sortType?: 'union'
+  /** 每页数量，默认 100，最大 100 */
+  limit?: number
+  /** 是否返回收藏状态 */
+  withFavoriteStatus?: boolean
 }
 
 export class FileListManager {
   private currentPath: string = '/'
   private items: FileItem[] = []
+  private nextMarker: string | undefined = undefined
+  private hasMore: boolean = false
+  private isLoadingMore: boolean = false
+  private currentClient?: SMHClient
+  private currentOptions: ListDirectoryOptions = {}
   private onNavigateCallback?: (path: string) => void
   private onSelectFileCallback?: (path: string, name: string) => void
   private onDeleteCallback?: (path: string, name: string, type: 'file' | 'dir') => void
@@ -27,11 +49,20 @@ export class FileListManager {
     this.onDeleteCallback = onDelete
   }
 
+  /**
+   * 加载目录内容（首页）
+   */
   async load(
     path: string,
-    client: SMHClient
+    client: SMHClient,
+    options: ListDirectoryOptions = {}
   ): Promise<void> {
     this.currentPath = path
+    this.currentClient = client
+    this.currentOptions = options
+    this.items = []
+    this.nextMarker = undefined
+    this.hasMore = false
 
     const container = document.getElementById('fileListContainer')
     if (!container) return
@@ -40,14 +71,27 @@ export class FileListManager {
     this.updateBreadcrumb(path)
 
     const apiPath = path === '/' ? '' : path.replace(/^\//, '')
+    const limit = options.limit ?? 100
 
     const response = await client.directory.listDirectory({
       filePath: apiPath,
-      limit: 100
+      byMarker: 1 as any,
+      limit,
+      orderBy: options.orderBy as any,
+      orderByType: options.orderByType as any,
+      filter: options.filter as any,
+      sortType: options.sortType as any,
+      withFavoriteStatus: options.withFavoriteStatus ? 1 as any : undefined,
     })
 
     const data = response.data
-    const contents = (data.contents || []) as Array<{ name?: string; type?: string; size?: string | number; modificationTime?: string }>
+    this.nextMarker = (data.nextMarker as any)?.marker ?? data.nextMarker as unknown as string | undefined
+    this.hasMore = !!this.nextMarker
+
+    const contents = (data.contents || []) as Array<{
+      name?: string; type?: string; size?: string | number;
+      modificationTime?: string; isFavorite?: boolean
+    }>
 
     if (contents.length === 0) {
       container.innerHTML = '<div class="empty-list">📂 该目录为空</div>'
@@ -55,29 +99,83 @@ export class FileListManager {
       return
     }
 
-    this.items = contents
+    this.items = this.mapContents(contents, path)
+    this.render()
+    logger.log(`已加载目录: ${path} (${contents.length} 项${this.hasMore ? '，有更多数据' : ''})`)
+  }
+
+  /**
+   * 加载更多（基于 marker 翻页）
+   */
+  async loadMore(): Promise<void> {
+    if (!this.hasMore || this.isLoadingMore || !this.currentClient || !this.nextMarker) return
+
+    this.isLoadingMore = true
+    this.updateLoadMoreButton(true)
+
+    try {
+      const apiPath = this.currentPath === '/' ? '' : this.currentPath.replace(/^\//, '')
+      const options = this.currentOptions
+
+      const response = await this.currentClient.directory.listDirectory({
+        filePath: apiPath,
+        byMarker: 1 as any,
+        marker: this.nextMarker,
+        limit: options.limit ?? 100,
+        orderBy: options.orderBy as any,
+        orderByType: options.orderByType as any,
+        filter: options.filter as any,
+        sortType: options.sortType as any,
+        withFavoriteStatus: options.withFavoriteStatus ? 1 as any : undefined,
+      })
+
+      const data = response.data
+      this.nextMarker = (data.nextMarker as any)?.marker ?? data.nextMarker as unknown as string | undefined
+      this.hasMore = !!this.nextMarker
+
+      const contents = (data.contents || []) as Array<{
+        name?: string; type?: string; size?: string | number;
+        modificationTime?: string; isFavorite?: boolean
+      }>
+
+      const newItems = this.mapContents(contents, this.currentPath)
+      this.items.push(...newItems)
+
+      this.render()
+      logger.log(`加载更多: ${newItems.length} 项${this.hasMore ? '，还有更多' : '，已全部加载'}`)
+    } finally {
+      this.isLoadingMore = false
+    }
+  }
+
+  private mapContents(
+    contents: Array<{ name?: string; type?: string; size?: string | number; modificationTime?: string; isFavorite?: boolean }>,
+    path: string
+  ): FileItem[] {
+    return contents
       .filter(item => item.name && item.type)
       .map(item => ({
         name: item.name!,
         path: path === '/' ? '/' + item.name : path + '/' + item.name,
         type: item.type as 'file' | 'dir',
         size: typeof item.size === 'string' ? parseInt(item.size, 10) : item.size,
-        modificationTime: item.modificationTime
+        modificationTime: item.modificationTime,
+        isFavorite: item.isFavorite,
       }))
-
-    this.render()
-    logger.log(`已加载目录: ${path} (${contents.length} 项)`)
   }
 
   private render(): void {
     const container = document.getElementById('fileListContainer')
     if (!container) return
 
+    const showFavorite = this.currentOptions.withFavoriteStatus
+
     let html = `
       <table class="file-table">
         <thead>
           <tr>
-            <th style="width: 50%">文件名</th>
+            <th style="width: ${showFavorite ? '45%' : '50%'}">文件名</th>
+            ${showFavorite ? '<th style="width: 5%">收藏</th>' : ''}
             <th style="width: 15%">大小</th>
             <th style="width: 20%">修改时间</th>
             <th style="width: 15%">操作</th>
@@ -96,6 +194,7 @@ export class FileListManager {
               <span class="file-name-text">${item.name}</span>
             </div>
           </td>
+          ${showFavorite ? `<td class="file-favorite">${item.isFavorite ? '⭐' : ''}</td>` : ''}
           <td class="file-size">${isDir ? '-' : formatSize(item.size || 0)}</td>
           <td class="file-time">${formatDateTime(item.modificationTime || '')}</td>
           <td class="file-actions">
@@ -110,9 +209,23 @@ export class FileListManager {
     })
 
     html += '</tbody></table>'
+
+    if (this.hasMore) {
+      html += `<div class="load-more-container">
+        <button class="load-more-btn" id="loadMoreBtn">加载更多</button>
+      </div>`
+    }
+
     container.innerHTML = html
 
     this.bindEvents()
+  }
+
+  private updateLoadMoreButton(loading: boolean): void {
+    const btn = document.getElementById('loadMoreBtn')
+    if (!btn) return
+    btn.textContent = loading ? '加载中...' : '加载更多'
+    ;(btn as HTMLButtonElement).disabled = loading
   }
 
   private bindEvents(): void {
@@ -165,6 +278,14 @@ export class FileListManager {
         }
       })
     })
+
+    // 加载更多按钮
+    const loadMoreBtn = document.getElementById('loadMoreBtn')
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', () => {
+        this.loadMore()
+      })
+    }
   }
 
   private updateBreadcrumb(path: string): void {

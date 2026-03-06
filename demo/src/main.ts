@@ -1,7 +1,8 @@
 import './styles.css'
 import { loadConfig, saveConfig, createClient, validateConfig, SDKConfig } from './config'
 import { logger } from './logger'
-import { uploadManager, UploadState, isUploadRunning, isUploadFinished, UploadProgress } from './upload'
+import { uploadManager, UploadState, isUploadRunning, isUploadFinished, isUploadConfirming, UploadProgress } from './upload'
+import type { UploadCheckpoint } from 'smh-js-sdk'
 import { downloadManager, DownloadState, isDownloadRunning, isDownloadFinished, DownloadProgress, saveBlobToFile, downloadByUrl } from './download'
 import { fileListManager } from './file-list'
 import { formatSize, formatTime, getFileNameFromPath, getParentPath } from './utils'
@@ -71,13 +72,18 @@ function getConfig(): SDKConfig {
   }
 }
 
-function updateUploadStatus(state: UploadState): void {
+function updateUploadStatus(
+  state: UploadState,
+  checkpoint?: UploadCheckpoint | null,
+  hashPhase?: 'beginning' | 'full'
+): void {
   const statusMap: Record<UploadState, { class: string; text: string }> = {
     'waiting': { class: 'status-waiting', text: '等待中' },
     'start': { class: 'status-running', text: '启动中' },
     'created': { class: 'status-running', text: '已创建' },
     'computing_hash': { class: 'status-running', text: '计算哈希' },
     'running': { class: 'status-running', text: '传输中' },
+    'complete': { class: 'status-running', text: '传输完成' },
     'confirming': { class: 'status-running', text: '确认中' },
     'success': { class: 'status-success', text: '成功' },
     'rapid_success': { class: 'status-success', text: '秒传成功' },
@@ -87,8 +93,24 @@ function updateUploadStatus(state: UploadState): void {
   }
   
   const info = statusMap[state]
+  let text = info.text
+  
+  // 区分三次 computing_hash：
+  // 1. created 前：计算 beginningHash（秒传匹配）
+  // 2. created 后、无 upload_id：计算 fullHash（202 需要全文哈希确认秒传）
+  // 3. created 后、有 upload_id：计算 CRC64（分片上传完成后校验）
+  if (state === 'computing_hash') {
+    if (checkpoint?.upload_id) {
+      text = '校验 CRC64'
+    } else if (hashPhase === 'full') {
+      text = '计算完整哈希'
+    } else {
+      text = '计算秒传哈希'
+    }
+  }
+  
   elements.uploadStatus.className = `status-badge ${info.class}`
-  elements.uploadStatus.textContent = info.text
+  elements.uploadStatus.textContent = text
 }
 
 function updateDownloadStatus(state: DownloadState): void {
@@ -110,13 +132,14 @@ function updateDownloadStatus(state: DownloadState): void {
 
 function updateUploadButtons(state: UploadState): void {
   const isRunning = isUploadRunning(state)
+  const isConfirming = isUploadConfirming(state)
   const isPaused = state === 'paused'
   const isFinished = isUploadFinished(state)
   
-  elements.startUploadBtn.disabled = isRunning
+  elements.startUploadBtn.disabled = isRunning || isConfirming
   elements.pauseUploadBtn.disabled = !isRunning
   elements.resumeUploadBtn.disabled = !isPaused
-  elements.cancelUploadBtn.disabled = isFinished
+  elements.cancelUploadBtn.disabled = isFinished || isConfirming
 }
 
 function updateDownloadButtons(state: DownloadState): void {
@@ -225,6 +248,9 @@ async function handleUpload(): Promise<void> {
   elements.uploadProgress.classList.add('active')
   
   try {
+    // 追踪 computing_hash 阶段：'beginning'(首次) | 'full'(经历 created 后)
+    let uploadHashPhase: 'beginning' | 'full' = 'beginning'
+    
     await uploadManager.start({
       filePath: uploadPath,
       file: selectedFile,
@@ -232,8 +258,9 @@ async function handleUpload(): Promise<void> {
       chunkSize: parseInt(elements.chunkSize.value) || 5,
       parallel: parseInt(elements.parallel.value) || 2,
       enableInstantUpload: elements.enableInstantUpload.checked,
-        onStateChange: (state, _error) => {
-        updateUploadStatus(state)
+        onStateChange: (state, checkpoint, _error) => {
+        if (state === 'created') uploadHashPhase = 'full'
+        updateUploadStatus(state, checkpoint, uploadHashPhase)
         updateUploadButtons(state)
         finalizeUploadProgress(state)
         
@@ -332,7 +359,11 @@ async function loadFileList(path: string): Promise<void> {
   const client = createClient(config)
   elements.listPath.value = path
   
-  await fileListManager.load(path, client)
+  await fileListManager.load(path, client, {
+    orderBy: 'name',
+    orderByType: 'asc',
+    withFavoriteStatus: true,
+  })
 }
 
 function handleFileSelectFromList(path: string, _name: string): void {
