@@ -73,35 +73,42 @@ export class FileListManager {
     const apiPath = path === '/' ? '' : path.replace(/^\//, '')
     const limit = options.limit ?? 100
 
-    const response = await client.directory.listDirectory({
-      filePath: apiPath,
-      byMarker: 1 as any,
-      limit,
-      orderBy: options.orderBy as any,
-      orderByType: options.orderByType as any,
-      filter: options.filter as any,
-      sortType: options.sortType as any,
-      withFavoriteStatus: options.withFavoriteStatus ? 1 as any : undefined,
-    })
+    try {
+      const response = await client.directory.listDirectory({
+        filePath: apiPath,
+        byMarker: 1 as any,
+        limit,
+        orderBy: options.orderBy as any,
+        orderByType: options.orderByType as any,
+        filter: options.filter as any,
+        sortType: options.sortType as any,
+        withFavoriteStatus: options.withFavoriteStatus ? 1 as any : undefined,
+      })
 
-    const data = response.data
-    this.nextMarker = (data.nextMarker as any)?.marker ?? data.nextMarker as unknown as string | undefined
-    this.hasMore = !!this.nextMarker
+      const data = response.data
+      this.nextMarker = (data.nextMarker as any)?.marker ?? data.nextMarker as unknown as string | undefined
+      this.hasMore = !!this.nextMarker
 
-    const contents = (data.contents || []) as Array<{
-      name?: string; type?: string; size?: string | number;
-      modificationTime?: string; isFavorite?: boolean
-    }>
+      const contents = (data.contents || []) as Array<{
+        name?: string; type?: string; size?: string | number;
+        modificationTime?: string; isFavorite?: boolean
+      }>
 
-    if (contents.length === 0) {
-      container.innerHTML = '<div class="empty-list">📂 该目录为空</div>'
-      logger.log(`已加载目录: ${path} (空目录)`)
-      return
+      if (contents.length === 0) {
+        container.innerHTML = '<div class="empty-list">📂 该目录为空</div>'
+        logger.log(`已加载目录: ${path} (空目录)`)
+        return
+      }
+
+      this.items = this.mapContents(contents, path)
+      this.render()
+      logger.log(`已加载目录: ${path} (${contents.length} 项${this.hasMore ? '，有更多数据' : ''})`)
+    } catch (e: any) {
+      const status = e?.response?.status
+      const msg = e?.response?.data?.message || e?.message || '未知错误'
+      container.innerHTML = `<div class="empty-list error-message">❌ 加载失败: ${status ? `HTTP ${status} - ` : ''}${msg}</div>`
+      logger.log(`加载目录失败: ${msg}`, 'error')
     }
-
-    this.items = this.mapContents(contents, path)
-    this.render()
-    logger.log(`已加载目录: ${path} (${contents.length} 项${this.hasMore ? '，有更多数据' : ''})`)
   }
 
   /**
@@ -143,6 +150,10 @@ export class FileListManager {
 
       this.render()
       logger.log(`加载更多: ${newItems.length} 项${this.hasMore ? '，还有更多' : '，已全部加载'}`)
+    } catch (e: any) {
+      const msg = e?.response?.data?.message || e?.message || '未知错误'
+      this.updateLoadMoreButton(false)
+      logger.log(`加载更多失败: ${msg}`, 'error')
     } finally {
       this.isLoadingMore = false
     }

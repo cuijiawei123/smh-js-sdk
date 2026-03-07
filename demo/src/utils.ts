@@ -61,3 +61,26 @@ export function getParentPath(path: string): string {
   if (lastSlash <= 0) return '/'
   return path.substring(0, lastSlash) || '/'
 }
+
+export function formatJSON(data: any): string {
+  try {
+    return JSON.stringify(data, null, 2)
+  } catch {
+    return String(data)
+  }
+}
+
+export function showResult(containerId: string, data: any, isError = false): void {
+  const container = document.getElementById(containerId)
+  if (!container) return
+  const pre = container.querySelector('.result-pre') || document.createElement('pre')
+  pre.className = `result-pre${isError ? ' error' : ''}`
+  pre.textContent = typeof data === 'string' ? data : formatJSON(data)
+  if (!container.contains(pre)) {
+    container.appendChild(pre)
+  }
+}
+
+export function stripLeadingSlash(path: string): string {
+  return path.replace(/^\//, '')
+}

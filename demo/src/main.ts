@@ -6,20 +6,27 @@ import type { UploadCheckpoint } from 'smh-js-sdk'
 import { downloadManager, DownloadState, isDownloadRunning, isDownloadFinished, DownloadProgress, saveBlobToFile, downloadByUrl } from './download'
 import { fileListManager } from './file-list'
 import { formatSize, formatTime, getFileNameFromPath, getParentPath } from './utils'
+import { initFileOps } from './file-ops'
+import { initDirOps } from './dir-ops'
+import { initSearch } from './search'
+import { initBatchOps } from './batch-ops'
+import { initRecycle } from './recycle'
+import { initHistory } from './history'
+import { initFavorite } from './favorite'
+import { initSpaceMgr } from './space-mgr'
+import { initAdminOps } from './admin-ops'
 
 // ===== State =====
 let selectedFile: File | null = null
+const initializedTabs = new Set<string>()
 
 // ===== DOM Elements =====
 const elements = {
-  // Config
   libraryId: document.getElementById('libraryId') as HTMLInputElement,
   spaceId: document.getElementById('spaceId') as HTMLInputElement,
   accessToken: document.getElementById('accessToken') as HTMLInputElement,
   basePath: document.getElementById('basePath') as HTMLInputElement,
   userId: document.getElementById('userId') as HTMLInputElement,
-  
-  // Upload
   fileInput: document.getElementById('fileInput') as HTMLInputElement,
   fileLabel: document.getElementById('fileLabel') as HTMLLabelElement,
   fileWrapper: document.querySelector('.file-input-wrapper') as HTMLDivElement,
@@ -37,8 +44,6 @@ const elements = {
   uploadProgressText: document.getElementById('uploadProgressText') as HTMLSpanElement,
   uploadSpeedText: document.getElementById('uploadSpeedText') as HTMLSpanElement,
   uploadTimeText: document.getElementById('uploadTimeText') as HTMLSpanElement,
-  
-  // Download
   downloadPath: document.getElementById('downloadPath') as HTMLInputElement,
   downloadChunkSize: document.getElementById('downloadChunkSize') as HTMLInputElement,
   startDownloadBtn: document.getElementById('startDownloadBtn') as HTMLButtonElement,
@@ -52,12 +57,8 @@ const elements = {
   downloadProgressText: document.getElementById('downloadProgressText') as HTMLSpanElement,
   downloadSpeedText: document.getElementById('downloadSpeedText') as HTMLSpanElement,
   downloadTimeText: document.getElementById('downloadTimeText') as HTMLSpanElement,
-  
-  // File List
   listPath: document.getElementById('listPath') as HTMLInputElement,
   refreshListBtn: document.getElementById('refreshListBtn') as HTMLButtonElement,
-  
-  // Log
   clearLogBtn: document.getElementById('clearLogBtn') as HTMLButtonElement
 }
 
@@ -91,24 +92,13 @@ function updateUploadStatus(
     'paused': { class: 'status-paused', text: '已暂停' },
     'canceled': { class: 'status-error', text: '已取消' }
   }
-  
   const info = statusMap[state]
   let text = info.text
-  
-  // 区分三次 computing_hash：
-  // 1. created 前：计算 beginningHash（秒传匹配）
-  // 2. created 后、无 upload_id：计算 fullHash（202 需要全文哈希确认秒传）
-  // 3. created 后、有 upload_id：计算 CRC64（分片上传完成后校验）
   if (state === 'computing_hash') {
-    if (checkpoint?.upload_id) {
-      text = '校验 CRC64'
-    } else if (hashPhase === 'full') {
-      text = '计算完整哈希'
-    } else {
-      text = '计算秒传哈希'
-    }
+    if (checkpoint?.upload_id) text = '校验 CRC64'
+    else if (hashPhase === 'full') text = '计算完整哈希'
+    else text = '计算秒传哈希'
   }
-  
   elements.uploadStatus.className = `status-badge ${info.class}`
   elements.uploadStatus.textContent = text
 }
@@ -124,33 +114,23 @@ function updateDownloadStatus(state: DownloadState): void {
     'paused': { class: 'status-paused', text: '已暂停' },
     'canceled': { class: 'status-error', text: '已取消' }
   }
-  
   const info = statusMap[state]
   elements.downloadStatus.className = `status-badge ${info.class}`
   elements.downloadStatus.textContent = info.text
 }
 
 function updateUploadButtons(state: UploadState): void {
-  const isRunning = isUploadRunning(state)
-  const isConfirming = isUploadConfirming(state)
-  const isPaused = state === 'paused'
-  const isFinished = isUploadFinished(state)
-  
-  elements.startUploadBtn.disabled = isRunning || isConfirming
-  elements.pauseUploadBtn.disabled = !isRunning
-  elements.resumeUploadBtn.disabled = !isPaused
-  elements.cancelUploadBtn.disabled = isFinished || isConfirming
+  elements.startUploadBtn.disabled = isUploadRunning(state) || isUploadConfirming(state)
+  elements.pauseUploadBtn.disabled = !isUploadRunning(state)
+  elements.resumeUploadBtn.disabled = state !== 'paused'
+  elements.cancelUploadBtn.disabled = isUploadFinished(state) || isUploadConfirming(state)
 }
 
 function updateDownloadButtons(state: DownloadState): void {
-  const isRunning = isDownloadRunning(state)
-  const isPaused = state === 'paused'
-  const isFinished = isDownloadFinished(state)
-  
-  elements.startDownloadBtn.disabled = isRunning
-  elements.pauseDownloadBtn.disabled = !isRunning
-  elements.resumeDownloadBtn.disabled = !isPaused
-  elements.cancelDownloadBtn.disabled = isFinished
+  elements.startDownloadBtn.disabled = isDownloadRunning(state)
+  elements.pauseDownloadBtn.disabled = !isDownloadRunning(state)
+  elements.resumeDownloadBtn.disabled = state !== 'paused'
+  elements.cancelDownloadBtn.disabled = isDownloadFinished(state)
 }
 
 function updateUploadProgress(progress: UploadProgress): void {
@@ -162,7 +142,6 @@ function updateUploadProgress(progress: UploadProgress): void {
 
 function finalizeUploadProgress(state: UploadState): void {
   if (state === 'success' || state === 'rapid_success') {
-    // 不兜底设置进度，直接展示 SDK 返回的实际进度值
     elements.uploadProgressBar.classList.add('progress-bar-success')
     elements.uploadSpeedText.textContent = ''
     elements.uploadTimeText.textContent = state === 'rapid_success' ? '秒传完成' : '上传完成'
@@ -188,7 +167,6 @@ function updateDownloadProgress(progress: DownloadProgress): void {
 
 function finalizeDownloadProgress(state: DownloadState): void {
   if (state === 'success') {
-    // 不兜底设置进度，直接展示 SDK 返回的实际进度值
     elements.downloadProgressBar.classList.add('progress-bar-success')
     elements.downloadSpeedText.textContent = ''
     elements.downloadTimeText.textContent = '下载完成'
@@ -210,8 +188,6 @@ function handleFileSelect(file: File): void {
   selectedFile = file
   elements.fileLabel.textContent = `📄 ${file.name} (${formatSize(file.size)})`
   elements.fileLabel.classList.add('has-file')
-  
-  // 每次选择文件时，自动用文件名更新上传路径（保留已有目录前缀）
   const currentPath = elements.uploadPath.value.trim()
   if (!currentPath || currentPath === '/') {
     elements.uploadPath.value = '/' + file.name
@@ -219,38 +195,21 @@ function handleFileSelect(file: File): void {
     const dir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1) || '/'
     elements.uploadPath.value = dir + file.name
   }
-  
   logger.log(`已选择文件: ${file.name} (${formatSize(file.size)})`)
 }
 
 async function handleUpload(): Promise<void> {
   const config = getConfig()
   const error = validateConfig(config)
-  if (error) {
-    logger.log(error, 'error')
-    return
-  }
-  
-  if (!selectedFile) {
-    logger.log('请先选择要上传的文件', 'error')
-    return
-  }
-  
+  if (error) { logger.log(error, 'error'); return }
+  if (!selectedFile) { logger.log('请先选择要上传的文件', 'error'); return }
   const uploadPath = elements.uploadPath.value.trim()
-  if (!uploadPath) {
-    logger.log('请填写上传路径', 'error')
-    return
-  }
-  
+  if (!uploadPath) { logger.log('请填写上传路径', 'error'); return }
   saveConfig(config)
-  
   const client = createClient(config)
   elements.uploadProgress.classList.add('active')
-  
   try {
-    // 追踪 computing_hash 阶段：'beginning'(首次) | 'full'(经历 created 后)
     let uploadHashPhase: 'beginning' | 'full' = 'beginning'
-    
     await uploadManager.start({
       filePath: uploadPath,
       file: selectedFile,
@@ -258,17 +217,14 @@ async function handleUpload(): Promise<void> {
       chunkSize: parseInt(elements.chunkSize.value) || 5,
       parallel: parseInt(elements.parallel.value) || 2,
       enableInstantUpload: elements.enableInstantUpload.checked,
-        onStateChange: (state, checkpoint, _error) => {
+      onStateChange: (state, checkpoint, _error) => {
         if (state === 'created') uploadHashPhase = 'full'
         updateUploadStatus(state, checkpoint, uploadHashPhase)
         updateUploadButtons(state)
         finalizeUploadProgress(state)
-        
-        if (isUploadFinished(state)) {
-          if (state === 'success' || state === 'rapid_success') {
-            const dirPath = getParentPath(uploadPath)
-            setTimeout(() => loadFileList(dirPath), 500)
-          }
+        if (isUploadFinished(state) && (state === 'success' || state === 'rapid_success')) {
+          const dirPath = getParentPath(uploadPath)
+          setTimeout(() => loadFileList(dirPath), 500)
         }
       },
       onProgress: updateUploadProgress
@@ -282,28 +238,17 @@ async function handleUpload(): Promise<void> {
 async function handleDownload(): Promise<void> {
   const config = getConfig()
   const error = validateConfig(config)
-  if (error) {
-    logger.log(error, 'error')
-    return
-  }
-  
+  if (error) { logger.log(error, 'error'); return }
   const downloadPath = elements.downloadPath.value.trim()
-  if (!downloadPath) {
-    logger.log('请填写下载文件路径', 'error')
-    return
-  }
-  
+  if (!downloadPath) { logger.log('请填写下载文件路径', 'error'); return }
   saveConfig(config)
-  
   const client = createClient(config)
   elements.downloadProgress.classList.add('active')
-  
   try {
     const fileName = getFileNameFromPath(downloadPath)
-    
     const blob = await downloadManager.start({
       filePath: downloadPath,
-      fileName: fileName,
+      fileName,
       userId: config.userId,
       chunkSize: parseInt(elements.downloadChunkSize.value) || 5,
       onStateChange: (state, _error) => {
@@ -313,7 +258,6 @@ async function handleDownload(): Promise<void> {
       },
       onProgress: updateDownloadProgress
     }, client)
-    
     saveBlobToFile(blob, fileName)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
@@ -324,22 +268,12 @@ async function handleDownload(): Promise<void> {
 async function handleUrlDownload(): Promise<void> {
   const config = getConfig()
   const error = validateConfig(config)
-  if (error) {
-    logger.log(error, 'error')
-    return
-  }
-
+  if (error) { logger.log(error, 'error'); return }
   const downloadPath = elements.downloadPath.value.trim()
-  if (!downloadPath) {
-    logger.log('请填写下载文件路径', 'error')
-    return
-  }
-
+  if (!downloadPath) { logger.log('请填写下载文件路径', 'error'); return }
   saveConfig(config)
-
   const client = createClient(config)
   const fileName = getFileNameFromPath(downloadPath)
-
   try {
     await downloadByUrl(client, downloadPath, fileName)
   } catch (err) {
@@ -351,14 +285,9 @@ async function handleUrlDownload(): Promise<void> {
 async function loadFileList(path: string): Promise<void> {
   const config = getConfig()
   const error = validateConfig(config)
-  if (error) {
-    logger.log(error, 'error')
-    return
-  }
-  
+  if (error) { logger.log(error, 'error'); return }
   const client = createClient(config)
   elements.listPath.value = path
-  
   await fileListManager.load(path, client, {
     orderBy: 'name',
     orderByType: 'asc',
@@ -369,25 +298,18 @@ async function loadFileList(path: string): Promise<void> {
 function handleFileSelectFromList(path: string, _name: string): void {
   elements.downloadPath.value = path
   logger.log(`已选择下载文件: ${path}`)
-  elements.downloadPath.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  // Switch to download tab
+  switchTab('download')
 }
 
 async function handleDeleteFromList(path: string, name: string, type: 'file' | 'dir'): Promise<void> {
   const typeText = type === 'dir' ? '文件夹' : '文件'
-  if (!confirm(`确定要删除${typeText} "${name}" 吗？`)) {
-    return
-  }
-
+  if (!confirm(`确定要删除${typeText} "${name}" 吗？`)) return
   const config = getConfig()
   const error = validateConfig(config)
-  if (error) {
-    logger.log(error, 'error')
-    return
-  }
-
+  if (error) { logger.log(error, 'error'); return }
   const client = createClient(config)
   const filePath = path.replace(/^\//, '')
-
   try {
     if (type === 'dir') {
       await client.directory.deleteDirectory({ filePath })
@@ -395,12 +317,60 @@ async function handleDeleteFromList(path: string, name: string, type: 'file' | '
       await client.file.deleteFile({ filePath })
     }
     logger.log(`已删除${typeText}: ${name}`)
-    // 刷新当前目录
     await loadFileList(fileListManager.getCurrentPath())
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     logger.log(`删除${typeText}失败: ${message}`, 'error')
   }
+}
+
+// ===== Tab System =====
+function switchTab(tabId: string): void {
+  // Update tab buttons
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', (btn as HTMLElement).dataset.tab === tabId)
+  })
+  // Update tab panels
+  document.querySelectorAll('.tab-panel').forEach(panel => {
+    panel.classList.toggle('active', panel.id === `panel-${tabId}`)
+  })
+  // Lazy init new modules
+  initTabModule(tabId)
+}
+
+function initTabModule(tabId: string): void {
+  if (initializedTabs.has(tabId)) return
+  initializedTabs.add(tabId)
+
+  const moduleMap: Record<string, (getConfig: () => SDKConfig) => void> = {
+    'file-ops': initFileOps,
+    'dir-ops': initDirOps,
+    'search': initSearch,
+    'batch-ops': initBatchOps,
+    'recycle': initRecycle,
+    'history': initHistory,
+    'favorite': initFavorite,
+    'space': initSpaceMgr,
+    'admin': initAdminOps,
+  }
+
+  const initFn = moduleMap[tabId]
+  if (initFn) {
+    initFn(getConfig)
+  }
+}
+
+function initTabs(): void {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabId = (btn as HTMLElement).dataset.tab
+      if (tabId) switchTab(tabId)
+    })
+  })
+  // Mark existing tabs as initialized
+  initializedTabs.add('upload')
+  initializedTabs.add('download')
+  initializedTabs.add('file-list')
 }
 
 // ===== Initialization =====
@@ -411,8 +381,6 @@ function initConfig(): void {
   elements.accessToken.value = config.accessToken
   elements.basePath.value = config.basePath
   elements.userId.value = config.userId || ''
-  
-  // 监听配置变化自动保存
   const configInputs = [elements.libraryId, elements.spaceId, elements.accessToken, elements.basePath, elements.userId]
   configInputs.forEach(input => {
     input.addEventListener('change', () => saveConfig(getConfig()))
@@ -420,35 +388,23 @@ function initConfig(): void {
 }
 
 function initFileInput(): void {
-  // 文件选择
   elements.fileInput.addEventListener('change', (e) => {
     const files = (e.target as HTMLInputElement).files
-    if (files && files[0]) {
-      handleFileSelect(files[0])
-    }
+    if (files && files[0]) handleFileSelect(files[0])
   })
-  
-  // 拖拽支持
   elements.fileWrapper.addEventListener('dragover', (e) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault(); e.stopPropagation()
     elements.fileWrapper.classList.add('dragover')
   })
-  
   elements.fileWrapper.addEventListener('dragleave', (e) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault(); e.stopPropagation()
     elements.fileWrapper.classList.remove('dragover')
   })
-  
   elements.fileWrapper.addEventListener('drop', (e) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault(); e.stopPropagation()
     elements.fileWrapper.classList.remove('dragover')
     const files = e.dataTransfer?.files
-    if (files && files[0]) {
-      handleFileSelect(files[0])
-    }
+    if (files && files[0]) handleFileSelect(files[0])
   })
 }
 
@@ -473,12 +429,10 @@ function initFileList(): void {
     (path, name) => handleFileSelectFromList(path, name),
     (path, name, type) => handleDeleteFromList(path, name, type)
   )
-  
   elements.refreshListBtn.addEventListener('click', () => {
     const path = elements.listPath.value.trim() || '/'
     loadFileList(path)
   })
-  
   elements.listPath.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       const path = elements.listPath.value.trim() || '/'
@@ -495,12 +449,12 @@ function initLog(): void {
 // ===== Main =====
 function main(): void {
   initConfig()
+  initTabs()
   initFileInput()
   initUpload()
   initDownload()
   initFileList()
   initLog()
-  
   logger.log('SMH JS SDK Demo 已加载，请填写配置后开始测试')
 }
 
