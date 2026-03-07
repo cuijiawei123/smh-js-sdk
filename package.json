@@ -30,13 +30,14 @@
   "scripts": {
     "build": "tsc && npm run build:browser",
     "build:browser": "esbuild index.ts --bundle --format=esm --outfile=dist/smh-sdk.esm.js --platform=browser --target=es2020 --external:fs --external:path --external:crypto",
+    "prepublishOnly": "npm run build",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
     "test": "npm run test:integration",
     "test:watch": "npm run test:integration:watch",
     "test:integration": "dotenv -e .env -- vitest run --config vitest.integration.config.ts",
     "test:integration:watch": "dotenv -e .env -- vitest --config vitest.integration.config.ts",
-    "test:integration:coverage": "dotenv -e .env -- vitest run --config vitest.integration.config.ts --coverage",
+    "test:integration:coverage": "dotenv -e .env -- vitest run --config vitest.integration.config.ts --coverage"
   },
   "dependencies": {
     "axios": "^1.6.1",
