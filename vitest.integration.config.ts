@@ -13,5 +13,12 @@ export default defineConfig({
     sequence: {
       concurrent: false,
     },
+    coverage: {
+      provider: 'v8',
+      include: ['apis/**/*.ts', 'interceptor/**/*.ts', 'loaders/**/*.ts', 'utils/**/*.ts'],
+      exclude: ['**/*.test.ts', '**/index.ts'],
+      reportsDirectory: './coverage',
+      cleanOnRerun: true,
+    },
   },
 });

@@ -9,12 +9,16 @@ import { SMHClient } from '../../interceptor/SmhClient';
 import {
   InfoFileOrDirectoryInfoEnum,
   ListDirectoryByPageByPageEnum,
+  UpdateFileLabelsUpdateEnum,
 } from '../../apis/directory-api';
 import {
+  createMockFile,
   createTestClient,
   getTestRootDir,
   skipIfNoConfig,
   sleep,
+  uniquePath,
+  waitForUploadEnd,
 } from './helpers';
 
 const shouldSkip = skipIfNoConfig();
@@ -153,6 +157,43 @@ describe.skipIf(shouldSkip)('DirectoryApi 补充集成测试', () => {
       } catch (error: any) {
         if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
           ctx.skip(`更新目录标签不可用: ${error?.response?.status}`);
+        }
+        throw error;
+      }
+    });
+  });
+
+  // ─── updateFileLabels ────────────────────────────────────
+
+  describe('updateFileLabels - 更新文件标签', () => {
+    let testFilePath: string;
+
+    beforeAll(async () => {
+      testFilePath = uniquePath('dir-file-labels', '.txt');
+      const content = Buffer.from(`file labels test ${Date.now()}`);
+      const file = createMockFile('labels.txt', content);
+      const uploader = client.createUploadTask({ file, filePath: testFilePath });
+      const endPromise = waitForUploadEnd(uploader);
+      uploader.start();
+      await endPromise;
+      await sleep(500);
+    });
+
+    afterAll(async () => {
+      try { await client.file.deleteFile({ filePath: testFilePath }); } catch { /* ignore */ }
+    });
+
+    it('应能为文件设置标签', async (ctx: any) => {
+      try {
+        const res = await client.directory.updateFileLabels({
+          filePath: testFilePath,
+          update: UpdateFileLabelsUpdateEnum.NUMBER_1,
+          updateFileLabelsRequest: { labels: ['sdk-test', 'file-label'] },
+        });
+        expect([200, 204]).toContain(res.status);
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`更新文件标签不可用: ${error?.response?.status}`);
         }
         throw error;
       }

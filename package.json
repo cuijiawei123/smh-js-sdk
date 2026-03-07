@@ -36,9 +36,7 @@
     "test:watch": "npm run test:integration:watch",
     "test:integration": "dotenv -e .env -- vitest run --config vitest.integration.config.ts",
     "test:integration:watch": "dotenv -e .env -- vitest --config vitest.integration.config.ts",
-    "test:unit": "vitest run --config vitest.config.ts",
-    "test:unit:watch": "vitest --config vitest.config.ts",
-    "test:coverage": "vitest run --config vitest.config.ts --coverage"
+    "test:integration:coverage": "dotenv -e .env -- vitest run --config vitest.integration.config.ts --coverage",
   },
   "dependencies": {
     "axios": "^1.6.1",
@@ -46,6 +44,7 @@
   },
   "devDependencies": {
     "@types/node": "^16.0.0",
+    "@vitest/coverage-v8": "^4.0.18",
     "dotenv-cli": "^8.0.0",
     "esbuild": "^0.27.2",
     "typescript": "^4.0 || ^5.0",
