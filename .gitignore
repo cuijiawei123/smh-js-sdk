@@ -5,5 +5,4 @@ dist
 .env
 coverage/
 _debug_upload.js
-demo/dist/
 *.log
