@@ -357,6 +357,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     
     // 检查是否需要计算 fullHash
     if (httpStatus === 202) {
+      await this.changeState(TaskStatus.COMPUTING_HASH);
       const fullHash = await calculateFullHash(this.options.file, this.file.size, (progress) => {
         this.notifyProgress('computing_hash', progress);
       });
@@ -559,6 +560,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
       
       // 检查是否需要 fullHash
       if (httpStatus === 202) {
+        await this.changeState(TaskStatus.COMPUTING_HASH);
         const fullHash = await calculateFullHash(this.options.file, this.file.size, (progress) => {
           this.notifyProgress('computing_hash', progress);
         });
