@@ -6,7 +6,7 @@
 
 - 浏览器需支持 File API、ArrayBuffer、BigInt、WebAssembly
 - 已开通腾讯云智能媒资托管服务
-- 已获取媒体库 ID（libraryId）和媒体库密钥（librarySecret）
+- 已获取媒体库 ID（libraryId）和访问令牌（accessToken，由后端服务签发）
 
 ## 安装
 
@@ -42,51 +42,22 @@ const { SMHClient } = require('smh-js-sdk')
 
 ### 2. 初始化 SMHClient
 
-**方式一：已有 accessToken 时直接传入（推荐）**
-
-浏览器端通常由业务后端签发 `accessToken`，前端拿到后直接传入：
-
 ```typescript
 const client = new SMHClient({
   basePath: 'https://smhxxx.api.tencentsmh.cn', // 专属域名（推荐）
   libraryId: 'your-library-id',
   spaceId: 'your-space-id',
-  accessToken: 'your-access-token',
+  accessToken: 'your-access-token',  // 由后端服务创建
   maxRetries: 3,  // 可选，请求失败重试次数，默认 3
   timeout: 30000, // 可选，请求超时时间（毫秒），默认 30000
 })
 ```
 
-**方式二：通过 SDK 创建访问令牌**
-
-如果需要在前端直接创建 token（仅适用于测试或受信环境，**不建议在生产环境暴露 librarySecret**）：
-
-```typescript
-const client = new SMHClient({
-  basePath: 'https://smhxxx.api.tencentsmh.cn',
-})
-
-// 创建访问令牌
-const tokenResponse = await client.token.createToken({
-  libraryId: 'your-library-id',
-  librarySecret: 'your-library-secret',
-  spaceId: 'your-space-id',
-  userId: 'your-user-id',
-  grant: 'admin',
-  period: 3600,
-})
-
-const accessToken = tokenResponse.data.accessToken
-
-// 设置默认参数，后续 API 调用自动注入
-client.setDefaultAccessToken(accessToken)
-client.setDefaultLibraryId('your-library-id')
-client.setDefaultSpaceId('your-space-id')
-```
-
 > **basePath 专属域名获取方式**：在 [腾讯云智能媒资托管控制台](https://console.cloud.tencent.com/smh) 创建媒体库后，控制台会展示为您生成的专属域名（如 `smhxxx.api.tencentsmh.cn`）。**强烈建议**将 `basePath` 设置为您的专属域名，以获得更好的访问性能和稳定性。
 
-设置默认参数后，后续调用 API 时无需每次都传入 `libraryId`、`spaceId`、`accessToken`，SDK 会自动注入。
+> **安全提示**：`librarySecret` 属于敏感凭据，**切勿在浏览器端暴露**。创建访问令牌（`createToken`）应在后端服务中完成，前端仅使用后端签发的 `accessToken`。
+
+初始化后，后续调用 API 时无需每次都传入 `libraryId`、`spaceId`、`accessToken`，SDK 会自动注入。
 
 ### 3. AccessToken 续期
 
@@ -213,50 +184,6 @@ await downloader.cancel()
 | `timeout` | number | 30000 | 请求超时时间（毫秒） |
 | `baseOptions` | object | - | 传递给 axios 的额外配置 |
 
-## createToken 参数
-
-| 参数名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| libraryId | string | 是 | 媒体库 ID，在媒体托管控制台创建媒体库后获取 |
-| librarySecret | string | 是 | 媒体库密钥，在媒体托管控制台创建媒体库后获取 |
-| spaceId | string | 否 | 空间 ID，可同时指定多个空间 ID，使用英文逗号（,）分隔 |
-| userId | string | 否 | 用户身份识别，由业务后台自行控制 |
-| clientId | string | 否 | 客户端识别，由业务后台自行控制 |
-| sessionId | string | 否 | 会话 ID，由业务后台自行控制 |
-| grant | string | 否 | 授予的权限，如为空则只授予读取权限。可指定多个权限项，使用英文逗号（,）分隔 |
-| period | number | 否 | 令牌有效时长，单位为秒，默认 86400（24小时），最小值 300，最大值 315360000 |
-
-### Grant 权限项
-
-| 权限项 | 描述 |
-|--------|------|
-| admin | 管理员权限，授予所有权限 |
-| space_admin | 租户空间管理员权限，拥有除租户空间操作以外的所有权限 |
-| create_space | 创建租户空间权限 |
-| delete_space | 删除租户空间权限 |
-| create_directory | 创建目录或相簿权限 |
-| delete_directory | 删除目录或相簿权限（未开启回收站）/移入回收站权限（开启回收站） |
-| delete_directory_permanent | 开启回收站时，永久删除目录或相簿权限 |
-| move_directory | 重命名或移动目录或相簿权限 |
-| copy_directory | 复制目录或相簿权限 |
-| upload_file | 上传文件权限，但不允许覆盖已有文件 |
-| upload_file_force | 上传文件权限，且允许覆盖已有文件 |
-| begin_upload | 开始上传文件权限，但不允许覆盖已有文件 |
-| begin_upload_force | 开始上传文件权限，且允许覆盖已有文件 |
-| confirm_upload | 完成上传文件权限（用于前后端权限分离） |
-| create_symlink | 创建符号链接权限，但不允许覆盖 |
-| create_symlink_force | 创建符号链接权限，且允许覆盖 |
-| delete_file | 删除文件权限（未开启回收站）/移入回收站权限（开启回收站） |
-| delete_file_permanent | 开启回收站时，永久删除文件权限 |
-| move_file | 重命名或移动文件权限，但不允许覆盖 |
-| move_file_force | 重命名或移动文件权限，且允许覆盖 |
-| copy_file | 复制文件权限，但不允许覆盖 |
-| copy_file_force | 复制文件权限，且允许覆盖 |
-| delete_recycled | 删除回收站项目权限 |
-| restore_recycled | 恢复回收站项目权限 |
-| set_history_latest | 将某个历史版本设置为最新版本权限 |
-| delete_history | 删除历史版本权限 |
-
 ## 主要功能
 
 ### 上传功能
@@ -301,7 +228,7 @@ await downloader.cancel()
 
 - **上传文件** — 简单上传、表单上传、分片上传、断点续传
 - **下载文件** — 直接下载、获取文件信息、获取文件预览、获取文件封面
-- **文件操作** — 删除、移动/重命名、复制、创建符号链接、文件转码、检查状态、根据 inode 获取文件信息
+- **文件操作** — 删除、移动/重命名、复制、创建符号链接、文件转码、检查状态、根据 inode 获取文件信息、查询文件删除原因
 
 ### 回收站管理（RecycledApi）
 
