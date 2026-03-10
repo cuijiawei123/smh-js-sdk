@@ -1,6 +1,6 @@
 {
-  "name": "@tencent/smh-js-sdk",
-  "version": "1.0.1",
+  "name": "smh-js-sdk",
+  "version": "1.0.3",
   "description": "腾讯云智能媒资托管服务 JavaScript/TypeScript SDK",
   "keywords": [
     "tencent",
@@ -38,6 +38,8 @@
     "prepublishOnly": "npm run build",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
+    "publish:internal": "cp package.json .package.json.bak && cp package-lock.json .package-lock.json.bak && npm pkg set name=@tencent/smh-js-sdk && npm install --package-lock-only && npm publish; mv .package.json.bak package.json; mv .package-lock.json.bak package-lock.json",
+    "publish:public": "cp package.json .package.json.bak && cp package-lock.json .package-lock.json.bak && npm pkg set name=smh-js-sdk && npm install --package-lock-only && npm publish --access public; mv .package.json.bak package.json; mv .package-lock.json.bak package-lock.json",
     "test": "npm run test:integration",
     "test:watch": "npm run test:integration:watch",
     "test:integration": "dotenv -e .env -- vitest run --config vitest.integration.config.ts",
@@ -45,7 +47,7 @@
     "test:integration:coverage": "dotenv -e .env -- vitest run --config vitest.integration.config.ts --coverage"
   },
   "dependencies": {
-    "axios": "^1.6.1",
+    "axios": "^1.13.6",
     "hash-wasm": "^4.11.0"
   },
   "devDependencies": {
