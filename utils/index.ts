@@ -47,11 +47,16 @@ export {
 /**
  * 解析 COS 域名，提取 bucket 和 region
  * @param domain COS 域名，如 "bucket-123456.cos.ap-guangzhou.myqcloud.com"
+ * 支持自定义域名场景，解析失败时返回空字符串而非抛错
  */
 export function parseCOSDomain(domain: string): { bucket: string; region: string } {
   const match = domain.match(/^(.+)\.cos\.([^.]+)\.myqcloud\.com$/);
   if (!match) {
-    throw new Error(`Invalid COS domain format: ${domain}`);
+    // 自定义域名场景，无法解析 bucket 和 region，返回空值不阻断上传流程
+    return {
+      bucket: '',
+      region: ''
+    };
   }
   return {
     bucket: match[1],
