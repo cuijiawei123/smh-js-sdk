@@ -83,5 +83,9 @@ export interface CompleteFileUpload200Response {
      * 文件类型：excel、powerpoint 等
      */
     'fileType'?: string;
+    /**
+     * 文件内容的Cas标识
+     */
+    'contentCas'?: string;
 }
 

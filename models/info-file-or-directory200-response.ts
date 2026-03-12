@@ -92,13 +92,17 @@ export interface InfoFileOrDirectory200Response {
      */
     'labels'?: Array<string>;
     /**
-     * 文件自定义的分类，int类型
+     * 文件自定义的分类，string类型
      */
-    'category'?: number;
+    'category'?: string;
     /**
      * 符号链接指向的下一级文件的inode，当文件为符号链接时返回
      */
     'linkTo'?: string;
+    /**
+     * 文件内容的Cas标识
+     */
+    'contentCas'?: string;
 }
 
 export const InfoFileOrDirectory200ResponseTypeEnum = {

@@ -87,5 +87,9 @@ export interface InfoFile200Response {
      * 文件版本号
      */
     'versionId'?: number;
+    /**
+     * 文件内容的Cas标识
+     */
+    'contentCas'?: string;
 }
 

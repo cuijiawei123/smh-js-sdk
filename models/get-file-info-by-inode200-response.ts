@@ -47,5 +47,9 @@ export interface GetFileInfoByInode200Response {
      * 文件的 CRC64-ECMA182 校验值，为了避免数字精度问题，这里为字符串格式（仅非目录或相簿返回）
      */
     'crc64'?: string;
+    /**
+     * 文件内容的Cas标识
+     */
+    'contentCas'?: string;
 }
 

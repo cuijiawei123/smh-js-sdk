@@ -19,5 +19,9 @@ export interface CopyFileRequest {
      * 被复制的源文件路径，必选参数
      */
     'copyFrom': string;
+    /**
+     * 被复制的源文件的文件内容的Cas标识，可选参数
+     */
+    'contentCas'?: string;
 }
 
