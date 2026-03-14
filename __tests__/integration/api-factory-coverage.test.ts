@@ -480,7 +480,7 @@ describe('FileApi Factory/Fp 层覆盖', () => {
       })).resolves.toBeDefined();
 
       await expect(factory.getFileInfoByInode({
-        libraryId: 'lib-1', spaceId: 'space-1', iNode: 'inode-1', accessToken: 'token',
+        libraryId: 'lib-1', spaceId: 'space-1', inode: 'inode-1', accessToken: 'token',
       })).resolves.toBeDefined();
 
       await expect(factory.getFileUpload({

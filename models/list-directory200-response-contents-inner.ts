@@ -103,6 +103,10 @@ export interface ListDirectory200ResponseContentsInner {
      * 文件对应的本地修改时间
      */
     'localModificationTime'?: string;
+    /**
+     * 文件内容的Cas标识
+     */
+    'contentCas'?: string;
 }
 
 export const ListDirectory200ResponseContentsInnerTypeEnum = {

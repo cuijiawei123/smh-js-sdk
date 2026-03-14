@@ -197,7 +197,7 @@ describe.skipIf(shouldSkip)('FileApi 补充集成测试', () => {
 
       try {
         const res = await client.file.getFileInfoByInode({
-          iNode: sharedFileInode,
+          inode: sharedFileInode,
         });
         expect(res.status).toBe(200);
         expect(res.data).toBeDefined();

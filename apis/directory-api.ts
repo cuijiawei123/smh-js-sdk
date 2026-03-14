@@ -298,10 +298,11 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {InfoFileOrDirectoryWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {InfoFileOrDirectoryWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
+         * @param {InfoFileOrDirectoryWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        infoFileOrDirectory: async (libraryId: string, spaceId: string, filePath: string, info: InfoFileOrDirectoryInfoEnum, withInode?: InfoFileOrDirectoryWithInodeEnum, accessToken?: string, withFavoriteStatus?: InfoFileOrDirectoryWithFavoriteStatusEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        infoFileOrDirectory: async (libraryId: string, spaceId: string, filePath: string, info: InfoFileOrDirectoryInfoEnum, withInode?: InfoFileOrDirectoryWithInodeEnum, accessToken?: string, withFavoriteStatus?: InfoFileOrDirectoryWithFavoriteStatusEnum, withContentCas?: InfoFileOrDirectoryWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('infoFileOrDirectory', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -341,6 +342,10 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
                 localVarQueryParameter['with_favorite_status'] = withFavoriteStatus;
             }
 
+            if (withContentCas !== undefined) {
+                localVarQueryParameter['with_content_cas'] = withContentCas;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -369,10 +374,11 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {ListDirectoryWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {ListDirectoryWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listDirectory: async (libraryId: string, spaceId: string, filePath: string, byMarker: ListDirectoryByMarkerEnum, marker?: string, limit?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listDirectory: async (libraryId: string, spaceId: string, filePath: string, byMarker: ListDirectoryByMarkerEnum, marker?: string, limit?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, userId?: string, withContentCas?: ListDirectoryWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('listDirectory', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -440,6 +446,10 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
                 localVarQueryParameter['user_id'] = userId;
             }
 
+            if (withContentCas !== undefined) {
+                localVarQueryParameter['with_content_cas'] = withContentCas;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -468,10 +478,11 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {ListDirectoryByPageWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {ListDirectoryByPageWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listDirectoryByPage: async (libraryId: string, spaceId: string, filePath: string, byPage: ListDirectoryByPageByPageEnum, page?: number, pageSize?: number, orderBy?: ListDirectoryByPageOrderByEnum, orderByType?: ListDirectoryByPageOrderByTypeEnum, filter?: ListDirectoryByPageFilterEnum, sortType?: ListDirectoryByPageSortTypeEnum, withInode?: ListDirectoryByPageWithInodeEnum, withFavoriteStatus?: ListDirectoryByPageWithFavoriteStatusEnum, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listDirectoryByPage: async (libraryId: string, spaceId: string, filePath: string, byPage: ListDirectoryByPageByPageEnum, page?: number, pageSize?: number, orderBy?: ListDirectoryByPageOrderByEnum, orderByType?: ListDirectoryByPageOrderByTypeEnum, filter?: ListDirectoryByPageFilterEnum, sortType?: ListDirectoryByPageSortTypeEnum, withInode?: ListDirectoryByPageWithInodeEnum, withFavoriteStatus?: ListDirectoryByPageWithFavoriteStatusEnum, accessToken?: string, userId?: string, withContentCas?: ListDirectoryByPageWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('listDirectoryByPage', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -537,6 +548,10 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
 
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
+            }
+
+            if (withContentCas !== undefined) {
+                localVarQueryParameter['with_content_cas'] = withContentCas;
             }
 
 
@@ -825,11 +840,12 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {InfoFileOrDirectoryWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {InfoFileOrDirectoryWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
+         * @param {InfoFileOrDirectoryWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async infoFileOrDirectory(libraryId: string, spaceId: string, filePath: string, info: InfoFileOrDirectoryInfoEnum, withInode?: InfoFileOrDirectoryWithInodeEnum, accessToken?: string, withFavoriteStatus?: InfoFileOrDirectoryWithFavoriteStatusEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<InfoFileOrDirectory200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.infoFileOrDirectory(libraryId, spaceId, filePath, info, withInode, accessToken, withFavoriteStatus, options);
+        async infoFileOrDirectory(libraryId: string, spaceId: string, filePath: string, info: InfoFileOrDirectoryInfoEnum, withInode?: InfoFileOrDirectoryWithInodeEnum, accessToken?: string, withFavoriteStatus?: InfoFileOrDirectoryWithFavoriteStatusEnum, withContentCas?: InfoFileOrDirectoryWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<InfoFileOrDirectory200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.infoFileOrDirectory(libraryId, spaceId, filePath, info, withInode, accessToken, withFavoriteStatus, withContentCas, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.infoFileOrDirectory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -851,11 +867,12 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {ListDirectoryWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {ListDirectoryWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listDirectory(libraryId: string, spaceId: string, filePath: string, byMarker: ListDirectoryByMarkerEnum, marker?: string, limit?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListDirectory200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listDirectory(libraryId, spaceId, filePath, byMarker, marker, limit, orderBy, orderByType, filter, sortType, withInode, withFavoriteStatus, accessToken, userId, options);
+        async listDirectory(libraryId: string, spaceId: string, filePath: string, byMarker: ListDirectoryByMarkerEnum, marker?: string, limit?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, userId?: string, withContentCas?: ListDirectoryWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListDirectory200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listDirectory(libraryId, spaceId, filePath, byMarker, marker, limit, orderBy, orderByType, filter, sortType, withInode, withFavoriteStatus, accessToken, userId, withContentCas, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.listDirectory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -877,11 +894,12 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {ListDirectoryByPageWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {ListDirectoryByPageWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listDirectoryByPage(libraryId: string, spaceId: string, filePath: string, byPage: ListDirectoryByPageByPageEnum, page?: number, pageSize?: number, orderBy?: ListDirectoryByPageOrderByEnum, orderByType?: ListDirectoryByPageOrderByTypeEnum, filter?: ListDirectoryByPageFilterEnum, sortType?: ListDirectoryByPageSortTypeEnum, withInode?: ListDirectoryByPageWithInodeEnum, withFavoriteStatus?: ListDirectoryByPageWithFavoriteStatusEnum, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListDirectoryByPage200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listDirectoryByPage(libraryId, spaceId, filePath, byPage, page, pageSize, orderBy, orderByType, filter, sortType, withInode, withFavoriteStatus, accessToken, userId, options);
+        async listDirectoryByPage(libraryId: string, spaceId: string, filePath: string, byPage: ListDirectoryByPageByPageEnum, page?: number, pageSize?: number, orderBy?: ListDirectoryByPageOrderByEnum, orderByType?: ListDirectoryByPageOrderByTypeEnum, filter?: ListDirectoryByPageFilterEnum, sortType?: ListDirectoryByPageSortTypeEnum, withInode?: ListDirectoryByPageWithInodeEnum, withFavoriteStatus?: ListDirectoryByPageWithFavoriteStatusEnum, accessToken?: string, userId?: string, withContentCas?: ListDirectoryByPageWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListDirectoryByPage200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listDirectoryByPage(libraryId, spaceId, filePath, byPage, page, pageSize, orderBy, orderByType, filter, sortType, withInode, withFavoriteStatus, accessToken, userId, withContentCas, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.listDirectoryByPage']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -998,7 +1016,7 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         infoFileOrDirectory(requestParameters: DirectoryApiInfoFileOrDirectoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<InfoFileOrDirectory200Response> {
-            return localVarFp.infoFileOrDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.withInode, requestParameters.accessToken, requestParameters.withFavoriteStatus, options).then((request) => request(axios, basePath));
+            return localVarFp.infoFileOrDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.withInode, requestParameters.accessToken, requestParameters.withFavoriteStatus, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于列出目录或相簿内容。 目录内容的列出顺序为：首先按照字典序列出子目录，随后根据上传时间列出媒体库中的媒体资源，或根据文件名列出文件库中的文件资源。 
@@ -1008,7 +1026,7 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         listDirectory(requestParameters: DirectoryApiListDirectoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<ListDirectory200Response> {
-            return localVarFp.listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于列出目录或相簿内容。 目录内容的列出顺序为：首先按照字典序列出子目录，随后根据上传时间列出媒体库中的媒体资源，或根据文件名列出文件库中的文件资源。 page翻页的深度会有限制，强烈建议业务方改用marker翻页的形式。 
@@ -1018,7 +1036,7 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         listDirectoryByPage(requestParameters: DirectoryApiListDirectoryByPageRequest, options?: RawAxiosRequestConfig): AxiosPromise<ListDirectoryByPage200Response> {
-            return localVarFp.listDirectoryByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.listDirectoryByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于重命名或移动目录或相簿。 要求权限： admin、space_admin 或 move_directory。 该接口的源和目标均需要指定完整的目录路径或相簿名；对于文件类型媒体库，源与目标可以跨越多层级多目录，来实现将目录移动到任意其他父目录下的功能，且支持同时修改目录名； 自动创建中间所需的各级父目录。 
@@ -1233,6 +1251,11 @@ export interface DirectoryApiInfoFileOrDirectoryRequest {
      * 是否返回收藏状态，0 或 1，默认不返回
      */
     readonly withFavoriteStatus?: InfoFileOrDirectoryWithFavoriteStatusEnum
+
+    /**
+     * 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
+     */
+    readonly withContentCas?: InfoFileOrDirectoryWithContentCasEnum
 }
 
 /**
@@ -1308,6 +1331,11 @@ export interface DirectoryApiListDirectoryRequest {
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
+
+    /**
+     * 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
+     */
+    readonly withContentCas?: ListDirectoryWithContentCasEnum
 }
 
 /**
@@ -1383,6 +1411,11 @@ export interface DirectoryApiListDirectoryByPageRequest {
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
+
+    /**
+     * 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
+     */
+    readonly withContentCas?: ListDirectoryByPageWithContentCasEnum
 }
 
 /**
@@ -1542,7 +1575,7 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public infoFileOrDirectory(requestParameters: DirectoryApiInfoFileOrDirectoryRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).infoFileOrDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.withInode, requestParameters.accessToken, requestParameters.withFavoriteStatus, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).infoFileOrDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.withInode, requestParameters.accessToken, requestParameters.withFavoriteStatus, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1553,7 +1586,7 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public listDirectory(requestParameters: DirectoryApiListDirectoryRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1564,7 +1597,7 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public listDirectoryByPage(requestParameters: DirectoryApiListDirectoryByPageRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).listDirectoryByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).listDirectoryByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1635,6 +1668,11 @@ export const InfoFileOrDirectoryWithFavoriteStatusEnum = {
     NUMBER_1: 1
 } as const;
 export type InfoFileOrDirectoryWithFavoriteStatusEnum = typeof InfoFileOrDirectoryWithFavoriteStatusEnum[keyof typeof InfoFileOrDirectoryWithFavoriteStatusEnum];
+export const InfoFileOrDirectoryWithContentCasEnum = {
+    NUMBER_0: 0,
+    NUMBER_1: 1
+} as const;
+export type InfoFileOrDirectoryWithContentCasEnum = typeof InfoFileOrDirectoryWithContentCasEnum[keyof typeof InfoFileOrDirectoryWithContentCasEnum];
 export const ListDirectoryByMarkerEnum = {
     NUMBER_1: 1
 } as const;
@@ -1671,6 +1709,11 @@ export const ListDirectoryWithFavoriteStatusEnum = {
     NUMBER_1: 1
 } as const;
 export type ListDirectoryWithFavoriteStatusEnum = typeof ListDirectoryWithFavoriteStatusEnum[keyof typeof ListDirectoryWithFavoriteStatusEnum];
+export const ListDirectoryWithContentCasEnum = {
+    NUMBER_0: 0,
+    NUMBER_1: 1
+} as const;
+export type ListDirectoryWithContentCasEnum = typeof ListDirectoryWithContentCasEnum[keyof typeof ListDirectoryWithContentCasEnum];
 export const ListDirectoryByPageByPageEnum = {
     NUMBER_1: 1
 } as const;
@@ -1707,6 +1750,11 @@ export const ListDirectoryByPageWithFavoriteStatusEnum = {
     NUMBER_1: 1
 } as const;
 export type ListDirectoryByPageWithFavoriteStatusEnum = typeof ListDirectoryByPageWithFavoriteStatusEnum[keyof typeof ListDirectoryByPageWithFavoriteStatusEnum];
+export const ListDirectoryByPageWithContentCasEnum = {
+    NUMBER_0: 0,
+    NUMBER_1: 1
+} as const;
+export type ListDirectoryByPageWithContentCasEnum = typeof ListDirectoryByPageWithContentCasEnum[keyof typeof ListDirectoryByPageWithContentCasEnum];
 export const MoveDirectoryConflictResolutionStrategyEnum = {
     Ask: 'ask',
     Rename: 'rename'

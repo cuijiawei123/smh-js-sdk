@@ -19,5 +19,9 @@ export interface MoveFileRequest {
      * 被重命名或移动的源文件路径，必选参数
      */
     'from': string;
+    /**
+     * 被重命名或移动的源文件的文件内容的Cas标识，可选参数
+     */
+    'contentCas'?: string;
 }
 
