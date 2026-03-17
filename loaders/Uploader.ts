@@ -1056,7 +1056,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
         {
           fileName: this.file.name,
           fileSize: this.file.size,
-          elapsedTime: this.end_time - this.start_time
+          elapsedTime: (this.end_time || Date.now()) - this.start_time
         }
       );
     }
