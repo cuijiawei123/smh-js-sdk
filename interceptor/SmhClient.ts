@@ -10,6 +10,7 @@
 import { Configuration } from '../configuration';
 import type { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
+import { getUserAgent } from '../version';
 
 // 导入上传/下载相关
 import { Uploader } from '../loaders/Uploader';
@@ -128,7 +129,12 @@ export class SMHClient {
         // 创建axios实例并配置重试拦截器
         this.axiosInstance = axios.create({
             timeout: options.timeout || 30000,
-            ...options.baseOptions
+            ...options.baseOptions,
+        headers: {
+                // TODO：暂定Client-Version，后面需改成X-SMH-SDK-Version
+                'Client-Version': getUserAgent(),
+                ...options.baseOptions?.headers,
+            }
         });
 
         // 配置重试拦截器
