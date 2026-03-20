@@ -496,7 +496,9 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     // 计算 CRC64
     this.crc64 = await calculateBlobCRC64(this.options.file);
     
-    await axios.put(url, this.options.file, {
+    const fileData = await this.toUploadData(this.options.file);
+
+    await axios.put(url, fileData, {
       headers: {
         ...headers,
       },
@@ -666,8 +668,10 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     // 获取分片 Blob
     const partBlob = this.options.file.slice(part.from, part.to);
 
+    const partData = await this.toUploadData(partBlob);
+
     try {
-      const response = await axios.put(partUrl, partBlob, {
+      const response = await axios.put(partUrl, partData, {
         headers: {
           ...headers,
         },
@@ -992,6 +996,33 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
       clearTimeout(this.renewTimer);
       this.renewTimer = undefined;
     }
+  }
+
+  private async toUploadData(data: any): Promise<any> {
+    if (data == null) return data;
+
+    if (typeof Buffer !== 'undefined' && Buffer.isBuffer(data)) return data;
+    if (typeof data.pipe === 'function') return data;
+    if (data instanceof ArrayBuffer) return data;
+    if (typeof Uint8Array !== 'undefined' && data instanceof Uint8Array) return data;
+
+    if (this.isNativeBlob(data)) return data;
+
+    if (typeof data.arrayBuffer === 'function' && typeof data.size === 'number') {
+      const ab = await data.arrayBuffer();
+      return typeof Buffer !== 'undefined' ? Buffer.from(ab) : ab;
+    }
+
+    return data;
+  }
+
+  private isNativeBlob(value: any): boolean {
+    const tag = value?.[Symbol.toStringTag];
+    if (tag === 'Blob' || tag === 'File') return true;
+
+    if (typeof Blob !== 'undefined' && value instanceof Blob) return true;
+
+    return false;
   }
   
   /**
