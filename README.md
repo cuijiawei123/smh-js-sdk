@@ -218,14 +218,7 @@ const uploader = client.createUploadTask({
   },
 })
 
-try {
-  await uploader.start()
-} catch (error) {
-  // start() 也会抛出 SMHError，可在此统一处理
-  if (error instanceof SMHError) {
-    alert(error.message)
-  }
-}
+await uploader.start()
 ```
 
 ### 6. 文件下载
@@ -284,6 +277,10 @@ const downloader = client.createDownloadTask({
   },
 })
 
+// 方式一：start() 不抛异常，错误走 onStateChange
+await downloader.start()
+
+// 方式二：startAndGetBlob() 会抛异常，需要 catch
 try {
   const blob = await downloader.startAndGetBlob()
 } catch (error) {
