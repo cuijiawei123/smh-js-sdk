@@ -1064,6 +1064,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     
     if (typeof this.options.onProgress === 'function') {
       this.options.onProgress({
+        state,
         loaded: this.loaded,
         total: this.file.size,
         progress: progress,

@@ -321,6 +321,7 @@ export abstract class CommonLoader<TCheckpoint = any> extends EventEmitter {
    */
   protected notifyProgress(state: string, progress: number): void {
     const progressInfo: ProgressInfo = {
+      state,
       loaded: this.loaded,
       total: this.file.size,
       progress: progress,

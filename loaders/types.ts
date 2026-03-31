@@ -34,6 +34,7 @@ export interface IFile {
  * 进度信息接口
  */
 export interface ProgressInfo {
+  state: string;          // 当前状态（如 'running'、'computing_hash'）
   loaded: number;       // 已处理字节数
   total: number;        // 总字节数
   progress: number;     // 进度百分比 0-100

@@ -11,13 +11,24 @@ import { Configuration } from '../configuration';
 import type { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
 import { getUserAgent } from '../version';
-import { SMHError, ErrorCode, wrapErrorToSMHError } from '../utils/ErrorHandler';
+import { SMHError, ErrorCode, wrapErrorToSMHError, extractAxiosErrorInfo } from '../utils/ErrorHandler';
 
 // 导入上传/下载相关
 import { Uploader } from '../loaders/Uploader';
 import { Downloader, IRemoteFile } from '../loaders/Downloader';
 import type { UploadOptions } from '../loaders/types';
 import type { DownloadOptions, UrlDownloadOptions } from '../loaders/types';
+
+/**
+ * Token 续期回调函数类型
+ * 
+ * 当 API 请求因 accessToken 过期（403 InvalidAccessToken）失败时，
+ * SDK 会调用此回调，等待业务方返回新的 accessToken。
+ * 
+ * @returns 新的 accessToken 字符串，返回后 SDK 会自动更新并重试原请求
+ * @throws 如果抛出异常或返回空字符串，SDK 不会重试，直接将原始错误抛给调用方
+ */
+export type OnTokenRefresh = () => Promise<string>;
 
 // 创建上传/下载任务时的选项类型（libraryId、spaceId、accessToken 变为可选）
 type CreateUploadTaskOptions = Omit<UploadOptions, 'libraryId' | 'spaceId' | 'accessToken'> & {
@@ -62,6 +73,24 @@ export interface SMHClientOptions {
     libraryId?: string;
     spaceId?: string;
     accessToken?: string;
+    /**
+     * Token 续期回调（可选）
+     * 
+     * 设置后，当 API 请求因 accessToken 过期失败时，SDK 会自动调用此回调获取新 token 并重试。
+     * 未设置时行为不变：直接抛出错误，由调用方自行处理。
+     * 
+     * @example
+     * ```ts
+     * const client = new SMHClient({
+     *   // ...
+     *   onTokenRefresh: async () => {
+     *     const res = await myBackend.refreshToken();
+     *     return res.accessToken;
+     *   }
+     * });
+     * ```
+     */
+    onTokenRefresh?: OnTokenRefresh;
 }
 
 
@@ -89,6 +118,11 @@ export class SMHClient {
     private defaultLibraryId?: string;
     private defaultSpaceId?: string;
     private defaultAccessToken?: string;
+    
+    // Token 续期回调
+    private onTokenRefresh?: OnTokenRefresh;
+    // 防抖：多个并发请求同时 token 过期时，只触发一次续期
+    private refreshingPromise: Promise<string> | null = null;
     
     // 原始API实例
     private _batch: BatchApi;
@@ -126,6 +160,7 @@ export class SMHClient {
         this.defaultLibraryId = options.libraryId;
         this.defaultSpaceId = options.spaceId;
         this.defaultAccessToken = options.accessToken;
+        this.onTokenRefresh = options.onTokenRefresh;
         
         // 创建axios实例并配置重试拦截器
         this.axiosInstance = axios.create({
@@ -175,7 +210,7 @@ export class SMHClient {
         this.search = this.wrapApi(this._search);
         this.space = this.wrapApi(this._space);
         this.task = this.wrapApi(this._task);
-        this.token = this.wrapApi(this._token);
+        this.token = this.wrapApi(this._token, { skipTokenRefresh: true });
         this.usage = this.wrapApi(this._usage);
     }
 
@@ -296,7 +331,8 @@ export class SMHClient {
     /**
      * 包装API实例，自动注入 libraryId 和 accessToken
      */
-    private wrapApi<T extends object>(apiInstance: T): any {
+    private wrapApi<T extends object>(apiInstance: T, options?: { skipTokenRefresh?: boolean }): any {
+        const skipTokenRefresh = options?.skipTokenRefresh ?? false;
         return new Proxy(apiInstance, {
             get: (target: any, prop: string) => {
                 const originalMethod = target[prop];
@@ -345,6 +381,23 @@ export class SMHClient {
 
                         return result;
                     } catch (e: any) {
+                        // 检测是否是 token 过期错误，尝试自动续期
+                        // TokenApi 的方法跳过续期（避免死循环）
+                        if (!skipTokenRefresh && this.onTokenRefresh && this.isTokenExpiredError(e)) {
+                            try {
+                                const newToken = await this.doTokenRefresh();
+                                if (newToken) {
+                                    // 更新请求参数中的 accessToken 并重试
+                                    if (args.length > 0 && typeof args[0] === 'object' && args[0] !== null) {
+                                        args[0] = { ...args[0], accessToken: newToken };
+                                    }
+                                    return await originalMethod.apply(target, args);
+                                }
+                            } catch (refreshError) {
+                                // 续期失败，抛出原始错误
+                            }
+                        }
+
                         // 已经是 SMHError 则直接抛出
                         if (e instanceof SMHError) {
                             throw e;
@@ -423,6 +476,63 @@ export class SMHClient {
         };
 
         return Downloader.downloadByUrl(mergedOptions, this.configuration);
+    }
+
+    /**
+     * 设置或更新 Token 续期回调（运行时动态设置）
+     * 
+     * @example
+     * ```ts
+     * client.setOnTokenRefresh(async () => {
+     *   const res = await myBackend.refreshToken();
+     *   return res.accessToken;
+     * });
+     * ```
+     */
+    public setOnTokenRefresh(callback: OnTokenRefresh | undefined): void {
+        this.onTokenRefresh = callback;
+    }
+
+    /**
+     * 判断错误是否为 token 过期
+     */
+    private isTokenExpiredError(error: any): boolean {
+        const axiosInfo = extractAxiosErrorInfo(error);
+        if (axiosInfo.status === 403 && axiosInfo.serverCode === 'InvalidAccessToken') {
+            return true;
+        }
+        // 兼容已包装为 SMHError 的情况
+        if (error instanceof SMHError) {
+            if (error.status === 403 && error.response?.serverCode === 'InvalidAccessToken') return true;
+        }
+        return false;
+    }
+
+    /**
+     * 执行 token 续期（带防抖，并发请求只触发一次）
+     */
+    private async doTokenRefresh(): Promise<string> {
+        if (!this.onTokenRefresh) return '';
+
+        // 如果已经有续期请求在进行中，等待同一个 Promise
+        if (this.refreshingPromise) {
+            return this.refreshingPromise;
+        }
+
+        this.refreshingPromise = this.onTokenRefresh()
+            .then((newToken) => {
+                if (newToken) {
+                    this.defaultAccessToken = newToken;
+                    // 同步 configuration.accessToken（防御性，保持一致）
+                    this.configuration.accessToken = newToken;
+                }
+                return newToken;
+            })
+            .finally(() => {
+                this.refreshingPromise = null;
+            });
+
+        return this.refreshingPromise;
     }
 
 }
