@@ -184,6 +184,330 @@ await downloader.cancel()
 | `timeout` | number | 30000 | 请求超时时间（毫秒） |
 | `baseOptions` | object | - | 传递给 axios 的额外配置 |
 
+## 错误处理与错误码
+
+SDK 会将请求异常统一包装为 `SMHError`，并默认优先使用服务端错误码映射后的友好文案作为 `error.message`。通常业务侧**无需再手动做一次错误码转文案**；只有在需要多语言、自定义文案或更细粒度分流时，才建议自行处理。
+
+### 1) 基础用法
+
+```typescript
+import {
+  SMHClient,
+  SMHError,
+  ErrorCode,
+  ServerErrorCode,
+  getServerErrorMessage,
+  setServerErrorMessages,
+  resetServerErrorMessages,
+  wrapErrorToSMHError,
+  setErrorLocale,
+} from 'smh-js-sdk'
+
+// 设置错误消息语言（可选，默认 'zh-CN'）
+// 'zh-CN' — 使用 SDK 内置中文映射
+// 'en'    — 跳过中文映射，直接使用后端返回的英文 message
+setErrorLocale('zh-CN')
+
+const client = new SMHClient({
+  basePath: 'https://smhxxx.api.tencentsmh.cn',
+  libraryId: 'your-library-id',
+  spaceId: 'your-space-id',
+  accessToken: 'your-access-token',
+})
+
+try {
+  await client.file.infoFile({ filePath: '/not-exist.txt', info: 1 })
+} catch (error) {
+  if (error instanceof SMHError) {
+    // SDK 级错误码（稳定，可用于分支判断）
+    console.log('code:', error.code)
+
+    // HTTP 状态码（推荐优先读 status）
+    console.log('status:', error.status)
+
+    // 向后兼容：仍可通过 response.status 读取
+    console.log('compat response.status:', error.response?.status)
+
+    // 服务端请求 ID（用于排障）
+    console.log('reqId:', error.reqId || error.response?.requestId)
+
+    // 服务端错误码（如 LibraryNotFound / NoPermission）
+    const serverCode = error.response?.serverCode as string | undefined
+    console.log('serverCode:', serverCode)
+
+    // 通常直接用 error.message 即可（SDK 已完成默认映射）
+    console.log('friendlyMessage:', error.message)
+
+    // 仅在你需要自定义兜底策略时再手动调用
+    console.log('friendlyMessage(custom-fallback):', getServerErrorMessage(serverCode, '操作失败，请稍后重试'))
+
+    if (error.code === ErrorCode.NETWORK_ERROR) {
+      // 无响应的网络错误（超时/断网/DNS/连接失败等）
+      console.warn('网络异常，请检查网络连接后重试')
+    }
+
+    if (error.code === ErrorCode.SERVER_ERROR) {
+      // 服务端返回 5xx 错误
+      console.warn('服务器异常，请稍后重试')
+    }
+
+    if (serverCode === ServerErrorCode.QuotaLimitReached) {
+      console.warn('空间不足，请清理文件或扩容')
+    }
+  }
+}
+
+// 可按业务自定义（覆盖）服务端错误码文案
+setServerErrorMessages({
+  [ServerErrorCode.QuotaLimitReached]: '您的网盘空间已满，请升级套餐',
+  [ServerErrorCode.NoPermission]: '无权限执行该操作，请联系管理员',
+})
+
+// 恢复为 SDK 默认文案
+resetServerErrorMessages()
+```
+
+### 2) `SMHError` 关键字段
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `code` | `ErrorCode` | SDK 统一错误码 |
+| `message` | string | 错误消息（优先使用服务端友好文案） |
+| `status` | number \| undefined | HTTP 状态码 |
+| `reqId` | string \| undefined | 服务端请求 ID |
+| `response` | object | 额外上下文（`api`、`serverCode`、`serverMessage`、`responseData` 等） |
+| `response.status` | number \| undefined | 兼容旧版本读取方式 |
+| `response.requestId` | string \| undefined | 兼容旧版本读取方式 |
+
+### 3) SDK 错误码（`ErrorCode`）
+
+| 错误码 | 含义 |
+|------|------|
+| `FileNotFound` | 文件不存在 |
+| `FileModified` | 文件已被修改 |
+| `FileSizeMismatch` | 文件大小不匹配 |
+| `FileCrc64Mismatch` | CRC64 校验不一致 |
+| `FileTooLarge` | 文件过大 |
+| `InvalidFile` | 非法文件对象 |
+| `UploadFailed` | 上传失败 |
+| `UploadCanceled` | 上传已取消 |
+| `UploadPaused` | 上传已暂停 |
+| `PartUploadFailed` | 分片上传失败 |
+| `RenewUploadFailed` | 上传续期失败 |
+| `DownloadFailed` | 下载失败 |
+| `DownloadCanceled` | 下载已取消 |
+| `DownloadPaused` | 下载已暂停 |
+| `InvalidParameter` | 参数非法 |
+| `NetworkError` | 网络错误（无响应的网络异常：超时、断网、DNS 等） |
+| `ServerError` | 服务端错误（HTTP 5xx） |
+| `RequestTimeout` | 请求超时 |
+| `OperationFailed` | 通用操作失败 |
+
+### 4) 服务端错误码完整清单（`ServerErrorCode`）
+
+> 以下清单与 SDK 源码 `utils/ErrorHandler.ts` 中的 `ServerErrorCode` 与 `serverErrorMessages` 一一对应（按 HTTP 状态分组）。
+
+#### 400 Bad Request
+
+| 服务端错误码 | 默认文案 |
+|------|------|
+| `BadRequest` | 请求无效，请检查后重试 |
+| `EmptyLibraryIdOrSecret` | 媒体库配置信息缺失 |
+| `EmptyLibrarySecret` | 媒体库密钥不能为空 |
+| `EmptyLibraryId` | 媒体库 ID 不能为空 |
+| `EmptySpaceId` | 空间 ID 不能为空 |
+| `EmptyFileName` | 文件名不能为空 |
+| `EmptyCosUploadId` | 上传标识缺失，请重新上传 |
+| `EmptyAccessToken` | 访问令牌不能为空，请先登录 |
+| `NotMultiSpaceLibrary` | 当前媒体库不支持多空间操作 |
+| `MultipartUploadIncomplete` | 分片上传尚未完成，无法确认 |
+| `UploadIncomplete` | 文件上传尚未完成，无法确认 |
+| `DirectoryNameLengthExceed` | 文件夹名称过长，请缩短后重试 |
+| `DirectoryNotAllowed` | 当前媒体库不允许创建文件夹 |
+| `RootDirectoryNotAllowed` | 不允许对根目录执行此操作 |
+| `DirectoryLevelExceed` | 当前媒体库只允许创建一级文件夹 |
+| `FileNameLengthExceed` | 文件名过长，请缩短后重试 |
+| `ExtnameNotAllowed` | 当前媒体库不允许此文件类型 |
+| `UploadToRootDirectoryNotAllowed` | 不允许将文件上传到根目录 |
+| `SourceDirectoryIsParentOfDestination` | 不能将文件夹移动到其子文件夹中 |
+| `InvalidSourceDirectory` | 源文件夹无效 |
+| `InvalidSourceFile` | 源文件无效 |
+| `InvalidSpaceOrDirectoryPath` | 空间或目录路径不存在 |
+| `InvalidConflictResolutionStrategy` | 冲突处理策略无效 |
+| `ParamInvalid` | 请求参数无效，请检查后重试 |
+| `SpaceIdInvalid` | 空间 ID 格式无效 |
+| `IllegalFileName` | 文件名包含非法字符（\ / : * ? " < > |） |
+| `FileTypeNotMatched` | 目标文件类型与源文件不匹配 |
+| `BadCrc64` | 文件校验失败，数据可能已损坏，请重新上传 |
+| `QuotaLimitReached` | 存储空间不足，请清理文件或扩容 |
+| `FileUncompressNotAllowed` | 仅支持解压压缩包文件 |
+| `SearchTooComplex` | 搜索条件过于复杂，请简化后重试 |
+| `SearchNotEnabled` | 搜索功能未启用 |
+| `RecycleBinNotEnabled` | 回收站功能未启用 |
+| `QuotaSpacesInvalid` | 配额关联的空间无效 |
+| `SearchIdInvalid` | 搜索标识无效 |
+| `InvalidDestinationPath` | 目标路径无效 |
+| `MultipartUploadPartTooSmall` | 分片大小过小，无法完成上传 |
+| `IncompleteBody` | 请求数据不完整，请重试 |
+| `TooManyItems` | 批量操作数量超过上限（最多 1000 项） |
+| `NoItemsProvided` | 批量操作至少需要一项内容 |
+| `InvalidTimeFormat` | 时间格式不正确 |
+| `OverwriteFileNotAllowed` | 开启历史版本后不允许覆盖文件 |
+| `InvalidFileHistoryCount` | 文件历史版本数量参数无效 |
+| `InvalidFileHistoryExpireDay` | 文件历史版本过期天数参数无效 |
+| `InvalidFileHistoryMergeInterval` | 版本合并间隔参数无效（5～600 秒） |
+| `SymlinkDepthLimitExceeded` | 快捷方式嵌套层级超出限制 |
+| `SymlinkToDirectoryNotAllowed` | 快捷方式不能指向文件夹 |
+| `SymlinkOverwriteConflict` | 快捷方式和普通文件不能互相覆盖 |
+| `UnsupportedSourceFormat` | 不支持的源文件格式，请使用 .txt、.doc 或 .docx 文件 |
+| `UnsupportedTargetFormat` | 目标文件格式必须为 PDF |
+| `FunctionNotEnabled` | 该功能未启用 |
+| `UnsupportedFileType` | 文件夹或快捷方式不支持历史版本 |
+| `QuotaCapacityLessThanSize` | 配额容量不能小于当前已使用空间 |
+| `QuotaCapacityRequired` | 需要指定配额容量 |
+| `InvalidDirectoryStatsType` | 目录统计类型无效 |
+| `ResourceMigrationNotEnabled` | 资源迁移功能未启用 |
+| `ResourceNotSupported` | 不支持的资源类型 |
+| `ResolutionUpScalingNotAllowed` | 目标分辨率不能高于原视频分辨率 |
+| `M3u8OnlyMediaPlaylistAllowed` | 仅支持 M3U8 媒体播放列表 |
+| `M3u8HttpKeyNotAllowed` | M3U8 不允许使用 HTTP 密钥 |
+| `M3u8HttpSegmentNotAllowed` | M3U8 不允许使用 HTTP 分段 |
+| `M3u8PlaylistInvalid` | M3U8 播放列表无效 |
+| `M3u8SegmentsInvalid` | M3U8 分段无效 |
+| `M3u8InfoMapUnknown` | M3U8 信息映射未知 |
+| `M3u8InfoMapFieldUnknown` | M3U8 信息映射字段未知 |
+| `OnlyVideoCanBeTranscoded` | 仅视频文件支持转码 |
+| `CaptchaInvalid` | 验证码无效，请重新输入 |
+| `WatermarkNotEnabled` | 水印功能未启用 |
+| `GraphicCaptchaFailed` | 图形验证码验证失败 |
+| `CloseOldList` | 旧版接口已关闭，请使用新版接口 |
+
+#### 403 Forbidden
+
+| 服务端错误码 | 默认文案 |
+|------|------|
+| `NoPermission` | 没有操作权限 |
+| `AccessTokenNotMatchLibrary` | 访问令牌与媒体库不匹配 |
+| `AccessTokenNotMatchSpace` | 访问令牌与空间不匹配 |
+| `AccessTokenVersionNotMatch` | 访问令牌版本不匹配 |
+| `InvalidAccessToken` | 访问令牌无效或已过期，请重新登录 |
+| `ReadForbidden` | 没有读取权限 |
+| `WriteForbidden` | 没有写入权限 |
+| `LibraryServiceExpired` | 媒体库服务已过期 |
+| `LibraryInitializing` | 媒体库正在初始化，请稍后重试 |
+| `OperationOnRawM3u8IsForbidden` | 不允许操作原始 M3U8 文件 |
+| `SpaceBanned` | 空间已被禁用 |
+| `ShareDisabled` | 分享功能已关闭 |
+| `ShareExpired` | 分享链接已过期 |
+| `ShareAuditing` | 分享链接正在审核中 |
+| `ShareTokenInvalid` | 分享令牌无效 |
+| `ExtractionCodeInvalid` | 提取码错误 |
+| `LoginRequired` | 请先登录后访问 |
+| `ShareAccessDenied` | 您无权访问此分享 |
+| `AnonymousNotAllowed` | 不允许匿名用户访问 |
+| `CannotPreview` | 该文件不支持预览 |
+| `CannotDownload` | 该文件不允许下载 |
+| `CannotSaveToNetDisk` | 不允许保存到网盘 |
+| `CannotModify` | 该文件不允许修改 |
+| `ShareServiceDisabled` | 分享服务已关闭 |
+
+#### 404 Not Found
+
+| 服务端错误码 | 默认文案 |
+|------|------|
+| `ConfirmKeyNotFound` | 上传确认信息未找到，请重新上传 |
+| `RouteNotFound` | 请求的接口不存在 |
+| `LibraryNotFound` | 媒体库不存在 |
+| `SpaceNotFound` | 空间不存在 |
+| `DirectoryNotFound` | 文件夹不存在 |
+| `SourceDirectoryNotFound` | 源文件夹不存在 |
+| `SourceFileNotFound` | 源文件不存在 |
+| `UploadNotFound` | 上传任务不存在或已过期 |
+| `FileNotFound` | 文件不存在 |
+| `PathNotFound` | 路径不存在 |
+| `MarkerNotFound` | 分页标记未找到 |
+| `NoQuota` | 该空间未设置配额 |
+| `QuotaNotFound` | 配额不存在 |
+| `WrongLibraryIdOrSecret` | 媒体库 ID 或密钥错误 |
+| `FavoriteIdNotFound` | 收藏记录不存在 |
+| `FileRemovedByQuota` | 文件因超出配额已被删除 |
+| `CosObjectNonexistent` | 文件存储对象不存在 |
+| `RootLinkFileNotFound` | 快捷方式指向的文件不存在 |
+| `TrafficStatsNotFound` | 流量统计信息不存在 |
+| `M3u8Converting` | M3U8 正在转码中，请稍后重试 |
+| `ShareNotFound` | 分享不存在 |
+| `FileNotInShare` | 文件不在分享范围内 |
+| `ShareFileEmpty` | 分享中没有文件 |
+
+#### 408 Request Timeout
+
+| 服务端错误码 | 默认文案 |
+|------|------|
+| `ReadRequestTimeout` | 请求超时，请重试 |
+
+#### 409 Conflict
+
+| 服务端错误码 | 默认文案 |
+|------|------|
+| `DuplicateQuota` | 该空间已存在配额 |
+| `UploadComplete` | 上传已完成，无法重复操作 |
+| `SameNameDirectoryOrFileExists` | 已存在同名文件或文件夹 |
+| `DuplicateFavoriteRecord` | 该文件已收藏 |
+| `SpaceNotEmpty` | 空间非空，无法删除 |
+| `PathConflict` | 操作冲突，请避免同时操作同一文件 |
+| `RenameTooManyTimes` | 重命名次数过多，请稍后重试 |
+| `CircleSymlink` | 检测到快捷方式循环引用 |
+| `ShareHasBeenUpdated` | 分享已被更新，请刷新后重试 |
+
+#### 413 / 414 / 429 / 431
+
+| 服务端错误码 | 默认文案 |
+|------|------|
+| `RequestEntityTooLarge` | 请求内容过大 |
+| `URITooLong` | 请求地址过长 |
+| `RateLimitExceeded` | 操作过于频繁，请稍后重试 |
+| `HeaderFieldsTooLarge` | 请求头信息过大 |
+
+#### 451
+
+| 服务端错误码 | 默认文案 |
+|------|------|
+| `SensitiveContentRecognized` | 内容包含敏感信息，操作被拒绝 |
+
+#### 499
+
+| 服务端错误码 | 默认文案 |
+|------|------|
+| `ClientDisconnected` | 连接已断开 |
+
+#### 500 / 503
+
+| 服务端错误码 | 默认文案 |
+|------|------|
+| `ServerOverloaded` | 服务器繁忙，请稍后重试 |
+| `InternalServerError` | 服务器内部错误，请稍后重试 |
+| `RequestTimeout` | 服务器处理超时，请稍后重试 |
+
+### 5) 错误处理建议
+
+- 优先按 `error.code` 做业务分支，保证逻辑稳定。
+- `NetworkError` 表示客户端网络不可达（断网/超时/DNS 等），`ServerError` 表示服务端返回 5xx，两者可分别制定重试策略。
+- 需要展示给用户时，**优先直接使用 `error.message`**（默认已映射）；仅在需要覆盖文案时再调用 `getServerErrorMessage(serverCode)`。
+- 需要排障时，记录 `status`、`reqId`、`response.serverCode`、`response.responseData`。
+- 与旧代码兼容时，可继续使用 `error.response?.status`。
+
+### 6) 工具方法
+
+| 方法 | 说明 |
+|------|------|
+| `setErrorLocale(locale)` | 设置错误消息语言：`'zh-CN'`（默认，中文映射）或 `'en'`（使用后端英文 message） |
+| `getErrorLocale()` | 获取当前错误消息语言 |
+| `getServerErrorMessage(serverCode, fallback?)` | 根据服务端错误码获取友好提示（受 locale 控制） |
+| `setServerErrorMessages(messages)` | 批量自定义/覆盖服务端错误码文案 |
+| `resetServerErrorMessages()` | 恢复为 SDK 默认的错误码文案映射 |
+| `wrapErrorToSMHError(error, defaultCode, fallbackMsg, extra?)` | 将任意错误统一包装为 `SMHError`（自动提取 AxiosError 详情） |
+| `newError(code, message, cause?, response?, options?)` | 手动创建 `SMHError` 实例 |
+
 ## 主要功能
 
 ### 上传功能

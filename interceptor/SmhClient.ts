@@ -11,6 +11,7 @@ import { Configuration } from '../configuration';
 import type { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
 import { getUserAgent } from '../version';
+import { SMHError, ErrorCode, wrapErrorToSMHError } from '../utils/ErrorHandler';
 
 // 导入上传/下载相关
 import { Uploader } from '../loaders/Uploader';
@@ -329,19 +330,33 @@ export class SMHClient {
                         args[0] = requestParams;
                     }
 
-                    // 调用原始方法
-                    const result = await originalMethod.apply(target, args);
+                    try {
+                        // 调用原始方法
+                        const result = await originalMethod.apply(target, args);
 
-                    // 如果是 deleteToken 操作，清理对应的 defaultAccessToken
-                    if (prop === 'deleteToken' && args.length > 0 && typeof args[0] === 'object' && args[0] !== null) {
-                        const requestParams = args[0];
-                        // 如果删除的 token 是当前的 defaultAccessToken，则清理
-                        if (requestParams.accessToken && requestParams.accessToken === this.defaultAccessToken) {
-                            this.defaultAccessToken = undefined;
+                        // 如果是 deleteToken 操作，清理对应的 defaultAccessToken
+                        if (prop === 'deleteToken' && args.length > 0 && typeof args[0] === 'object' && args[0] !== null) {
+                            const requestParams = args[0];
+                            // 如果删除的 token 是当前的 defaultAccessToken，则清理
+                            if (requestParams.accessToken && requestParams.accessToken === this.defaultAccessToken) {
+                                this.defaultAccessToken = undefined;
+                            }
                         }
-                    }
 
-                    return result;
+                        return result;
+                    } catch (e: any) {
+                        // 已经是 SMHError 则直接抛出
+                        if (e instanceof SMHError) {
+                            throw e;
+                        }
+                        // 将 AxiosError 等统一包装为 SMHError
+                        throw wrapErrorToSMHError(
+                            e,
+                            ErrorCode.OPERATION_FAILED,
+                            `${String(prop)} failed`,
+                            { api: String(prop) }
+                        );
+                    }
                 };
             }
         });

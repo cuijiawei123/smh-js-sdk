@@ -8,11 +8,21 @@ export { default as EventEmitter } from './EventEmitter';
 // 错误处理
 export { 
   SMHError, 
-  ErrorCode, 
+  ErrorCode,
+  ServerErrorCode,
   newError, 
   analyzeError,
+  extractAxiosErrorInfo,
+  getServerErrorMessage,
+  setServerErrorMessages,
+  resetServerErrorMessages,
+  wrapErrorToSMHError,
+  setErrorLocale,
+  getErrorLocale,
   type ISMHError,
-  type ErrorAnalysis 
+  type ErrorAnalysis,
+  type AxiosErrorInfo,
+  type SMHLocale
 } from './ErrorHandler';
 
 // 格式化工具

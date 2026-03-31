@@ -14,7 +14,7 @@ import {
   combinePartsCRC64, 
   CRC64_INIT_VALUE 
 } from '../utils/crc64';
-import { SMHError, ErrorCode, newError, analyzeError } from '../utils/ErrorHandler';
+import { SMHError, ErrorCode, newError, analyzeError, wrapErrorToSMHError } from '../utils/ErrorHandler';
 import { CommonLoader } from './CommonLoader';
 import { 
   TaskStatus, 
@@ -771,21 +771,16 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
    * 处理错误
    */
   protected async handleError(e: Error): Promise<SMHError> {
-    let smhError: SMHError;
-    if (e instanceof SMHError) {
-      smhError = e;
-    } else {
-      smhError = newError(
-        ErrorCode.DOWNLOAD_FAILED,
-        e.message || 'Download failed',
-        e,
-        {
-          fileName: this.file.name,
-          fileSize: this.file.size,
-          elapsedTime: (this.end_time || Date.now()) - this.start_time
-        }
-      );
-    }
+    const smhError = wrapErrorToSMHError(
+      e,
+      ErrorCode.DOWNLOAD_FAILED,
+      'Download failed',
+      {
+        fileName: this.file.name,
+        fileSize: this.file.size,
+        elapsedTime: (this.end_time || Date.now()) - this.start_time,
+      }
+    );
     
     // 简单下载出错时清理数据
     if (!this.is_multipart) {
