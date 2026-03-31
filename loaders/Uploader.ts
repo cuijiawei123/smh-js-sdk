@@ -912,7 +912,8 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
       accessToken: this.options.accessToken,
       userId: this.options.userId,
       completeFileUploadRequest: {
-        crc64: this.crc64
+        crc64: this.crc64,
+        ...this.getFileMetaFields()
       },
       ...(this.options.conflictResolutionStrategy && { 
         conflictResolutionStrategy: this.options.conflictResolutionStrategy 
