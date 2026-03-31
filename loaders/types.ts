@@ -104,6 +104,12 @@ export interface UploadOptions {
   enableInstantUpload?: boolean;       // 是否启用秒传，默认true
   trafficLimit?: number;               // 单链接限速，范围100KB/s-100MB/s，单位B
   
+  // 文件元信息
+  labels?: string[];                   // 文件标签列表
+  category?: string;                   // 文件自定义的分类
+  localCreationTime?: string;          // 文件对应的本地创建时间
+  localModificationTime?: string;      // 文件对应的本地修改时间
+  
   // 回调函数
   onStateChange?: (checkpoint: UploadCheckpoint, state: TaskStatus, error?: Error) => void;
   onProgress?: (progress: ProgressInfo) => void;
