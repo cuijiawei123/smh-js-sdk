@@ -333,9 +333,10 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
    * 执行简单上传
    */
   private async executeSimpleUpload(beginningHash?: string): Promise<void> {
+    const fileMetaFields = this.getFileMetaFields();
     const simpleUploadRequest = beginningHash 
-      ? { beginningHash, size: String(this.file.size) } 
-      : {};
+      ? { beginningHash, size: String(this.file.size), ...fileMetaFields } 
+      : { ...fileMetaFields };
     
     // 调用上传接口
     await this.changeState(TaskStatus.CREATED);
@@ -375,7 +376,8 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
         simpleUploadFileRequest: {
           fullHash: fullHash,
           beginningHash: beginningHash,
-          size: String(this.file.size)
+          size: String(this.file.size),
+          ...fileMetaFields
         },
         ...(this.options.conflictResolutionStrategy && { 
           conflictResolutionStrategy: this.options.conflictResolutionStrategy 
@@ -456,7 +458,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
             accessToken: this.options.accessToken,
             userId: this.options.userId,
             trafficLimit: this.options.trafficLimit,
-            simpleUploadFileRequest: {},
+            simpleUploadFileRequest: { ...this.getFileMetaFields() },
             ...(this.options.conflictResolutionStrategy && { 
               conflictResolutionStrategy: this.options.conflictResolutionStrategy 
             })
@@ -538,9 +540,10 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
         headers: renewData.headers
       };
     } else {
+      const fileMetaFields = this.getFileMetaFields();
       const multipartUploadRequest = beginningHash
-        ? { beginningHash, size: String(this.file.size) } 
-        : {};
+        ? { beginningHash, size: String(this.file.size), ...fileMetaFields } 
+        : { ...fileMetaFields };
       
       await this.changeState(TaskStatus.CREATED);
       let uploadResponse = await this.fileApi.multipartUploadFile({
@@ -581,7 +584,8 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
           multipartUploadFileRequest: {
             fullHash: fullHash,
             beginningHash: beginningHash,
-            size: String(this.file.size)
+            size: String(this.file.size),
+            ...fileMetaFields
           },
           ...(this.options.conflictResolutionStrategy && { 
             conflictResolutionStrategy: this.options.conflictResolutionStrategy 
@@ -996,6 +1000,15 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
       clearTimeout(this.renewTimer);
       this.renewTimer = undefined;
     }
+  }
+
+  private getFileMetaFields(): Record<string, any> {
+    const meta: Record<string, any> = {};
+    if (this.options.labels) meta.labels = this.options.labels;
+    if (this.options.category) meta.category = this.options.category;
+    if (this.options.localCreationTime) meta.localCreationTime = this.options.localCreationTime;
+    if (this.options.localModificationTime) meta.localModificationTime = this.options.localModificationTime;
+    return meta;
   }
 
   private async toUploadData(data: any): Promise<any> {
