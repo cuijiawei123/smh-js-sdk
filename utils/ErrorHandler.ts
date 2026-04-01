@@ -650,56 +650,23 @@ const serverErrorMessages: Record<string, string> = {
 };
 
 /**
- * SDK 当前语言环境
- * - 'zh-CN'（默认）：使用中文映射表
- * - 'en'：跳过中文映射，直接使用后端返回的英文 message
- */
-export type SMHLocale = 'zh-CN' | 'en';
-let currentLocale: SMHLocale = 'zh-CN';
-
-/**
- * 设置 SDK 错误消息的语言
- * 
- * @example
- * ```ts
- * setErrorLocale('en');  // 使用后端返回的英文 message
- * setErrorLocale('zh-CN'); // 使用 SDK 内置的中文映射（默认）
- * ```
- */
-export function setErrorLocale(locale: SMHLocale): void {
-  currentLocale = locale;
-}
-
-/**
- * 获取当前 SDK 错误消息语言
- */
-export function getErrorLocale(): SMHLocale {
-  return currentLocale;
-}
-
-/**
  * 根据后端 serverCode 获取用户友好消息
  * 
- * - locale 为 'zh-CN' 时：优先查中文映射表，未匹配则使用 fallback
- * - locale 为 'en' 时：跳过中文映射，直接返回 fallback（由调用方传入后端原始英文 message）
- * 
  * @param serverCode - 后端返回的错误码，如 'QuotaLimitReached'
- * @param fallback - 未匹配时的回退消息，默认为 undefined
+ * @param fallback - 未匹配时的回退消息，默认为 undefined（返回 undefined 时由调用方决定展示什么）
+ * @returns 用户友好消息，如果 serverCode 无法匹配且未提供 fallback 则返回 undefined
  * 
  * @example
  * ```ts
- * setLocale('zh-CN');
  * getServerErrorMessage('QuotaLimitReached'); 
  * // => '存储空间不足，请清理文件或扩容'
  * 
- * setLocale('en');
- * getServerErrorMessage('QuotaLimitReached'); 
- * // => undefined（调用方会 fallback 到后端英文 message）
+ * getServerErrorMessage('UnknownCode', '操作失败');
+ * // => '操作失败'
  * ```
  */
 export function getServerErrorMessage(serverCode: string | undefined, fallback?: string): string | undefined {
   if (!serverCode) return fallback;
-  if (currentLocale === 'en') return fallback;
   return serverErrorMessages[serverCode] ?? fallback;
 }
 

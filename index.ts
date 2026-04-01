@@ -48,8 +48,6 @@ export {
   setServerErrorMessages,
   resetServerErrorMessages,
   wrapErrorToSMHError,
-  setErrorLocale,
-  getErrorLocale,
   EventEmitter,
   formatSize,
   formatTime,

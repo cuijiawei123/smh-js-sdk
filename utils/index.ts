@@ -17,12 +17,9 @@ export {
   setServerErrorMessages,
   resetServerErrorMessages,
   wrapErrorToSMHError,
-  setErrorLocale,
-  getErrorLocale,
   type ISMHError,
   type ErrorAnalysis,
-  type AxiosErrorInfo,
-  type SMHLocale
+  type AxiosErrorInfo
 } from './ErrorHandler';
 
 // 格式化工具
