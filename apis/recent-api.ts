@@ -36,11 +36,12 @@ export const RecentApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {ListRecentlyUsedFileRequest} [listRecentlyUsedFileRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listRecentlyUsedFile: async (libraryId: string, spaceId: string, accessToken?: string, listRecentlyUsedFileRequest?: ListRecentlyUsedFileRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listRecentlyUsedFile: async (libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, listRecentlyUsedFileRequest?: ListRecentlyUsedFileRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('listRecentlyUsedFile', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -61,6 +62,10 @@ export const RecentApiAxiosParamCreator = function (configuration?: Configuratio
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
 
@@ -92,12 +97,13 @@ export const RecentApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {ListRecentlyUsedFileRequest} [listRecentlyUsedFileRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listRecentlyUsedFile(libraryId: string, spaceId: string, accessToken?: string, listRecentlyUsedFileRequest?: ListRecentlyUsedFileRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListRecentlyUsedFile200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listRecentlyUsedFile(libraryId, spaceId, accessToken, listRecentlyUsedFileRequest, options);
+        async listRecentlyUsedFile(libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, listRecentlyUsedFileRequest?: ListRecentlyUsedFileRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListRecentlyUsedFile200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listRecentlyUsedFile(libraryId, spaceId, accessToken, librarySecret, listRecentlyUsedFileRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RecentApi.listRecentlyUsedFile']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -119,7 +125,7 @@ export const RecentApiFactory = function (configuration?: Configuration, basePat
          * @throws {RequiredError}
          */
         listRecentlyUsedFile(requestParameters: RecentApiListRecentlyUsedFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<ListRecentlyUsedFile200Response> {
-            return localVarFp.listRecentlyUsedFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.listRecentlyUsedFileRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.listRecentlyUsedFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.listRecentlyUsedFileRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -143,6 +149,11 @@ export interface RecentApiListRecentlyUsedFileRequest {
      */
     readonly accessToken?: string
 
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
     readonly listRecentlyUsedFileRequest?: ListRecentlyUsedFileRequest
 }
 
@@ -158,7 +169,7 @@ export class RecentApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public listRecentlyUsedFile(requestParameters: RecentApiListRecentlyUsedFileRequest, options?: RawAxiosRequestConfig) {
-        return RecentApiFp(this.configuration).listRecentlyUsedFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.listRecentlyUsedFileRequest, options).then((request) => request(this.axios, this.basePath));
+        return RecentApiFp(this.configuration).listRecentlyUsedFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.listRecentlyUsedFileRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

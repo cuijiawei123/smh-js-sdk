@@ -51,7 +51,7 @@ describe.skipIf(shouldSkip)('SearchApi 集成测试', () => {
     assertSetupReady(setupFailed);
     const res = await client.search.searchFs({
       searchFsRequest: {
-        keyword: [searchKeyword],
+        keywords: [searchKeyword],
       },
     });
     expect(res.status).toBe(200);
@@ -62,7 +62,7 @@ describe.skipIf(shouldSkip)('SearchApi 集成测试', () => {
     assertSetupReady(setupFailed);
     const res = await client.search.searchFs({
       searchFsRequest: {
-        keyword: [searchKeyword],
+        keywords: [searchKeyword],
         extname: ['.txt'],
       },
     });
@@ -75,7 +75,7 @@ describe.skipIf(shouldSkip)('SearchApi 集成测试', () => {
     const res = await client.search.searchFs({
       limit: 5,
       searchFsRequest: {
-        keyword: [searchKeyword],
+        keywords: [searchKeyword],
       },
     });
     expect(res.status).toBe(200);

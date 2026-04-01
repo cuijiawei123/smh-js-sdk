@@ -24,6 +24,10 @@ export interface SimpleUploadFileRequest {
      */
     'beginningHash'?: string;
     /**
+     * 抽样哈希，字符串类型，可选参数
+     */
+    'sampleHash'?: string;
+    /**
      * 文件大小，用于秒传，size >= 1M 的文件才能实现秒传，可选参数
      */
     'size'?: string;

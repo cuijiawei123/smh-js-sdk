@@ -49,18 +49,17 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
          * @summary 清空回收站
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        recycleEmpty: async (libraryId: string, spaceId: string, accessToken: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        recycleEmpty: async (libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('recycleEmpty', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('recycleEmpty', 'spaceId', spaceId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('recycleEmpty', 'accessToken', accessToken)
             const localVarPath = `/api/v1/recycled/{LibraryId}/{SpaceId}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)));
@@ -77,6 +76,10 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -102,10 +105,11 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
          * @param {number} recycledItemId 回收站 ID
          * @param {number} info 获取文件详情，固定值为1
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        recycleInfo: async (libraryId: string, spaceId: string, recycledItemId: number, info: number, accessToken?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        recycleInfo: async (libraryId: string, spaceId: string, recycledItemId: number, info: number, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('recycleInfo', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -137,6 +141,10 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -159,11 +167,12 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
          * @param {RecycleListOrderByEnum} [orderBy] 排序字段，按名称排序为 name，按修改时间排序为 modificationTime，按文件大小排序为 size，按删除时间排序为 removalTime，按剩余时间排序为 remainingTime
          * @param {RecycleListOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        recycleList: async (libraryId: string, spaceId: string, byMarker: RecycleListByMarkerEnum, marker?: string, limit?: number, orderBy?: RecycleListOrderByEnum, orderByType?: RecycleListOrderByTypeEnum, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        recycleList: async (libraryId: string, spaceId: string, byMarker: RecycleListByMarkerEnum, marker?: string, limit?: number, orderBy?: RecycleListOrderByEnum, orderByType?: RecycleListOrderByTypeEnum, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('recycleList', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -208,6 +217,10 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
             }
@@ -231,14 +244,15 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
          * @param {RecycleListByPageByPageEnum} byPage 固定传 1，表示使用 page 方式分页
          * @param {number} [page] 分页码，默认第一页，最大翻页的条目数（Page*PageSize 的大小）是 1 万
          * @param {number} [pageSize] 分页大小，默认 20，最大翻页的条目数（Page*PageSize 的大小）是 1 万
-         * @param {RecycleListByPageOrderByEnum} [orderBy] 排序字段，按名称排序为 name，按修改时间排序为 modificationTime，按文件大小排序为 size，按删除时间排序为 removalTime，按剩余时间排序为 remainingTime
+         * @param {RecycleListByPageOrderByEnum} [orderBy] 排序字段
          * @param {RecycleListByPageOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        recycleListByPage: async (libraryId: string, spaceId: string, byPage: RecycleListByPageByPageEnum, page?: number, pageSize?: number, orderBy?: RecycleListByPageOrderByEnum, orderByType?: RecycleListByPageOrderByTypeEnum, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        recycleListByPage: async (libraryId: string, spaceId: string, byPage: RecycleListByPageByPageEnum, page?: number, pageSize?: number, orderBy?: RecycleListByPageOrderByEnum, orderByType?: RecycleListByPageOrderByTypeEnum, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('recycleListByPage', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -283,6 +297,10 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
             }
@@ -312,10 +330,11 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
          * @param {number} [heightSize] 图片或视频封面的缩放高度，不传宽度时按等比例缩放，不传 size 和 scale 时生效
          * @param {number} [frameNumber] gif 文件降帧的帧数，仅在预览 gif 类型文件时生效
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        recyclePreview: async (libraryId: string, spaceId: string, recycledItemId: number, preview: number, type?: string, size?: number, scale?: number, widthSize?: number, heightSize?: number, frameNumber?: number, accessToken?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        recyclePreview: async (libraryId: string, spaceId: string, recycledItemId: number, preview: number, type?: string, size?: number, scale?: number, widthSize?: number, heightSize?: number, frameNumber?: number, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('recyclePreview', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -371,6 +390,10 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -388,20 +411,19 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {number} recycledItemId 回收站项目 ID
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        recyclePurge: async (libraryId: string, spaceId: string, recycledItemId: number, accessToken: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        recyclePurge: async (libraryId: string, spaceId: string, recycledItemId: number, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('recyclePurge', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('recyclePurge', 'spaceId', spaceId)
             // verify required parameter 'recycledItemId' is not null or undefined
             assertParamExists('recyclePurge', 'recycledItemId', recycledItemId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('recyclePurge', 'accessToken', accessToken)
             const localVarPath = `/api/v1/recycled/{LibraryId}/{SpaceId}/{RecycledItemId}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -419,6 +441,10 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -442,21 +468,20 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {number} _delete 永久删除标志，固定值为1
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {Array<number>} recyclePurgeBatchRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        recyclePurgeBatch: async (libraryId: string, spaceId: string, _delete: number, accessToken: string, recyclePurgeBatchRequest: Array<number>, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        recyclePurgeBatch: async (libraryId: string, spaceId: string, _delete: number, recyclePurgeBatchRequest: Array<number>, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('recyclePurgeBatch', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('recyclePurgeBatch', 'spaceId', spaceId)
             // verify required parameter '_delete' is not null or undefined
             assertParamExists('recyclePurgeBatch', '_delete', _delete)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('recyclePurgeBatch', 'accessToken', accessToken)
             // verify required parameter 'recyclePurgeBatchRequest' is not null or undefined
             assertParamExists('recyclePurgeBatch', 'recyclePurgeBatchRequest', recyclePurgeBatchRequest)
             const localVarPath = `/api/v1/recycled/{LibraryId}/{SpaceId}#1`
@@ -479,6 +504,10 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -506,14 +535,15 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {number} recycledItemId 回收站项目 ID
          * @param {RecycleRestoreRestoreEnum} restore 固定为 1
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {RecycleRestoreConflictResolutionStrategyEnum} [conflictResolutionStrategy] 路径冲突时的处理方式，ask: 冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename: 冲突时自动重命名文件，overwrite: 如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 ask
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {RecycleRestoreRestorePathStrategyEnum} [restorePathStrategy] 恢复项目源路径的处理方式，originalPath:恢复到原始路径，原始路径不存在则报错; fallbackToRoot:恢复到原始路径，原始路径不存在则恢复到根目录，默认为 originalPath
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        recycleRestore: async (libraryId: string, spaceId: string, recycledItemId: number, restore: RecycleRestoreRestoreEnum, accessToken: string, conflictResolutionStrategy?: RecycleRestoreConflictResolutionStrategyEnum, userId?: string, restorePathStrategy?: RecycleRestoreRestorePathStrategyEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        recycleRestore: async (libraryId: string, spaceId: string, recycledItemId: number, restore: RecycleRestoreRestoreEnum, conflictResolutionStrategy?: RecycleRestoreConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, restorePathStrategy?: RecycleRestoreRestorePathStrategyEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('recycleRestore', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -522,8 +552,6 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
             assertParamExists('recycleRestore', 'recycledItemId', recycledItemId)
             // verify required parameter 'restore' is not null or undefined
             assertParamExists('recycleRestore', 'restore', restore)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('recycleRestore', 'accessToken', accessToken)
             const localVarPath = `/api/v1/recycled/{LibraryId}/{SpaceId}/{RecycledItemId}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -551,6 +579,10 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
             }
@@ -576,22 +608,21 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {number} restore 恢复，固定值为1
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {Array<number>} recycleRestoreBatchRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {RecycleRestoreBatchRestorePathStrategyEnum} [restorePathStrategy] 恢复项目源路径的处理方式，originalPath:恢复到原始路径，原始路径不存在则报错; fallbackToRoot:恢复到原始路径，原始路径不存在则恢复到根目录，默认为 originalPath
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        recycleRestoreBatch: async (libraryId: string, spaceId: string, restore: number, accessToken: string, recycleRestoreBatchRequest: Array<number>, userId?: string, restorePathStrategy?: RecycleRestoreBatchRestorePathStrategyEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        recycleRestoreBatch: async (libraryId: string, spaceId: string, restore: number, recycleRestoreBatchRequest: Array<number>, accessToken?: string, librarySecret?: string, userId?: string, restorePathStrategy?: RecycleRestoreBatchRestorePathStrategyEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('recycleRestoreBatch', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('recycleRestoreBatch', 'spaceId', spaceId)
             // verify required parameter 'restore' is not null or undefined
             assertParamExists('recycleRestoreBatch', 'restore', restore)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('recycleRestoreBatch', 'accessToken', accessToken)
             // verify required parameter 'recycleRestoreBatchRequest' is not null or undefined
             assertParamExists('recycleRestoreBatch', 'recycleRestoreBatchRequest', recycleRestoreBatchRequest)
             const localVarPath = `/api/v1/recycled/{LibraryId}/{SpaceId}`
@@ -614,6 +645,10 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -644,20 +679,19 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {number} lifecycle 设置回收站生命周期标志，固定值为1
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {RecycleSetLifecycleRequest} recycleSetLifecycleRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        recycleSetLifecycle: async (libraryId: string, spaceId: string, lifecycle: number, accessToken: string, recycleSetLifecycleRequest: RecycleSetLifecycleRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        recycleSetLifecycle: async (libraryId: string, spaceId: string, lifecycle: number, recycleSetLifecycleRequest: RecycleSetLifecycleRequest, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('recycleSetLifecycle', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('recycleSetLifecycle', 'spaceId', spaceId)
             // verify required parameter 'lifecycle' is not null or undefined
             assertParamExists('recycleSetLifecycle', 'lifecycle', lifecycle)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('recycleSetLifecycle', 'accessToken', accessToken)
             // verify required parameter 'recycleSetLifecycleRequest' is not null or undefined
             assertParamExists('recycleSetLifecycle', 'recycleSetLifecycleRequest', recycleSetLifecycleRequest)
             const localVarPath = `/api/v1/recycled/{LibraryId}/{SpaceId}#2`
@@ -680,6 +714,10 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
 
@@ -710,13 +748,14 @@ export const RecycledApiFp = function(configuration?: Configuration) {
          * @summary 清空回收站
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async recycleEmpty(libraryId: string, spaceId: string, accessToken: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleEmpty(libraryId, spaceId, accessToken, userId, options);
+        async recycleEmpty(libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleEmpty(libraryId, spaceId, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RecycledApi.recycleEmpty']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -729,11 +768,12 @@ export const RecycledApiFp = function(configuration?: Configuration) {
          * @param {number} recycledItemId 回收站 ID
          * @param {number} info 获取文件详情，固定值为1
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async recycleInfo(libraryId: string, spaceId: string, recycledItemId: number, info: number, accessToken?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecycleInfo200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleInfo(libraryId, spaceId, recycledItemId, info, accessToken, options);
+        async recycleInfo(libraryId: string, spaceId: string, recycledItemId: number, info: number, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecycleInfo200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleInfo(libraryId, spaceId, recycledItemId, info, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RecycledApi.recycleInfo']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -749,12 +789,13 @@ export const RecycledApiFp = function(configuration?: Configuration) {
          * @param {RecycleListOrderByEnum} [orderBy] 排序字段，按名称排序为 name，按修改时间排序为 modificationTime，按文件大小排序为 size，按删除时间排序为 removalTime，按剩余时间排序为 remainingTime
          * @param {RecycleListOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async recycleList(libraryId: string, spaceId: string, byMarker: RecycleListByMarkerEnum, marker?: string, limit?: number, orderBy?: RecycleListOrderByEnum, orderByType?: RecycleListOrderByTypeEnum, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecycleList200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleList(libraryId, spaceId, byMarker, marker, limit, orderBy, orderByType, accessToken, userId, options);
+        async recycleList(libraryId: string, spaceId: string, byMarker: RecycleListByMarkerEnum, marker?: string, limit?: number, orderBy?: RecycleListOrderByEnum, orderByType?: RecycleListOrderByTypeEnum, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecycleList200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleList(libraryId, spaceId, byMarker, marker, limit, orderBy, orderByType, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RecycledApi.recycleList']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -767,15 +808,16 @@ export const RecycledApiFp = function(configuration?: Configuration) {
          * @param {RecycleListByPageByPageEnum} byPage 固定传 1，表示使用 page 方式分页
          * @param {number} [page] 分页码，默认第一页，最大翻页的条目数（Page*PageSize 的大小）是 1 万
          * @param {number} [pageSize] 分页大小，默认 20，最大翻页的条目数（Page*PageSize 的大小）是 1 万
-         * @param {RecycleListByPageOrderByEnum} [orderBy] 排序字段，按名称排序为 name，按修改时间排序为 modificationTime，按文件大小排序为 size，按删除时间排序为 removalTime，按剩余时间排序为 remainingTime
+         * @param {RecycleListByPageOrderByEnum} [orderBy] 排序字段
          * @param {RecycleListByPageOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async recycleListByPage(libraryId: string, spaceId: string, byPage: RecycleListByPageByPageEnum, page?: number, pageSize?: number, orderBy?: RecycleListByPageOrderByEnum, orderByType?: RecycleListByPageOrderByTypeEnum, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecycleListByPage200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleListByPage(libraryId, spaceId, byPage, page, pageSize, orderBy, orderByType, accessToken, userId, options);
+        async recycleListByPage(libraryId: string, spaceId: string, byPage: RecycleListByPageByPageEnum, page?: number, pageSize?: number, orderBy?: RecycleListByPageOrderByEnum, orderByType?: RecycleListByPageOrderByTypeEnum, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecycleListByPage200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleListByPage(libraryId, spaceId, byPage, page, pageSize, orderBy, orderByType, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RecycledApi.recycleListByPage']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -794,11 +836,12 @@ export const RecycledApiFp = function(configuration?: Configuration) {
          * @param {number} [heightSize] 图片或视频封面的缩放高度，不传宽度时按等比例缩放，不传 size 和 scale 时生效
          * @param {number} [frameNumber] gif 文件降帧的帧数，仅在预览 gif 类型文件时生效
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async recyclePreview(libraryId: string, spaceId: string, recycledItemId: number, preview: number, type?: string, size?: number, scale?: number, widthSize?: number, heightSize?: number, frameNumber?: number, accessToken?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void | RecyclePreview200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.recyclePreview(libraryId, spaceId, recycledItemId, preview, type, size, scale, widthSize, heightSize, frameNumber, accessToken, options);
+        async recyclePreview(libraryId: string, spaceId: string, recycledItemId: number, preview: number, type?: string, size?: number, scale?: number, widthSize?: number, heightSize?: number, frameNumber?: number, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void | RecyclePreview200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recyclePreview(libraryId, spaceId, recycledItemId, preview, type, size, scale, widthSize, heightSize, frameNumber, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RecycledApi.recyclePreview']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -809,13 +852,14 @@ export const RecycledApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {number} recycledItemId 回收站项目 ID
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async recyclePurge(libraryId: string, spaceId: string, recycledItemId: number, accessToken: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.recyclePurge(libraryId, spaceId, recycledItemId, accessToken, userId, options);
+        async recyclePurge(libraryId: string, spaceId: string, recycledItemId: number, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recyclePurge(libraryId, spaceId, recycledItemId, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RecycledApi.recyclePurge']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -826,14 +870,15 @@ export const RecycledApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {number} _delete 永久删除标志，固定值为1
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {Array<number>} recyclePurgeBatchRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async recyclePurgeBatch(libraryId: string, spaceId: string, _delete: number, accessToken: string, recyclePurgeBatchRequest: Array<number>, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.recyclePurgeBatch(libraryId, spaceId, _delete, accessToken, recyclePurgeBatchRequest, userId, options);
+        async recyclePurgeBatch(libraryId: string, spaceId: string, _delete: number, recyclePurgeBatchRequest: Array<number>, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recyclePurgeBatch(libraryId, spaceId, _delete, recyclePurgeBatchRequest, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RecycledApi.recyclePurgeBatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -845,15 +890,16 @@ export const RecycledApiFp = function(configuration?: Configuration) {
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {number} recycledItemId 回收站项目 ID
          * @param {RecycleRestoreRestoreEnum} restore 固定为 1
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {RecycleRestoreConflictResolutionStrategyEnum} [conflictResolutionStrategy] 路径冲突时的处理方式，ask: 冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename: 冲突时自动重命名文件，overwrite: 如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 ask
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {RecycleRestoreRestorePathStrategyEnum} [restorePathStrategy] 恢复项目源路径的处理方式，originalPath:恢复到原始路径，原始路径不存在则报错; fallbackToRoot:恢复到原始路径，原始路径不存在则恢复到根目录，默认为 originalPath
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async recycleRestore(libraryId: string, spaceId: string, recycledItemId: number, restore: RecycleRestoreRestoreEnum, accessToken: string, conflictResolutionStrategy?: RecycleRestoreConflictResolutionStrategyEnum, userId?: string, restorePathStrategy?: RecycleRestoreRestorePathStrategyEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecycleRestore200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleRestore(libraryId, spaceId, recycledItemId, restore, accessToken, conflictResolutionStrategy, userId, restorePathStrategy, options);
+        async recycleRestore(libraryId: string, spaceId: string, recycledItemId: number, restore: RecycleRestoreRestoreEnum, conflictResolutionStrategy?: RecycleRestoreConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, restorePathStrategy?: RecycleRestoreRestorePathStrategyEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecycleRestore200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleRestore(libraryId, spaceId, recycledItemId, restore, conflictResolutionStrategy, accessToken, librarySecret, userId, restorePathStrategy, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RecycledApi.recycleRestore']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -864,15 +910,16 @@ export const RecycledApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {number} restore 恢复，固定值为1
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {Array<number>} recycleRestoreBatchRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {RecycleRestoreBatchRestorePathStrategyEnum} [restorePathStrategy] 恢复项目源路径的处理方式，originalPath:恢复到原始路径，原始路径不存在则报错; fallbackToRoot:恢复到原始路径，原始路径不存在则恢复到根目录，默认为 originalPath
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async recycleRestoreBatch(libraryId: string, spaceId: string, restore: number, accessToken: string, recycleRestoreBatchRequest: Array<number>, userId?: string, restorePathStrategy?: RecycleRestoreBatchRestorePathStrategyEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecycleRestoreBatch200Response | RecycleRestoreBatch202Response | RecycleRestoreBatch207Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleRestoreBatch(libraryId, spaceId, restore, accessToken, recycleRestoreBatchRequest, userId, restorePathStrategy, options);
+        async recycleRestoreBatch(libraryId: string, spaceId: string, restore: number, recycleRestoreBatchRequest: Array<number>, accessToken?: string, librarySecret?: string, userId?: string, restorePathStrategy?: RecycleRestoreBatchRestorePathStrategyEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecycleRestoreBatch200Response | RecycleRestoreBatch202Response | RecycleRestoreBatch207Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleRestoreBatch(libraryId, spaceId, restore, recycleRestoreBatchRequest, accessToken, librarySecret, userId, restorePathStrategy, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RecycledApi.recycleRestoreBatch']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -883,13 +930,14 @@ export const RecycledApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {number} lifecycle 设置回收站生命周期标志，固定值为1
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {RecycleSetLifecycleRequest} recycleSetLifecycleRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async recycleSetLifecycle(libraryId: string, spaceId: string, lifecycle: number, accessToken: string, recycleSetLifecycleRequest: RecycleSetLifecycleRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleSetLifecycle(libraryId, spaceId, lifecycle, accessToken, recycleSetLifecycleRequest, options);
+        async recycleSetLifecycle(libraryId: string, spaceId: string, lifecycle: number, recycleSetLifecycleRequest: RecycleSetLifecycleRequest, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleSetLifecycle(libraryId, spaceId, lifecycle, recycleSetLifecycleRequest, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RecycledApi.recycleSetLifecycle']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -911,7 +959,7 @@ export const RecycledApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         recycleEmpty(requestParameters: RecycledApiRecycleEmptyRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.recycleEmpty(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.recycleEmpty(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于查看回收站文件详情，以便进行预览
@@ -921,7 +969,7 @@ export const RecycledApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         recycleInfo(requestParameters: RecycledApiRecycleInfoRequest, options?: RawAxiosRequestConfig): AxiosPromise<RecycleInfo200Response> {
-            return localVarFp.recycleInfo(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.info, requestParameters.accessToken, options).then((request) => request(axios, basePath));
+            return localVarFp.recycleInfo(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.info, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于列出回收站项目。 目录内容的列出顺序为：默认无排序，根据传入参数 orderBy 和 orderByType 来决定排列顺序。 
@@ -931,7 +979,7 @@ export const RecycledApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         recycleList(requestParameters: RecycledApiRecycleListRequest, options?: RawAxiosRequestConfig): AxiosPromise<RecycleList200Response> {
-            return localVarFp.recycleList(requestParameters.libraryId, requestParameters.spaceId, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.recycleList(requestParameters.libraryId, requestParameters.spaceId, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于列出回收站项目。 目录内容的列出顺序为：默认无排序，根据传入参数 orderBy 和 orderByType 来决定排列顺序。 page 翻页的深度会有限制，强烈建议业务方改用 marker 翻页的形式。 
@@ -941,7 +989,7 @@ export const RecycledApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         recycleListByPage(requestParameters: RecycledApiRecycleListByPageRequest, options?: RawAxiosRequestConfig): AxiosPromise<RecycleListByPage200Response> {
-            return localVarFp.recycleListByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.recycleListByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 可用于预览文档、图片、视频等文件类型；文档类型可返回HTML或JPG格式；视频返回首帧图片；照片或视频封面支持智能裁剪为指定大小，未识别到人脸时居中缩放裁剪；当未指定 size 参数时使用原图；接口返回302并跳转到可直接用于展示或下载的文件URL。
@@ -951,7 +999,7 @@ export const RecycledApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         recyclePreview(requestParameters: RecycledApiRecyclePreviewRequest, options?: RawAxiosRequestConfig): AxiosPromise<void | RecyclePreview200Response> {
-            return localVarFp.recyclePreview(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.preview, requestParameters.type, requestParameters.size, requestParameters.scale, requestParameters.widthSize, requestParameters.heightSize, requestParameters.frameNumber, requestParameters.accessToken, options).then((request) => request(axios, basePath));
+            return localVarFp.recyclePreview(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.preview, requestParameters.type, requestParameters.size, requestParameters.scale, requestParameters.widthSize, requestParameters.heightSize, requestParameters.frameNumber, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于永久删除指定回收站项目。要求权限：admin、space_admin 或 delete_recycled。
@@ -961,7 +1009,7 @@ export const RecycledApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         recyclePurge(requestParameters: RecycledApiRecyclePurgeRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.recyclePurge(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.recyclePurge(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于永久删除指定回收站项目（批量）。要求权限：admin、space_admin 或 delete_recycled。
@@ -971,7 +1019,7 @@ export const RecycledApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         recyclePurgeBatch(requestParameters: RecycledApiRecyclePurgeBatchRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.recyclePurgeBatch(requestParameters.libraryId, requestParameters.spaceId, requestParameters._delete, requestParameters.accessToken, requestParameters.recyclePurgeBatchRequest, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.recyclePurgeBatch(requestParameters.libraryId, requestParameters.spaceId, requestParameters._delete, requestParameters.recyclePurgeBatchRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于恢复指定回收站项目。要求权限：admin、space_admin 或 restore_recycled。恢复项目时需保证该项目所在的目录存在。
@@ -981,7 +1029,7 @@ export const RecycledApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         recycleRestore(requestParameters: RecycledApiRecycleRestoreRequest, options?: RawAxiosRequestConfig): AxiosPromise<RecycleRestore200Response> {
-            return localVarFp.recycleRestore(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.restore, requestParameters.accessToken, requestParameters.conflictResolutionStrategy, requestParameters.userId, requestParameters.restorePathStrategy, options).then((request) => request(axios, basePath));
+            return localVarFp.recycleRestore(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.restore, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.restorePathStrategy, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于恢复指定回收站项目（批量）。要求权限：admin、space_admin 或 restore_recycled。恢复项目时需保证该项目所在的目录存在；恢复项目时如果有同名文件存在，则默认重命名文件。
@@ -991,7 +1039,7 @@ export const RecycledApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         recycleRestoreBatch(requestParameters: RecycledApiRecycleRestoreBatchRequest, options?: RawAxiosRequestConfig): AxiosPromise<RecycleRestoreBatch200Response | RecycleRestoreBatch202Response | RecycleRestoreBatch207Response> {
-            return localVarFp.recycleRestoreBatch(requestParameters.libraryId, requestParameters.spaceId, requestParameters.restore, requestParameters.accessToken, requestParameters.recycleRestoreBatchRequest, requestParameters.userId, requestParameters.restorePathStrategy, options).then((request) => request(axios, basePath));
+            return localVarFp.recycleRestoreBatch(requestParameters.libraryId, requestParameters.spaceId, requestParameters.restore, requestParameters.recycleRestoreBatchRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.restorePathStrategy, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于设置回收站生命周期。未对租户空间设置时，采用媒体库默认值；当延长保留天数时，已有文件同步使用新值；当缩短保留天数时，已有文件沿用旧值，新删除文件使用新值。
@@ -1001,7 +1049,7 @@ export const RecycledApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         recycleSetLifecycle(requestParameters: RecycledApiRecycleSetLifecycleRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.recycleSetLifecycle(requestParameters.libraryId, requestParameters.spaceId, requestParameters.lifecycle, requestParameters.accessToken, requestParameters.recycleSetLifecycleRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.recycleSetLifecycle(requestParameters.libraryId, requestParameters.spaceId, requestParameters.lifecycle, requestParameters.recycleSetLifecycleRequest, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1021,9 +1069,14 @@ export interface RecycledApiRecycleEmptyRequest {
     readonly spaceId: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -1059,6 +1112,11 @@ export interface RecycledApiRecycleInfoRequest {
      * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
     readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -1106,6 +1164,11 @@ export interface RecycledApiRecycleListRequest {
     readonly accessToken?: string
 
     /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
@@ -1141,7 +1204,7 @@ export interface RecycledApiRecycleListByPageRequest {
     readonly pageSize?: number
 
     /**
-     * 排序字段，按名称排序为 name，按修改时间排序为 modificationTime，按文件大小排序为 size，按删除时间排序为 removalTime，按剩余时间排序为 remainingTime
+     * 排序字段
      */
     readonly orderBy?: RecycleListByPageOrderByEnum
 
@@ -1154,6 +1217,11 @@ export interface RecycledApiRecycleListByPageRequest {
      * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
     readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -1219,6 +1287,11 @@ export interface RecycledApiRecyclePreviewRequest {
      * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
     readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -1241,9 +1314,14 @@ export interface RecycledApiRecyclePurgeRequest {
     readonly recycledItemId: number
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -1270,12 +1348,17 @@ export interface RecycledApiRecyclePurgeBatchRequest {
      */
     readonly _delete: number
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly recyclePurgeBatchRequest: Array<number>
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -1308,14 +1391,19 @@ export interface RecycledApiRecycleRestoreRequest {
     readonly restore: RecycleRestoreRestoreEnum
 
     /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
-    /**
      * 路径冲突时的处理方式，ask: 冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename: 冲突时自动重命名文件，overwrite: 如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 ask
      */
     readonly conflictResolutionStrategy?: RecycleRestoreConflictResolutionStrategyEnum
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -1347,12 +1435,17 @@ export interface RecycledApiRecycleRestoreBatchRequest {
      */
     readonly restore: number
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly recycleRestoreBatchRequest: Array<number>
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -1384,12 +1477,17 @@ export interface RecycledApiRecycleSetLifecycleRequest {
      */
     readonly lifecycle: number
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly recycleSetLifecycleRequest: RecycleSetLifecycleRequest
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -1404,7 +1502,7 @@ export class RecycledApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public recycleEmpty(requestParameters: RecycledApiRecycleEmptyRequest, options?: RawAxiosRequestConfig) {
-        return RecycledApiFp(this.configuration).recycleEmpty(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return RecycledApiFp(this.configuration).recycleEmpty(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1415,7 +1513,7 @@ export class RecycledApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public recycleInfo(requestParameters: RecycledApiRecycleInfoRequest, options?: RawAxiosRequestConfig) {
-        return RecycledApiFp(this.configuration).recycleInfo(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.info, requestParameters.accessToken, options).then((request) => request(this.axios, this.basePath));
+        return RecycledApiFp(this.configuration).recycleInfo(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.info, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1426,7 +1524,7 @@ export class RecycledApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public recycleList(requestParameters: RecycledApiRecycleListRequest, options?: RawAxiosRequestConfig) {
-        return RecycledApiFp(this.configuration).recycleList(requestParameters.libraryId, requestParameters.spaceId, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return RecycledApiFp(this.configuration).recycleList(requestParameters.libraryId, requestParameters.spaceId, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1437,7 +1535,7 @@ export class RecycledApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public recycleListByPage(requestParameters: RecycledApiRecycleListByPageRequest, options?: RawAxiosRequestConfig) {
-        return RecycledApiFp(this.configuration).recycleListByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return RecycledApiFp(this.configuration).recycleListByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1448,7 +1546,7 @@ export class RecycledApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public recyclePreview(requestParameters: RecycledApiRecyclePreviewRequest, options?: RawAxiosRequestConfig) {
-        return RecycledApiFp(this.configuration).recyclePreview(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.preview, requestParameters.type, requestParameters.size, requestParameters.scale, requestParameters.widthSize, requestParameters.heightSize, requestParameters.frameNumber, requestParameters.accessToken, options).then((request) => request(this.axios, this.basePath));
+        return RecycledApiFp(this.configuration).recyclePreview(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.preview, requestParameters.type, requestParameters.size, requestParameters.scale, requestParameters.widthSize, requestParameters.heightSize, requestParameters.frameNumber, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1459,7 +1557,7 @@ export class RecycledApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public recyclePurge(requestParameters: RecycledApiRecyclePurgeRequest, options?: RawAxiosRequestConfig) {
-        return RecycledApiFp(this.configuration).recyclePurge(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return RecycledApiFp(this.configuration).recyclePurge(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1470,7 +1568,7 @@ export class RecycledApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public recyclePurgeBatch(requestParameters: RecycledApiRecyclePurgeBatchRequest, options?: RawAxiosRequestConfig) {
-        return RecycledApiFp(this.configuration).recyclePurgeBatch(requestParameters.libraryId, requestParameters.spaceId, requestParameters._delete, requestParameters.accessToken, requestParameters.recyclePurgeBatchRequest, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return RecycledApiFp(this.configuration).recyclePurgeBatch(requestParameters.libraryId, requestParameters.spaceId, requestParameters._delete, requestParameters.recyclePurgeBatchRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1481,7 +1579,7 @@ export class RecycledApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public recycleRestore(requestParameters: RecycledApiRecycleRestoreRequest, options?: RawAxiosRequestConfig) {
-        return RecycledApiFp(this.configuration).recycleRestore(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.restore, requestParameters.accessToken, requestParameters.conflictResolutionStrategy, requestParameters.userId, requestParameters.restorePathStrategy, options).then((request) => request(this.axios, this.basePath));
+        return RecycledApiFp(this.configuration).recycleRestore(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.restore, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.restorePathStrategy, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1492,7 +1590,7 @@ export class RecycledApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public recycleRestoreBatch(requestParameters: RecycledApiRecycleRestoreBatchRequest, options?: RawAxiosRequestConfig) {
-        return RecycledApiFp(this.configuration).recycleRestoreBatch(requestParameters.libraryId, requestParameters.spaceId, requestParameters.restore, requestParameters.accessToken, requestParameters.recycleRestoreBatchRequest, requestParameters.userId, requestParameters.restorePathStrategy, options).then((request) => request(this.axios, this.basePath));
+        return RecycledApiFp(this.configuration).recycleRestoreBatch(requestParameters.libraryId, requestParameters.spaceId, requestParameters.restore, requestParameters.recycleRestoreBatchRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.restorePathStrategy, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1503,7 +1601,7 @@ export class RecycledApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public recycleSetLifecycle(requestParameters: RecycledApiRecycleSetLifecycleRequest, options?: RawAxiosRequestConfig) {
-        return RecycledApiFp(this.configuration).recycleSetLifecycle(requestParameters.libraryId, requestParameters.spaceId, requestParameters.lifecycle, requestParameters.accessToken, requestParameters.recycleSetLifecycleRequest, options).then((request) => request(this.axios, this.basePath));
+        return RecycledApiFp(this.configuration).recycleSetLifecycle(requestParameters.libraryId, requestParameters.spaceId, requestParameters.lifecycle, requestParameters.recycleSetLifecycleRequest, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

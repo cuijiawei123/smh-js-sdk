@@ -50,17 +50,16 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
          * 用于创建租户空间。需要 admin 或 create_space 权限，有关权限详情请参见生成访问令牌接口。
          * @summary 创建租户空间
          * @param {string} libraryId 媒体库 ID，必选参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {CreateSpaceRequest} [createSpaceRequest] 租户空间的扩展属性
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createSpace: async (libraryId: string, accessToken: string, userId?: string, createSpaceRequest?: CreateSpaceRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        createSpace: async (libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, createSpaceRequest?: CreateSpaceRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('createSpace', 'libraryId', libraryId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('createSpace', 'accessToken', accessToken)
             const localVarPath = `/api/v1/space/{LibraryId}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -76,6 +75,10 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -101,19 +104,18 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
          * @summary 删除租户空间
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {DeleteSpaceForceEnum} [force] 是否强制删除，1:强制删除，不判断space是否为空; 0:非强制删除，不允许删除非空的space
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteSpace: async (libraryId: string, spaceId: string, accessToken: string, userId?: string, force?: DeleteSpaceForceEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        deleteSpace: async (libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, force?: DeleteSpaceForceEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('deleteSpace', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('deleteSpace', 'spaceId', spaceId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('deleteSpace', 'accessToken', accessToken)
             const localVarPath = `/api/v1/space/{LibraryId}/{SpaceId}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)));
@@ -130,6 +132,10 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -163,12 +169,13 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
          * @param {GetContentsViewOrderByTypeEnum} [orderByType] 排序方式
          * @param {boolean} [withPath] 是否返回 path
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [category] 文件自定义的分类
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getContentsView: async (libraryId: string, spaceId: string, filter: GetContentsViewFilterEnum, marker?: string, limit?: number, orderBy?: GetContentsViewOrderByEnum, orderByType?: GetContentsViewOrderByTypeEnum, withPath?: boolean, accessToken?: string, userId?: string, category?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getContentsView: async (libraryId: string, spaceId: string, filter: GetContentsViewFilterEnum, marker?: string, limit?: number, orderBy?: GetContentsViewOrderByEnum, orderByType?: GetContentsViewOrderByTypeEnum, withPath?: boolean, accessToken?: string, librarySecret?: string, userId?: string, category?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('getContentsView', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -217,6 +224,10 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
             }
@@ -241,17 +252,16 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
          * @summary 空间文件数量统计
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFileCountInSpace: async (libraryId: string, spaceId: string, accessToken: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getFileCountInSpace: async (libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('getFileCountInSpace', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('getFileCountInSpace', 'spaceId', spaceId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('getFileCountInSpace', 'accessToken', accessToken)
             const localVarPath = `/api/v1/space/{LibraryId}/{SpaceId}/file-count`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)));
@@ -270,6 +280,10 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -285,16 +299,15 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
          * 用于查询媒体库中的租户空间数量
          * @summary 查询媒体库租户空间数量
          * @param {string} libraryId 媒体库 ID，必选参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getLibrarySpaceCount: async (libraryId: string, accessToken: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getLibrarySpaceCount: async (libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('getLibrarySpaceCount', 'libraryId', libraryId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('getLibrarySpaceCount', 'accessToken', accessToken)
             const localVarPath = `/api/v1/space/{LibraryId}/count`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -310,6 +323,10 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -332,18 +349,17 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
          * @summary 查询租户空间属性
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getSpaceExtension: async (libraryId: string, spaceId: string, accessToken: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getSpaceExtension: async (libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('getSpaceExtension', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('getSpaceExtension', 'spaceId', spaceId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('getSpaceExtension', 'accessToken', accessToken)
             const localVarPath = `/api/v1/space/{LibraryId}/{SpaceId}/extension`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)));
@@ -360,6 +376,10 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -382,18 +402,17 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
          * @summary 查询租户空间大小
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getSpaceSize: async (libraryId: string, spaceId: string, accessToken: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getSpaceSize: async (libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('getSpaceSize', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('getSpaceSize', 'spaceId', spaceId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('getSpaceSize', 'accessToken', accessToken)
             const localVarPath = `/api/v1/space/{LibraryId}/{SpaceId}/size`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)));
@@ -410,6 +429,10 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -432,13 +455,14 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
          * @summary 列出租户空间
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [marker] 用于顺序列出分页的标识。
          * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制。
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listSpace: async (libraryId: string, accessToken?: string, userId?: string, marker?: string, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listSpace: async (libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, marker?: string, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('listSpace', 'libraryId', libraryId)
             const localVarPath = `/api/v1/space/{LibraryId}/list`
@@ -456,6 +480,10 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -486,18 +514,17 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
          * @summary 设置租户空间限速
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {SetSpaceTrafficLimitRequest} setSpaceTrafficLimitRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        setSpaceTrafficLimit: async (libraryId: string, spaceId: string, accessToken: string, setSpaceTrafficLimitRequest: SetSpaceTrafficLimitRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        setSpaceTrafficLimit: async (libraryId: string, spaceId: string, setSpaceTrafficLimitRequest: SetSpaceTrafficLimitRequest, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('setSpaceTrafficLimit', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('setSpaceTrafficLimit', 'spaceId', spaceId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('setSpaceTrafficLimit', 'accessToken', accessToken)
             // verify required parameter 'setSpaceTrafficLimitRequest' is not null or undefined
             assertParamExists('setSpaceTrafficLimit', 'setSpaceTrafficLimitRequest', setSpaceTrafficLimitRequest)
             const localVarPath = `/api/v1/space/{LibraryId}/{SpaceId}/traffic-limit`
@@ -516,6 +543,10 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
 
@@ -537,19 +568,18 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
          * @summary 修改租户空间属性
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {UpdateSpaceExtensionRequest} [updateSpaceExtensionRequest] 租户空间的扩展属性
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateSpaceExtension: async (libraryId: string, spaceId: string, accessToken: string, userId?: string, updateSpaceExtensionRequest?: UpdateSpaceExtensionRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        updateSpaceExtension: async (libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, updateSpaceExtensionRequest?: UpdateSpaceExtensionRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('updateSpaceExtension', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('updateSpaceExtension', 'spaceId', spaceId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('updateSpaceExtension', 'accessToken', accessToken)
             const localVarPath = `/api/v1/space/{LibraryId}/{SpaceId}/extension`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)));
@@ -566,6 +596,10 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -599,14 +633,15 @@ export const SpaceApiFp = function(configuration?: Configuration) {
          * 用于创建租户空间。需要 admin 或 create_space 权限，有关权限详情请参见生成访问令牌接口。
          * @summary 创建租户空间
          * @param {string} libraryId 媒体库 ID，必选参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {CreateSpaceRequest} [createSpaceRequest] 租户空间的扩展属性
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createSpace(libraryId: string, accessToken: string, userId?: string, createSpaceRequest?: CreateSpaceRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateSpace201Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createSpace(libraryId, accessToken, userId, createSpaceRequest, options);
+        async createSpace(libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, createSpaceRequest?: CreateSpaceRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateSpace201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createSpace(libraryId, accessToken, librarySecret, userId, createSpaceRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SpaceApi.createSpace']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -616,14 +651,15 @@ export const SpaceApiFp = function(configuration?: Configuration) {
          * @summary 删除租户空间
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {DeleteSpaceForceEnum} [force] 是否强制删除，1:强制删除，不判断space是否为空; 0:非强制删除，不允许删除非空的space
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteSpace(libraryId: string, spaceId: string, accessToken: string, userId?: string, force?: DeleteSpaceForceEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteSpace(libraryId, spaceId, accessToken, userId, force, options);
+        async deleteSpace(libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, force?: DeleteSpaceForceEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteSpace(libraryId, spaceId, accessToken, librarySecret, userId, force, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SpaceApi.deleteSpace']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -640,13 +676,14 @@ export const SpaceApiFp = function(configuration?: Configuration) {
          * @param {GetContentsViewOrderByTypeEnum} [orderByType] 排序方式
          * @param {boolean} [withPath] 是否返回 path
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [category] 文件自定义的分类
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getContentsView(libraryId: string, spaceId: string, filter: GetContentsViewFilterEnum, marker?: string, limit?: number, orderBy?: GetContentsViewOrderByEnum, orderByType?: GetContentsViewOrderByTypeEnum, withPath?: boolean, accessToken?: string, userId?: string, category?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetContentsView200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getContentsView(libraryId, spaceId, filter, marker, limit, orderBy, orderByType, withPath, accessToken, userId, category, options);
+        async getContentsView(libraryId: string, spaceId: string, filter: GetContentsViewFilterEnum, marker?: string, limit?: number, orderBy?: GetContentsViewOrderByEnum, orderByType?: GetContentsViewOrderByTypeEnum, withPath?: boolean, accessToken?: string, librarySecret?: string, userId?: string, category?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetContentsView200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getContentsView(libraryId, spaceId, filter, marker, limit, orderBy, orderByType, withPath, accessToken, librarySecret, userId, category, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SpaceApi.getContentsView']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -656,12 +693,13 @@ export const SpaceApiFp = function(configuration?: Configuration) {
          * @summary 空间文件数量统计
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getFileCountInSpace(libraryId: string, spaceId: string, accessToken: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetFileCountInSpace200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getFileCountInSpace(libraryId, spaceId, accessToken, options);
+        async getFileCountInSpace(libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetFileCountInSpace200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getFileCountInSpace(libraryId, spaceId, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SpaceApi.getFileCountInSpace']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -670,13 +708,14 @@ export const SpaceApiFp = function(configuration?: Configuration) {
          * 用于查询媒体库中的租户空间数量
          * @summary 查询媒体库租户空间数量
          * @param {string} libraryId 媒体库 ID，必选参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getLibrarySpaceCount(libraryId: string, accessToken: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetLibrarySpaceCount200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getLibrarySpaceCount(libraryId, accessToken, userId, options);
+        async getLibrarySpaceCount(libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetLibrarySpaceCount200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getLibrarySpaceCount(libraryId, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SpaceApi.getLibrarySpaceCount']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -686,13 +725,14 @@ export const SpaceApiFp = function(configuration?: Configuration) {
          * @summary 查询租户空间属性
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getSpaceExtension(libraryId: string, spaceId: string, accessToken: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetSpaceExtension200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getSpaceExtension(libraryId, spaceId, accessToken, userId, options);
+        async getSpaceExtension(libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetSpaceExtension200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSpaceExtension(libraryId, spaceId, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SpaceApi.getSpaceExtension']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -702,13 +742,14 @@ export const SpaceApiFp = function(configuration?: Configuration) {
          * @summary 查询租户空间大小
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getSpaceSize(libraryId: string, spaceId: string, accessToken: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetSpaceSize200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getSpaceSize(libraryId, spaceId, accessToken, userId, options);
+        async getSpaceSize(libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetSpaceSize200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSpaceSize(libraryId, spaceId, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SpaceApi.getSpaceSize']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -718,14 +759,15 @@ export const SpaceApiFp = function(configuration?: Configuration) {
          * @summary 列出租户空间
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [marker] 用于顺序列出分页的标识。
          * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制。
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listSpace(libraryId: string, accessToken?: string, userId?: string, marker?: string, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListSpace200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listSpace(libraryId, accessToken, userId, marker, limit, options);
+        async listSpace(libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, marker?: string, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListSpace200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listSpace(libraryId, accessToken, librarySecret, userId, marker, limit, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SpaceApi.listSpace']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -735,13 +777,14 @@ export const SpaceApiFp = function(configuration?: Configuration) {
          * @summary 设置租户空间限速
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {SetSpaceTrafficLimitRequest} setSpaceTrafficLimitRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async setSpaceTrafficLimit(libraryId: string, spaceId: string, accessToken: string, setSpaceTrafficLimitRequest: SetSpaceTrafficLimitRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.setSpaceTrafficLimit(libraryId, spaceId, accessToken, setSpaceTrafficLimitRequest, options);
+        async setSpaceTrafficLimit(libraryId: string, spaceId: string, setSpaceTrafficLimitRequest: SetSpaceTrafficLimitRequest, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.setSpaceTrafficLimit(libraryId, spaceId, setSpaceTrafficLimitRequest, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SpaceApi.setSpaceTrafficLimit']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -751,14 +794,15 @@ export const SpaceApiFp = function(configuration?: Configuration) {
          * @summary 修改租户空间属性
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {UpdateSpaceExtensionRequest} [updateSpaceExtensionRequest] 租户空间的扩展属性
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateSpaceExtension(libraryId: string, spaceId: string, accessToken: string, userId?: string, updateSpaceExtensionRequest?: UpdateSpaceExtensionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateSpaceExtension(libraryId, spaceId, accessToken, userId, updateSpaceExtensionRequest, options);
+        async updateSpaceExtension(libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, updateSpaceExtensionRequest?: UpdateSpaceExtensionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateSpaceExtension(libraryId, spaceId, accessToken, librarySecret, userId, updateSpaceExtensionRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SpaceApi.updateSpaceExtension']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -780,7 +824,7 @@ export const SpaceApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         createSpace(requestParameters: SpaceApiCreateSpaceRequest, options?: RawAxiosRequestConfig): AxiosPromise<CreateSpace201Response> {
-            return localVarFp.createSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.userId, requestParameters.createSpaceRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.createSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.createSpaceRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于删除租户空间。 要求权限：admin 或 delete_space 
@@ -790,7 +834,7 @@ export const SpaceApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         deleteSpace(requestParameters: SpaceApiDeleteSpaceRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deleteSpace(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.userId, requestParameters.force, options).then((request) => request(axios, basePath));
+            return localVarFp.deleteSpace(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.force, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于列出空间首页内容，会忽略目录的层级关系，列出空间下所有文件。 要求权限：read_only 或 space_admin 或 admin 
@@ -800,7 +844,7 @@ export const SpaceApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         getContentsView(requestParameters: SpaceApiGetContentsViewRequest, options?: RawAxiosRequestConfig): AxiosPromise<GetContentsView200Response> {
-            return localVarFp.getContentsView(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filter, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.withPath, requestParameters.accessToken, requestParameters.userId, requestParameters.category, options).then((request) => request(axios, basePath));
+            return localVarFp.getContentsView(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filter, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.withPath, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.category, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于空间文件数量统计。 需要拥有 admin 或 space_admin 权限。 
@@ -810,7 +854,7 @@ export const SpaceApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         getFileCountInSpace(requestParameters: SpaceApiGetFileCountInSpaceRequest, options?: RawAxiosRequestConfig): AxiosPromise<GetFileCountInSpace200Response> {
-            return localVarFp.getFileCountInSpace(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, options).then((request) => request(axios, basePath));
+            return localVarFp.getFileCountInSpace(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于查询媒体库中的租户空间数量
@@ -820,7 +864,7 @@ export const SpaceApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         getLibrarySpaceCount(requestParameters: SpaceApiGetLibrarySpaceCountRequest, options?: RawAxiosRequestConfig): AxiosPromise<GetLibrarySpaceCount200Response> {
-            return localVarFp.getLibrarySpaceCount(requestParameters.libraryId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.getLibrarySpaceCount(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于查询租户空间的扩展属性
@@ -830,7 +874,7 @@ export const SpaceApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         getSpaceExtension(requestParameters: SpaceApiGetSpaceExtensionRequest, options?: RawAxiosRequestConfig): AxiosPromise<GetSpaceExtension200Response> {
-            return localVarFp.getSpaceExtension(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.getSpaceExtension(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于查询租户空间大小
@@ -840,7 +884,7 @@ export const SpaceApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         getSpaceSize(requestParameters: SpaceApiGetSpaceSizeRequest, options?: RawAxiosRequestConfig): AxiosPromise<GetSpaceSize200Response> {
-            return localVarFp.getSpaceSize(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.getSpaceSize(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于列出租户空间列表信息。如需列出所有租户空间，需要 admin 或 space_admin 权限，否则仅列出当前访问令牌所代表的用户所创建的租户空间。
@@ -850,7 +894,7 @@ export const SpaceApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         listSpace(requestParameters: SpaceApiListSpaceRequest, options?: RawAxiosRequestConfig): AxiosPromise<ListSpace200Response> {
-            return localVarFp.listSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.userId, requestParameters.marker, requestParameters.limit, options).then((request) => request(axios, basePath));
+            return localVarFp.listSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.marker, requestParameters.limit, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于设置租户空间的下载限速，要求权限：admin或space_admin
@@ -860,7 +904,7 @@ export const SpaceApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         setSpaceTrafficLimit(requestParameters: SpaceApiSetSpaceTrafficLimitRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.setSpaceTrafficLimit(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.setSpaceTrafficLimitRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.setSpaceTrafficLimit(requestParameters.libraryId, requestParameters.spaceId, requestParameters.setSpaceTrafficLimitRequest, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于修改租户空间属性。 要求权限：非 acl 鉴权：admin 或 space_admin； acl 鉴权：无权限 
@@ -870,7 +914,7 @@ export const SpaceApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         updateSpaceExtension(requestParameters: SpaceApiUpdateSpaceExtensionRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.updateSpaceExtension(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.userId, requestParameters.updateSpaceExtensionRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.updateSpaceExtension(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.updateSpaceExtensionRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -885,9 +929,14 @@ export interface SpaceApiCreateSpaceRequest {
     readonly libraryId: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -915,9 +964,14 @@ export interface SpaceApiDeleteSpaceRequest {
     readonly spaceId: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -980,6 +1034,11 @@ export interface SpaceApiGetContentsViewRequest {
     readonly accessToken?: string
 
     /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
@@ -1005,9 +1064,14 @@ export interface SpaceApiGetFileCountInSpaceRequest {
     readonly spaceId: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -1020,9 +1084,14 @@ export interface SpaceApiGetLibrarySpaceCountRequest {
     readonly libraryId: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -1045,9 +1114,14 @@ export interface SpaceApiGetSpaceExtensionRequest {
     readonly spaceId: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -1070,9 +1144,14 @@ export interface SpaceApiGetSpaceSizeRequest {
     readonly spaceId: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -1093,6 +1172,11 @@ export interface SpaceApiListSpaceRequest {
      * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
     readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -1124,12 +1208,17 @@ export interface SpaceApiSetSpaceTrafficLimitRequest {
      */
     readonly spaceId: string
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly setSpaceTrafficLimitRequest: SetSpaceTrafficLimitRequest
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -1147,9 +1236,14 @@ export interface SpaceApiUpdateSpaceExtensionRequest {
     readonly spaceId: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -1174,7 +1268,7 @@ export class SpaceApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public createSpace(requestParameters: SpaceApiCreateSpaceRequest, options?: RawAxiosRequestConfig) {
-        return SpaceApiFp(this.configuration).createSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.userId, requestParameters.createSpaceRequest, options).then((request) => request(this.axios, this.basePath));
+        return SpaceApiFp(this.configuration).createSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.createSpaceRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1185,7 +1279,7 @@ export class SpaceApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public deleteSpace(requestParameters: SpaceApiDeleteSpaceRequest, options?: RawAxiosRequestConfig) {
-        return SpaceApiFp(this.configuration).deleteSpace(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.userId, requestParameters.force, options).then((request) => request(this.axios, this.basePath));
+        return SpaceApiFp(this.configuration).deleteSpace(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.force, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1196,7 +1290,7 @@ export class SpaceApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public getContentsView(requestParameters: SpaceApiGetContentsViewRequest, options?: RawAxiosRequestConfig) {
-        return SpaceApiFp(this.configuration).getContentsView(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filter, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.withPath, requestParameters.accessToken, requestParameters.userId, requestParameters.category, options).then((request) => request(this.axios, this.basePath));
+        return SpaceApiFp(this.configuration).getContentsView(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filter, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.withPath, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.category, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1207,7 +1301,7 @@ export class SpaceApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public getFileCountInSpace(requestParameters: SpaceApiGetFileCountInSpaceRequest, options?: RawAxiosRequestConfig) {
-        return SpaceApiFp(this.configuration).getFileCountInSpace(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, options).then((request) => request(this.axios, this.basePath));
+        return SpaceApiFp(this.configuration).getFileCountInSpace(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1218,7 +1312,7 @@ export class SpaceApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public getLibrarySpaceCount(requestParameters: SpaceApiGetLibrarySpaceCountRequest, options?: RawAxiosRequestConfig) {
-        return SpaceApiFp(this.configuration).getLibrarySpaceCount(requestParameters.libraryId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return SpaceApiFp(this.configuration).getLibrarySpaceCount(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1229,7 +1323,7 @@ export class SpaceApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public getSpaceExtension(requestParameters: SpaceApiGetSpaceExtensionRequest, options?: RawAxiosRequestConfig) {
-        return SpaceApiFp(this.configuration).getSpaceExtension(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return SpaceApiFp(this.configuration).getSpaceExtension(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1240,7 +1334,7 @@ export class SpaceApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public getSpaceSize(requestParameters: SpaceApiGetSpaceSizeRequest, options?: RawAxiosRequestConfig) {
-        return SpaceApiFp(this.configuration).getSpaceSize(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return SpaceApiFp(this.configuration).getSpaceSize(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1251,7 +1345,7 @@ export class SpaceApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public listSpace(requestParameters: SpaceApiListSpaceRequest, options?: RawAxiosRequestConfig) {
-        return SpaceApiFp(this.configuration).listSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.userId, requestParameters.marker, requestParameters.limit, options).then((request) => request(this.axios, this.basePath));
+        return SpaceApiFp(this.configuration).listSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.marker, requestParameters.limit, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1262,7 +1356,7 @@ export class SpaceApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public setSpaceTrafficLimit(requestParameters: SpaceApiSetSpaceTrafficLimitRequest, options?: RawAxiosRequestConfig) {
-        return SpaceApiFp(this.configuration).setSpaceTrafficLimit(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.setSpaceTrafficLimitRequest, options).then((request) => request(this.axios, this.basePath));
+        return SpaceApiFp(this.configuration).setSpaceTrafficLimit(requestParameters.libraryId, requestParameters.spaceId, requestParameters.setSpaceTrafficLimitRequest, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1273,7 +1367,7 @@ export class SpaceApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public updateSpaceExtension(requestParameters: SpaceApiUpdateSpaceExtensionRequest, options?: RawAxiosRequestConfig) {
-        return SpaceApiFp(this.configuration).updateSpaceExtension(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.userId, requestParameters.updateSpaceExtensionRequest, options).then((request) => request(this.axios, this.basePath));
+        return SpaceApiFp(this.configuration).updateSpaceExtension(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.updateSpaceExtensionRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

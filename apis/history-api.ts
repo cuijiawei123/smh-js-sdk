@@ -41,18 +41,17 @@ export const HistoryApiAxiosParamCreator = function (configuration?: Configurati
          * @summary 删除历史版本
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {Array<string>} requestBody 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteHistory: async (libraryId: string, spaceId: string, accessToken: string, requestBody: Array<string>, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        deleteHistory: async (libraryId: string, spaceId: string, requestBody: Array<string>, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('deleteHistory', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('deleteHistory', 'spaceId', spaceId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('deleteHistory', 'accessToken', accessToken)
             // verify required parameter 'requestBody' is not null or undefined
             assertParamExists('deleteHistory', 'requestBody', requestBody)
             const localVarPath = `/api/v1/directory-history/{LibraryId}/{SpaceId}/delete`
@@ -73,6 +72,10 @@ export const HistoryApiAxiosParamCreator = function (configuration?: Configurati
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
 
     
             localVarHeaderParameter['Content-Type'] = 'application/json';
@@ -91,15 +94,14 @@ export const HistoryApiAxiosParamCreator = function (configuration?: Configurati
          * 用于清空整个library的历史版本，请求此接口时，需要先关闭历史版本。注意：此接口会清空整个library全部文件的历史版本，相应的空间会释放，不可找回数据，请谨慎操作！此接口有频控限制，每分钟最多调用1次，请勿频繁调用。权限要求：admin权限
          * @summary 清空历史版本
          * @param {string} libraryId 媒体库 ID，必选参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        emptyHistory: async (libraryId: string, accessToken: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        emptyHistory: async (libraryId: string, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('emptyHistory', 'libraryId', libraryId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('emptyHistory', 'accessToken', accessToken)
             const localVarPath = `/api/v1/directory-history/{LibraryId}/library-history`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -117,6 +119,10 @@ export const HistoryApiAxiosParamCreator = function (configuration?: Configurati
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -132,15 +138,14 @@ export const HistoryApiAxiosParamCreator = function (configuration?: Configurati
          * 用于查询历史版本配置信息。权限要求：admin权限
          * @summary 查询历史版本配置信息
          * @param {string} libraryId 媒体库 ID，必选参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getHistoryConfig: async (libraryId: string, accessToken: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getHistoryConfig: async (libraryId: string, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('getHistoryConfig', 'libraryId', libraryId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('getHistoryConfig', 'accessToken', accessToken)
             const localVarPath = `/api/v1/directory-history/{LibraryId}/library-history`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -156,6 +161,10 @@ export const HistoryApiAxiosParamCreator = function (configuration?: Configurati
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
 
@@ -175,25 +184,24 @@ export const HistoryApiAxiosParamCreator = function (configuration?: Configurati
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径，对于多级目录，使用斜杠(/)分隔，例如 foo/bar.txt
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {string} [marker] 用于顺序列出分页的标识
          * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，默认为 20；若不指定任何翻页参数，默认采用（marker，limit）参数翻页；若与（page，page_size）参数同时使用，默认采用（page，page_size）参数翻页
          * @param {number} [page] 分页码，默认第一页
          * @param {number} [pageSize] 分页大小，默认 20；若与（marker，limit）参数同时使用，默认采用（page，page_size）参数翻页
          * @param {ListHistoryOrderByEnum} [orderBy] 排序字段，按文件 id 排序为 id，按创建时间排序为 creationTime，默认为 id，最新版本排序始终在首位
          * @param {ListHistoryOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc，默认为 desc
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listHistory: async (libraryId: string, spaceId: string, filePath: string, accessToken: string, marker?: string, limit?: number, page?: number, pageSize?: number, orderBy?: ListHistoryOrderByEnum, orderByType?: ListHistoryOrderByTypeEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listHistory: async (libraryId: string, spaceId: string, filePath: string, marker?: string, limit?: number, page?: number, pageSize?: number, orderBy?: ListHistoryOrderByEnum, orderByType?: ListHistoryOrderByTypeEnum, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('listHistory', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('listHistory', 'spaceId', spaceId)
             // verify required parameter 'filePath' is not null or undefined
             assertParamExists('listHistory', 'filePath', filePath)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('listHistory', 'accessToken', accessToken)
             const localVarPath = `/api/v1/directory-history/{LibraryId}/{SpaceId}/history-list/{FilePath}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -237,6 +245,10 @@ export const HistoryApiAxiosParamCreator = function (configuration?: Configurati
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -252,16 +264,15 @@ export const HistoryApiAxiosParamCreator = function (configuration?: Configurati
          * 用于设置历史版本配置信息。权限要求：admin权限。多次调用接口会覆盖之前设置，以最后一次调用为准。更新时，可以设置部分字段；未传入字段，其值保持不变。配置设置生效可能有 1 分钟左右延迟。
          * @summary 设置历史版本配置信息
          * @param {string} libraryId 媒体库 ID，必选参数
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {SetHistoryConfigRequest} setHistoryConfigRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        setHistoryConfig: async (libraryId: string, accessToken: string, setHistoryConfigRequest: SetHistoryConfigRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        setHistoryConfig: async (libraryId: string, setHistoryConfigRequest: SetHistoryConfigRequest, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('setHistoryConfig', 'libraryId', libraryId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('setHistoryConfig', 'accessToken', accessToken)
             // verify required parameter 'setHistoryConfigRequest' is not null or undefined
             assertParamExists('setHistoryConfig', 'setHistoryConfigRequest', setHistoryConfigRequest)
             const localVarPath = `/api/v1/directory-history/{LibraryId}/library-history`
@@ -279,6 +290,10 @@ export const HistoryApiAxiosParamCreator = function (configuration?: Configurati
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
 
@@ -301,19 +316,18 @@ export const HistoryApiAxiosParamCreator = function (configuration?: Configurati
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} historyId 历史版本 ID
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        setHistoryLatest: async (libraryId: string, spaceId: string, historyId: string, accessToken: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        setHistoryLatest: async (libraryId: string, spaceId: string, historyId: string, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('setHistoryLatest', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('setHistoryLatest', 'spaceId', spaceId)
             // verify required parameter 'historyId' is not null or undefined
             assertParamExists('setHistoryLatest', 'historyId', historyId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('setHistoryLatest', 'accessToken', accessToken)
             const localVarPath = `/api/v1/directory-history/{LibraryId}/{SpaceId}/latest-version/{HistoryId}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -331,6 +345,10 @@ export const HistoryApiAxiosParamCreator = function (configuration?: Configurati
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
 
@@ -358,13 +376,14 @@ export const HistoryApiFp = function(configuration?: Configuration) {
          * @summary 删除历史版本
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {Array<string>} requestBody 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteHistory(libraryId: string, spaceId: string, accessToken: string, requestBody: Array<string>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteHistory(libraryId, spaceId, accessToken, requestBody, options);
+        async deleteHistory(libraryId: string, spaceId: string, requestBody: Array<string>, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteHistory(libraryId, spaceId, requestBody, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['HistoryApi.deleteHistory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -373,12 +392,13 @@ export const HistoryApiFp = function(configuration?: Configuration) {
          * 用于清空整个library的历史版本，请求此接口时，需要先关闭历史版本。注意：此接口会清空整个library全部文件的历史版本，相应的空间会释放，不可找回数据，请谨慎操作！此接口有频控限制，每分钟最多调用1次，请勿频繁调用。权限要求：admin权限
          * @summary 清空历史版本
          * @param {string} libraryId 媒体库 ID，必选参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async emptyHistory(libraryId: string, accessToken: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EmptyHistory202Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.emptyHistory(libraryId, accessToken, options);
+        async emptyHistory(libraryId: string, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EmptyHistory202Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.emptyHistory(libraryId, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['HistoryApi.emptyHistory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -387,12 +407,13 @@ export const HistoryApiFp = function(configuration?: Configuration) {
          * 用于查询历史版本配置信息。权限要求：admin权限
          * @summary 查询历史版本配置信息
          * @param {string} libraryId 媒体库 ID，必选参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getHistoryConfig(libraryId: string, accessToken: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetHistoryConfig200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getHistoryConfig(libraryId, accessToken, options);
+        async getHistoryConfig(libraryId: string, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetHistoryConfig200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getHistoryConfig(libraryId, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['HistoryApi.getHistoryConfig']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -403,18 +424,19 @@ export const HistoryApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径，对于多级目录，使用斜杠(/)分隔，例如 foo/bar.txt
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {string} [marker] 用于顺序列出分页的标识
          * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，默认为 20；若不指定任何翻页参数，默认采用（marker，limit）参数翻页；若与（page，page_size）参数同时使用，默认采用（page，page_size）参数翻页
          * @param {number} [page] 分页码，默认第一页
          * @param {number} [pageSize] 分页大小，默认 20；若与（marker，limit）参数同时使用，默认采用（page，page_size）参数翻页
          * @param {ListHistoryOrderByEnum} [orderBy] 排序字段，按文件 id 排序为 id，按创建时间排序为 creationTime，默认为 id，最新版本排序始终在首位
          * @param {ListHistoryOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc，默认为 desc
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listHistory(libraryId: string, spaceId: string, filePath: string, accessToken: string, marker?: string, limit?: number, page?: number, pageSize?: number, orderBy?: ListHistoryOrderByEnum, orderByType?: ListHistoryOrderByTypeEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListHistory200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listHistory(libraryId, spaceId, filePath, accessToken, marker, limit, page, pageSize, orderBy, orderByType, options);
+        async listHistory(libraryId: string, spaceId: string, filePath: string, marker?: string, limit?: number, page?: number, pageSize?: number, orderBy?: ListHistoryOrderByEnum, orderByType?: ListHistoryOrderByTypeEnum, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListHistory200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listHistory(libraryId, spaceId, filePath, marker, limit, page, pageSize, orderBy, orderByType, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['HistoryApi.listHistory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -423,13 +445,14 @@ export const HistoryApiFp = function(configuration?: Configuration) {
          * 用于设置历史版本配置信息。权限要求：admin权限。多次调用接口会覆盖之前设置，以最后一次调用为准。更新时，可以设置部分字段；未传入字段，其值保持不变。配置设置生效可能有 1 分钟左右延迟。
          * @summary 设置历史版本配置信息
          * @param {string} libraryId 媒体库 ID，必选参数
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {SetHistoryConfigRequest} setHistoryConfigRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async setHistoryConfig(libraryId: string, accessToken: string, setHistoryConfigRequest: SetHistoryConfigRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.setHistoryConfig(libraryId, accessToken, setHistoryConfigRequest, options);
+        async setHistoryConfig(libraryId: string, setHistoryConfigRequest: SetHistoryConfigRequest, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.setHistoryConfig(libraryId, setHistoryConfigRequest, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['HistoryApi.setHistoryConfig']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -440,12 +463,13 @@ export const HistoryApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} historyId 历史版本 ID
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async setHistoryLatest(libraryId: string, spaceId: string, historyId: string, accessToken: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SetHistoryLatest200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.setHistoryLatest(libraryId, spaceId, historyId, accessToken, options);
+        async setHistoryLatest(libraryId: string, spaceId: string, historyId: string, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SetHistoryLatest200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.setHistoryLatest(libraryId, spaceId, historyId, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['HistoryApi.setHistoryLatest']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -467,7 +491,7 @@ export const HistoryApiFactory = function (configuration?: Configuration, basePa
          * @throws {RequiredError}
          */
         deleteHistory(requestParameters: HistoryApiDeleteHistoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deleteHistory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.requestBody, options).then((request) => request(axios, basePath));
+            return localVarFp.deleteHistory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.requestBody, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于清空整个library的历史版本，请求此接口时，需要先关闭历史版本。注意：此接口会清空整个library全部文件的历史版本，相应的空间会释放，不可找回数据，请谨慎操作！此接口有频控限制，每分钟最多调用1次，请勿频繁调用。权限要求：admin权限
@@ -477,7 +501,7 @@ export const HistoryApiFactory = function (configuration?: Configuration, basePa
          * @throws {RequiredError}
          */
         emptyHistory(requestParameters: HistoryApiEmptyHistoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<EmptyHistory202Response> {
-            return localVarFp.emptyHistory(requestParameters.libraryId, requestParameters.accessToken, options).then((request) => request(axios, basePath));
+            return localVarFp.emptyHistory(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于查询历史版本配置信息。权限要求：admin权限
@@ -487,7 +511,7 @@ export const HistoryApiFactory = function (configuration?: Configuration, basePa
          * @throws {RequiredError}
          */
         getHistoryConfig(requestParameters: HistoryApiGetHistoryConfigRequest, options?: RawAxiosRequestConfig): AxiosPromise<GetHistoryConfig200Response> {
-            return localVarFp.getHistoryConfig(requestParameters.libraryId, requestParameters.accessToken, options).then((request) => request(axios, basePath));
+            return localVarFp.getHistoryConfig(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于查看历史版本列表。
@@ -497,7 +521,7 @@ export const HistoryApiFactory = function (configuration?: Configuration, basePa
          * @throws {RequiredError}
          */
         listHistory(requestParameters: HistoryApiListHistoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<ListHistory200Response> {
-            return localVarFp.listHistory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.marker, requestParameters.limit, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, options).then((request) => request(axios, basePath));
+            return localVarFp.listHistory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.marker, requestParameters.limit, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于设置历史版本配置信息。权限要求：admin权限。多次调用接口会覆盖之前设置，以最后一次调用为准。更新时，可以设置部分字段；未传入字段，其值保持不变。配置设置生效可能有 1 分钟左右延迟。
@@ -507,7 +531,7 @@ export const HistoryApiFactory = function (configuration?: Configuration, basePa
          * @throws {RequiredError}
          */
         setHistoryConfig(requestParameters: HistoryApiSetHistoryConfigRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.setHistoryConfig(requestParameters.libraryId, requestParameters.accessToken, requestParameters.setHistoryConfigRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.setHistoryConfig(requestParameters.libraryId, requestParameters.setHistoryConfigRequest, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于设置历史版本为最新版本。权限要求：admin权限、space_admin权限或set_history_latest权限
@@ -517,7 +541,7 @@ export const HistoryApiFactory = function (configuration?: Configuration, basePa
          * @throws {RequiredError}
          */
         setHistoryLatest(requestParameters: HistoryApiSetHistoryLatestRequest, options?: RawAxiosRequestConfig): AxiosPromise<SetHistoryLatest200Response> {
-            return localVarFp.setHistoryLatest(requestParameters.libraryId, requestParameters.spaceId, requestParameters.historyId, requestParameters.accessToken, options).then((request) => request(axios, basePath));
+            return localVarFp.setHistoryLatest(requestParameters.libraryId, requestParameters.spaceId, requestParameters.historyId, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -536,12 +560,17 @@ export interface HistoryApiDeleteHistoryRequest {
      */
     readonly spaceId: string
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly requestBody: Array<string>
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -554,9 +583,14 @@ export interface HistoryApiEmptyHistoryRequest {
     readonly libraryId: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -569,9 +603,14 @@ export interface HistoryApiGetHistoryConfigRequest {
     readonly libraryId: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -592,11 +631,6 @@ export interface HistoryApiListHistoryRequest {
      * 文件路径，对于多级目录，使用斜杠(/)分隔，例如 foo/bar.txt
      */
     readonly filePath: string
-
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
 
     /**
      * 用于顺序列出分页的标识
@@ -627,6 +661,16 @@ export interface HistoryApiListHistoryRequest {
      * 排序方式，升序为 asc，降序为 desc，默认为 desc
      */
     readonly orderByType?: ListHistoryOrderByTypeEnum
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -638,12 +682,17 @@ export interface HistoryApiSetHistoryConfigRequest {
      */
     readonly libraryId: string
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly setHistoryConfigRequest: SetHistoryConfigRequest
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -666,9 +715,14 @@ export interface HistoryApiSetHistoryLatestRequest {
     readonly historyId: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -683,7 +737,7 @@ export class HistoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public deleteHistory(requestParameters: HistoryApiDeleteHistoryRequest, options?: RawAxiosRequestConfig) {
-        return HistoryApiFp(this.configuration).deleteHistory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.requestBody, options).then((request) => request(this.axios, this.basePath));
+        return HistoryApiFp(this.configuration).deleteHistory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.requestBody, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -694,7 +748,7 @@ export class HistoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public emptyHistory(requestParameters: HistoryApiEmptyHistoryRequest, options?: RawAxiosRequestConfig) {
-        return HistoryApiFp(this.configuration).emptyHistory(requestParameters.libraryId, requestParameters.accessToken, options).then((request) => request(this.axios, this.basePath));
+        return HistoryApiFp(this.configuration).emptyHistory(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -705,7 +759,7 @@ export class HistoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public getHistoryConfig(requestParameters: HistoryApiGetHistoryConfigRequest, options?: RawAxiosRequestConfig) {
-        return HistoryApiFp(this.configuration).getHistoryConfig(requestParameters.libraryId, requestParameters.accessToken, options).then((request) => request(this.axios, this.basePath));
+        return HistoryApiFp(this.configuration).getHistoryConfig(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -716,7 +770,7 @@ export class HistoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public listHistory(requestParameters: HistoryApiListHistoryRequest, options?: RawAxiosRequestConfig) {
-        return HistoryApiFp(this.configuration).listHistory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.marker, requestParameters.limit, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, options).then((request) => request(this.axios, this.basePath));
+        return HistoryApiFp(this.configuration).listHistory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.marker, requestParameters.limit, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -727,7 +781,7 @@ export class HistoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public setHistoryConfig(requestParameters: HistoryApiSetHistoryConfigRequest, options?: RawAxiosRequestConfig) {
-        return HistoryApiFp(this.configuration).setHistoryConfig(requestParameters.libraryId, requestParameters.accessToken, requestParameters.setHistoryConfigRequest, options).then((request) => request(this.axios, this.basePath));
+        return HistoryApiFp(this.configuration).setHistoryConfig(requestParameters.libraryId, requestParameters.setHistoryConfigRequest, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -738,7 +792,7 @@ export class HistoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public setHistoryLatest(requestParameters: HistoryApiSetHistoryLatestRequest, options?: RawAxiosRequestConfig) {
-        return HistoryApiFp(this.configuration).setHistoryLatest(requestParameters.libraryId, requestParameters.spaceId, requestParameters.historyId, requestParameters.accessToken, options).then((request) => request(this.axios, this.basePath));
+        return HistoryApiFp(this.configuration).setHistoryLatest(requestParameters.libraryId, requestParameters.spaceId, requestParameters.historyId, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

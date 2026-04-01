@@ -35,7 +35,8 @@ export const SearchApiAxiosParamCreator = function (configuration?: Configuratio
          * @summary 搜索目录与文件
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [marker] 用于顺序列出分页的标识，可选参数，建议将marker放入请求体中传入
          * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，可选参数，取值范围[1,100]
@@ -44,13 +45,11 @@ export const SearchApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchFs: async (libraryId: string, spaceId: string, accessToken: string, userId?: string, marker?: string, limit?: number, withFavoriteStatus?: SearchFsWithFavoriteStatusEnum, searchFsRequest?: SearchFsRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        searchFs: async (libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, marker?: string, limit?: number, withFavoriteStatus?: SearchFsWithFavoriteStatusEnum, searchFsRequest?: SearchFsRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('searchFs', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('searchFs', 'spaceId', spaceId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('searchFs', 'accessToken', accessToken)
             const localVarPath = `/api/v1/search/{LibraryId}/{SpaceId}/search-fs`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)));
@@ -67,6 +66,10 @@ export const SearchApiAxiosParamCreator = function (configuration?: Configuratio
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -113,7 +116,8 @@ export const SearchApiFp = function(configuration?: Configuration) {
          * @summary 搜索目录与文件
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [marker] 用于顺序列出分页的标识，可选参数，建议将marker放入请求体中传入
          * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，可选参数，取值范围[1,100]
@@ -122,8 +126,8 @@ export const SearchApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async searchFs(libraryId: string, spaceId: string, accessToken: string, userId?: string, marker?: string, limit?: number, withFavoriteStatus?: SearchFsWithFavoriteStatusEnum, searchFsRequest?: SearchFsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchFs200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.searchFs(libraryId, spaceId, accessToken, userId, marker, limit, withFavoriteStatus, searchFsRequest, options);
+        async searchFs(libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, marker?: string, limit?: number, withFavoriteStatus?: SearchFsWithFavoriteStatusEnum, searchFsRequest?: SearchFsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchFs200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchFs(libraryId, spaceId, accessToken, librarySecret, userId, marker, limit, withFavoriteStatus, searchFsRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SearchApi.searchFs']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -145,7 +149,7 @@ export const SearchApiFactory = function (configuration?: Configuration, basePat
          * @throws {RequiredError}
          */
         searchFs(requestParameters: SearchApiSearchFsRequest, options?: RawAxiosRequestConfig): AxiosPromise<SearchFs200Response> {
-            return localVarFp.searchFs(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.userId, requestParameters.marker, requestParameters.limit, requestParameters.withFavoriteStatus, requestParameters.searchFsRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.searchFs(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.marker, requestParameters.limit, requestParameters.withFavoriteStatus, requestParameters.searchFsRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -165,9 +169,14 @@ export interface SearchApiSearchFsRequest {
     readonly spaceId: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -204,7 +213,7 @@ export class SearchApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public searchFs(requestParameters: SearchApiSearchFsRequest, options?: RawAxiosRequestConfig) {
-        return SearchApiFp(this.configuration).searchFs(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.userId, requestParameters.marker, requestParameters.limit, requestParameters.withFavoriteStatus, requestParameters.searchFsRequest, options).then((request) => request(this.axios, this.basePath));
+        return SearchApiFp(this.configuration).searchFs(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.marker, requestParameters.limit, requestParameters.withFavoriteStatus, requestParameters.searchFsRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

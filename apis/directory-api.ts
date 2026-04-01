@@ -55,11 +55,12 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        checkDirectoryStatus: async (libraryId: string, spaceId: string, filePath: string, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        checkDirectoryStatus: async (libraryId: string, spaceId: string, filePath: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('checkDirectoryStatus', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -85,6 +86,10 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
             }
@@ -106,22 +111,21 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {CopyDirectoryRequest} copyDirectoryRequest 
          * @param {CopyDirectoryConflictResolutionStrategyEnum} [conflictResolutionStrategy] 最后一级目录冲突时的处理方式，ask冲突时返回 HTTP 409，rename冲突时自动重命名最后一级目录，默认为 ask
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        copyDirectory: async (libraryId: string, spaceId: string, filePath: string, accessToken: string, copyDirectoryRequest: CopyDirectoryRequest, conflictResolutionStrategy?: CopyDirectoryConflictResolutionStrategyEnum, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        copyDirectory: async (libraryId: string, spaceId: string, filePath: string, copyDirectoryRequest: CopyDirectoryRequest, conflictResolutionStrategy?: CopyDirectoryConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('copyDirectory', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('copyDirectory', 'spaceId', spaceId)
             // verify required parameter 'filePath' is not null or undefined
             assertParamExists('copyDirectory', 'filePath', filePath)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('copyDirectory', 'accessToken', accessToken)
             // verify required parameter 'copyDirectoryRequest' is not null or undefined
             assertParamExists('copyDirectory', 'copyDirectoryRequest', copyDirectoryRequest)
             const localVarPath = `/api/v1/directory/{LibraryId}/{SpaceId}/{FilePath}#1`
@@ -145,6 +149,10 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -171,22 +179,21 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {CreateDirectoryConflictResolutionStrategyEnum} [conflictResolutionStrategy] 最后一级目录冲突时的处理方式，ask冲突时返回 HTTP 409，rename冲突时自动重命名最后一级目录，默认为 ask
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {CreateDirectoryWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createDirectory: async (libraryId: string, spaceId: string, filePath: string, accessToken: string, conflictResolutionStrategy?: CreateDirectoryConflictResolutionStrategyEnum, userId?: string, withInode?: CreateDirectoryWithInodeEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        createDirectory: async (libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: CreateDirectoryConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, withInode?: CreateDirectoryWithInodeEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('createDirectory', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('createDirectory', 'spaceId', spaceId)
             // verify required parameter 'filePath' is not null or undefined
             assertParamExists('createDirectory', 'filePath', filePath)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('createDirectory', 'accessToken', accessToken)
             const localVarPath = `/api/v1/directory/{LibraryId}/{SpaceId}/{FilePath}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -208,6 +215,10 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -235,21 +246,20 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {DeleteDirectoryPermanentEnum} [permanent] 当媒体库开启回收站时，则该参数指定将文件移入回收站还是永久删除文件，1: 永久删除，0: 移入回收站，默认为 0
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteDirectory: async (libraryId: string, spaceId: string, filePath: string, accessToken: string, permanent?: DeleteDirectoryPermanentEnum, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        deleteDirectory: async (libraryId: string, spaceId: string, filePath: string, permanent?: DeleteDirectoryPermanentEnum, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('deleteDirectory', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('deleteDirectory', 'spaceId', spaceId)
             // verify required parameter 'filePath' is not null or undefined
             assertParamExists('deleteDirectory', 'filePath', filePath)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('deleteDirectory', 'accessToken', accessToken)
             const localVarPath = `/api/v1/directory/{LibraryId}/{SpaceId}/{FilePath}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -271,6 +281,10 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -297,12 +311,13 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {InfoFileOrDirectoryInfoEnum} info 固定为 1
          * @param {InfoFileOrDirectoryWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {InfoFileOrDirectoryWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
          * @param {InfoFileOrDirectoryWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        infoFileOrDirectory: async (libraryId: string, spaceId: string, filePath: string, info: InfoFileOrDirectoryInfoEnum, withInode?: InfoFileOrDirectoryWithInodeEnum, accessToken?: string, withFavoriteStatus?: InfoFileOrDirectoryWithFavoriteStatusEnum, withContentCas?: InfoFileOrDirectoryWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        infoFileOrDirectory: async (libraryId: string, spaceId: string, filePath: string, info: InfoFileOrDirectoryInfoEnum, withInode?: InfoFileOrDirectoryWithInodeEnum, accessToken?: string, librarySecret?: string, withFavoriteStatus?: InfoFileOrDirectoryWithFavoriteStatusEnum, withContentCas?: InfoFileOrDirectoryWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('infoFileOrDirectory', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -336,6 +351,10 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (withFavoriteStatus !== undefined) {
@@ -373,12 +392,13 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {ListDirectoryWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
          * @param {ListDirectoryWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {ListDirectoryWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listDirectory: async (libraryId: string, spaceId: string, filePath: string, byMarker: ListDirectoryByMarkerEnum, marker?: string, limit?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, userId?: string, withContentCas?: ListDirectoryWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listDirectory: async (libraryId: string, spaceId: string, filePath: string, byMarker: ListDirectoryByMarkerEnum, marker?: string, limit?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, librarySecret?: string, userId?: string, withContentCas?: ListDirectoryWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('listDirectory', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -442,6 +462,10 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
             }
@@ -477,12 +501,13 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {ListDirectoryByPageWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
          * @param {ListDirectoryByPageWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {ListDirectoryByPageWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listDirectoryByPage: async (libraryId: string, spaceId: string, filePath: string, byPage: ListDirectoryByPageByPageEnum, page?: number, pageSize?: number, orderBy?: ListDirectoryByPageOrderByEnum, orderByType?: ListDirectoryByPageOrderByTypeEnum, filter?: ListDirectoryByPageFilterEnum, sortType?: ListDirectoryByPageSortTypeEnum, withInode?: ListDirectoryByPageWithInodeEnum, withFavoriteStatus?: ListDirectoryByPageWithFavoriteStatusEnum, accessToken?: string, userId?: string, withContentCas?: ListDirectoryByPageWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listDirectoryByPage: async (libraryId: string, spaceId: string, filePath: string, byPage: ListDirectoryByPageByPageEnum, page?: number, pageSize?: number, orderBy?: ListDirectoryByPageOrderByEnum, orderByType?: ListDirectoryByPageOrderByTypeEnum, filter?: ListDirectoryByPageFilterEnum, sortType?: ListDirectoryByPageSortTypeEnum, withInode?: ListDirectoryByPageWithInodeEnum, withFavoriteStatus?: ListDirectoryByPageWithFavoriteStatusEnum, accessToken?: string, librarySecret?: string, userId?: string, withContentCas?: ListDirectoryByPageWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('listDirectoryByPage', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -546,6 +571,10 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
             }
@@ -571,22 +600,21 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {MoveDirectoryRequest} moveDirectoryRequest 
          * @param {MoveDirectoryConflictResolutionStrategyEnum} [conflictResolutionStrategy] 最后一级目录冲突时的处理方式，ask冲突时返回 HTTP 409，rename冲突时自动重命名最后一级目录，默认为 ask
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        moveDirectory: async (libraryId: string, spaceId: string, filePath: string, accessToken: string, moveDirectoryRequest: MoveDirectoryRequest, conflictResolutionStrategy?: MoveDirectoryConflictResolutionStrategyEnum, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        moveDirectory: async (libraryId: string, spaceId: string, filePath: string, moveDirectoryRequest: MoveDirectoryRequest, conflictResolutionStrategy?: MoveDirectoryConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('moveDirectory', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('moveDirectory', 'spaceId', spaceId)
             // verify required parameter 'filePath' is not null or undefined
             assertParamExists('moveDirectory', 'filePath', filePath)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('moveDirectory', 'accessToken', accessToken)
             // verify required parameter 'moveDirectoryRequest' is not null or undefined
             assertParamExists('moveDirectory', 'moveDirectoryRequest', moveDirectoryRequest)
             const localVarPath = `/api/v1/directory/{LibraryId}/{SpaceId}/{FilePath}#2`
@@ -610,6 +638,10 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -638,11 +670,12 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
          * @param {UpdateDirectoryLabelsUpdateEnum} update 固定为 1
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {UpdateDirectoryLabelsRequest} [updateDirectoryLabelsRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateDirectoryLabels: async (libraryId: string, spaceId: string, filePath: string, update: UpdateDirectoryLabelsUpdateEnum, accessToken?: string, updateDirectoryLabelsRequest?: UpdateDirectoryLabelsRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        updateDirectoryLabels: async (libraryId: string, spaceId: string, filePath: string, update: UpdateDirectoryLabelsUpdateEnum, accessToken?: string, librarySecret?: string, updateDirectoryLabelsRequest?: UpdateDirectoryLabelsRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('updateDirectoryLabels', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -674,6 +707,10 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
 
     
             localVarHeaderParameter['Content-Type'] = 'application/json';
@@ -697,10 +734,11 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {UpdateFileLabelsUpdateEnum} update 固定为 1
          * @param {UpdateFileLabelsRequest} updateFileLabelsRequest 
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateFileLabels: async (libraryId: string, spaceId: string, filePath: string, update: UpdateFileLabelsUpdateEnum, updateFileLabelsRequest: UpdateFileLabelsRequest, accessToken?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        updateFileLabels: async (libraryId: string, spaceId: string, filePath: string, update: UpdateFileLabelsUpdateEnum, updateFileLabelsRequest: UpdateFileLabelsRequest, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('updateFileLabels', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -734,6 +772,10 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
 
     
             localVarHeaderParameter['Content-Type'] = 'application/json';
@@ -764,12 +806,13 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async checkDirectoryStatus(libraryId: string, spaceId: string, filePath: string, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.checkDirectoryStatus(libraryId, spaceId, filePath, accessToken, userId, options);
+        async checkDirectoryStatus(libraryId: string, spaceId: string, filePath: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.checkDirectoryStatus(libraryId, spaceId, filePath, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.checkDirectoryStatus']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -780,15 +823,16 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {CopyDirectoryRequest} copyDirectoryRequest 
          * @param {CopyDirectoryConflictResolutionStrategyEnum} [conflictResolutionStrategy] 最后一级目录冲突时的处理方式，ask冲突时返回 HTTP 409，rename冲突时自动重命名最后一级目录，默认为 ask
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async copyDirectory(libraryId: string, spaceId: string, filePath: string, accessToken: string, copyDirectoryRequest: CopyDirectoryRequest, conflictResolutionStrategy?: CopyDirectoryConflictResolutionStrategyEnum, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CopyDirectory202Response | void | CopyDirectory200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.copyDirectory(libraryId, spaceId, filePath, accessToken, copyDirectoryRequest, conflictResolutionStrategy, userId, options);
+        async copyDirectory(libraryId: string, spaceId: string, filePath: string, copyDirectoryRequest: CopyDirectoryRequest, conflictResolutionStrategy?: CopyDirectoryConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CopyDirectory202Response | void | CopyDirectory200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.copyDirectory(libraryId, spaceId, filePath, copyDirectoryRequest, conflictResolutionStrategy, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.copyDirectory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -799,15 +843,16 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {CreateDirectoryConflictResolutionStrategyEnum} [conflictResolutionStrategy] 最后一级目录冲突时的处理方式，ask冲突时返回 HTTP 409，rename冲突时自动重命名最后一级目录，默认为 ask
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {CreateDirectoryWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createDirectory(libraryId: string, spaceId: string, filePath: string, accessToken: string, conflictResolutionStrategy?: CreateDirectoryConflictResolutionStrategyEnum, userId?: string, withInode?: CreateDirectoryWithInodeEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateDirectory201Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createDirectory(libraryId, spaceId, filePath, accessToken, conflictResolutionStrategy, userId, withInode, options);
+        async createDirectory(libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: CreateDirectoryConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, withInode?: CreateDirectoryWithInodeEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateDirectory201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createDirectory(libraryId, spaceId, filePath, conflictResolutionStrategy, accessToken, librarySecret, userId, withInode, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.createDirectory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -818,14 +863,15 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {DeleteDirectoryPermanentEnum} [permanent] 当媒体库开启回收站时，则该参数指定将文件移入回收站还是永久删除文件，1: 永久删除，0: 移入回收站，默认为 0
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteDirectory(libraryId: string, spaceId: string, filePath: string, accessToken: string, permanent?: DeleteDirectoryPermanentEnum, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void | DeleteFile200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteDirectory(libraryId, spaceId, filePath, accessToken, permanent, userId, options);
+        async deleteDirectory(libraryId: string, spaceId: string, filePath: string, permanent?: DeleteDirectoryPermanentEnum, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void | DeleteFile200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteDirectory(libraryId, spaceId, filePath, permanent, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.deleteDirectory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -839,13 +885,14 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {InfoFileOrDirectoryInfoEnum} info 固定为 1
          * @param {InfoFileOrDirectoryWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {InfoFileOrDirectoryWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
          * @param {InfoFileOrDirectoryWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async infoFileOrDirectory(libraryId: string, spaceId: string, filePath: string, info: InfoFileOrDirectoryInfoEnum, withInode?: InfoFileOrDirectoryWithInodeEnum, accessToken?: string, withFavoriteStatus?: InfoFileOrDirectoryWithFavoriteStatusEnum, withContentCas?: InfoFileOrDirectoryWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<InfoFileOrDirectory200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.infoFileOrDirectory(libraryId, spaceId, filePath, info, withInode, accessToken, withFavoriteStatus, withContentCas, options);
+        async infoFileOrDirectory(libraryId: string, spaceId: string, filePath: string, info: InfoFileOrDirectoryInfoEnum, withInode?: InfoFileOrDirectoryWithInodeEnum, accessToken?: string, librarySecret?: string, withFavoriteStatus?: InfoFileOrDirectoryWithFavoriteStatusEnum, withContentCas?: InfoFileOrDirectoryWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<InfoFileOrDirectory200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.infoFileOrDirectory(libraryId, spaceId, filePath, info, withInode, accessToken, librarySecret, withFavoriteStatus, withContentCas, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.infoFileOrDirectory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -866,13 +913,14 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {ListDirectoryWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
          * @param {ListDirectoryWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {ListDirectoryWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listDirectory(libraryId: string, spaceId: string, filePath: string, byMarker: ListDirectoryByMarkerEnum, marker?: string, limit?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, userId?: string, withContentCas?: ListDirectoryWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListDirectory200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listDirectory(libraryId, spaceId, filePath, byMarker, marker, limit, orderBy, orderByType, filter, sortType, withInode, withFavoriteStatus, accessToken, userId, withContentCas, options);
+        async listDirectory(libraryId: string, spaceId: string, filePath: string, byMarker: ListDirectoryByMarkerEnum, marker?: string, limit?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, librarySecret?: string, userId?: string, withContentCas?: ListDirectoryWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListDirectory200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listDirectory(libraryId, spaceId, filePath, byMarker, marker, limit, orderBy, orderByType, filter, sortType, withInode, withFavoriteStatus, accessToken, librarySecret, userId, withContentCas, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.listDirectory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -893,13 +941,14 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {ListDirectoryByPageWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
          * @param {ListDirectoryByPageWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {ListDirectoryByPageWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listDirectoryByPage(libraryId: string, spaceId: string, filePath: string, byPage: ListDirectoryByPageByPageEnum, page?: number, pageSize?: number, orderBy?: ListDirectoryByPageOrderByEnum, orderByType?: ListDirectoryByPageOrderByTypeEnum, filter?: ListDirectoryByPageFilterEnum, sortType?: ListDirectoryByPageSortTypeEnum, withInode?: ListDirectoryByPageWithInodeEnum, withFavoriteStatus?: ListDirectoryByPageWithFavoriteStatusEnum, accessToken?: string, userId?: string, withContentCas?: ListDirectoryByPageWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListDirectoryByPage200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listDirectoryByPage(libraryId, spaceId, filePath, byPage, page, pageSize, orderBy, orderByType, filter, sortType, withInode, withFavoriteStatus, accessToken, userId, withContentCas, options);
+        async listDirectoryByPage(libraryId: string, spaceId: string, filePath: string, byPage: ListDirectoryByPageByPageEnum, page?: number, pageSize?: number, orderBy?: ListDirectoryByPageOrderByEnum, orderByType?: ListDirectoryByPageOrderByTypeEnum, filter?: ListDirectoryByPageFilterEnum, sortType?: ListDirectoryByPageSortTypeEnum, withInode?: ListDirectoryByPageWithInodeEnum, withFavoriteStatus?: ListDirectoryByPageWithFavoriteStatusEnum, accessToken?: string, librarySecret?: string, userId?: string, withContentCas?: ListDirectoryByPageWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListDirectoryByPage200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listDirectoryByPage(libraryId, spaceId, filePath, byPage, page, pageSize, orderBy, orderByType, filter, sortType, withInode, withFavoriteStatus, accessToken, librarySecret, userId, withContentCas, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.listDirectoryByPage']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -910,15 +959,16 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {MoveDirectoryRequest} moveDirectoryRequest 
          * @param {MoveDirectoryConflictResolutionStrategyEnum} [conflictResolutionStrategy] 最后一级目录冲突时的处理方式，ask冲突时返回 HTTP 409，rename冲突时自动重命名最后一级目录，默认为 ask
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async moveDirectory(libraryId: string, spaceId: string, filePath: string, accessToken: string, moveDirectoryRequest: MoveDirectoryRequest, conflictResolutionStrategy?: MoveDirectoryConflictResolutionStrategyEnum, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void | CopyDirectory200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.moveDirectory(libraryId, spaceId, filePath, accessToken, moveDirectoryRequest, conflictResolutionStrategy, userId, options);
+        async moveDirectory(libraryId: string, spaceId: string, filePath: string, moveDirectoryRequest: MoveDirectoryRequest, conflictResolutionStrategy?: MoveDirectoryConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void | CopyDirectory200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.moveDirectory(libraryId, spaceId, filePath, moveDirectoryRequest, conflictResolutionStrategy, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.moveDirectory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -931,12 +981,13 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
          * @param {UpdateDirectoryLabelsUpdateEnum} update 固定为 1
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {UpdateDirectoryLabelsRequest} [updateDirectoryLabelsRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateDirectoryLabels(libraryId: string, spaceId: string, filePath: string, update: UpdateDirectoryLabelsUpdateEnum, accessToken?: string, updateDirectoryLabelsRequest?: UpdateDirectoryLabelsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateDirectoryLabels(libraryId, spaceId, filePath, update, accessToken, updateDirectoryLabelsRequest, options);
+        async updateDirectoryLabels(libraryId: string, spaceId: string, filePath: string, update: UpdateDirectoryLabelsUpdateEnum, accessToken?: string, librarySecret?: string, updateDirectoryLabelsRequest?: UpdateDirectoryLabelsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateDirectoryLabels(libraryId, spaceId, filePath, update, accessToken, librarySecret, updateDirectoryLabelsRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.updateDirectoryLabels']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -950,11 +1001,12 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {UpdateFileLabelsUpdateEnum} update 固定为 1
          * @param {UpdateFileLabelsRequest} updateFileLabelsRequest 
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateFileLabels(libraryId: string, spaceId: string, filePath: string, update: UpdateFileLabelsUpdateEnum, updateFileLabelsRequest: UpdateFileLabelsRequest, accessToken?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateFileLabels(libraryId, spaceId, filePath, update, updateFileLabelsRequest, accessToken, options);
+        async updateFileLabels(libraryId: string, spaceId: string, filePath: string, update: UpdateFileLabelsUpdateEnum, updateFileLabelsRequest: UpdateFileLabelsRequest, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateFileLabels(libraryId, spaceId, filePath, update, updateFileLabelsRequest, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.updateFileLabels']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -976,7 +1028,7 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         checkDirectoryStatus(requestParameters: DirectoryApiCheckDirectoryStatusRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.checkDirectoryStatus(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.checkDirectoryStatus(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于复制目录或相簿。 - 自动创建中间所需的各级父目录。 
@@ -986,7 +1038,7 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         copyDirectory(requestParameters: DirectoryApiCopyDirectoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<CopyDirectory202Response | void | CopyDirectory200Response> {
-            return localVarFp.copyDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.copyDirectoryRequest, requestParameters.conflictResolutionStrategy, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.copyDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.copyDirectoryRequest, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于创建目录或相簿。 - 媒体类型媒体库可以进一步设置是否为分相簿媒体库，当设置为不分相簿时，则不允许创建目录或相簿，当设置为分相簿时，仅允许创建1层目录或相簿；文件类型媒体库不限制目录层数； - 自动创建中间所需的各级父目录； - 即使 ConflictResolutionStrategy 为 rename，如果路径中的某一父级实际为文件，则依然会返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码。 
@@ -996,7 +1048,7 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         createDirectory(requestParameters: DirectoryApiCreateDirectoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<CreateDirectory201Response> {
-            return localVarFp.createDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.conflictResolutionStrategy, requestParameters.userId, requestParameters.withInode, options).then((request) => request(axios, basePath));
+            return localVarFp.createDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withInode, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于删除目录或相簿。如果媒体库启用回收站功能，则该接口不会永久删除目录或相簿，而是将目录或相簿以及其下的文件移入回收站，可通过相关接口永久删除或恢复回收站内的目录或相簿，或直接清空回收站；
@@ -1006,7 +1058,7 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         deleteDirectory(requestParameters: DirectoryApiDeleteDirectoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<void | DeleteFile200Response> {
-            return localVarFp.deleteDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.permanent, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.deleteDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.permanent, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 此接口可同时用于查看文件或文件夹详情，路径如果为文件，则返回文件详情，如果为文件夹，则返回文件夹详情。 
@@ -1016,7 +1068,7 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         infoFileOrDirectory(requestParameters: DirectoryApiInfoFileOrDirectoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<InfoFileOrDirectory200Response> {
-            return localVarFp.infoFileOrDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.withInode, requestParameters.accessToken, requestParameters.withFavoriteStatus, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
+            return localVarFp.infoFileOrDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.withInode, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.withFavoriteStatus, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于列出目录或相簿内容。 目录内容的列出顺序为：首先按照字典序列出子目录，随后根据上传时间列出媒体库中的媒体资源，或根据文件名列出文件库中的文件资源。 
@@ -1026,7 +1078,7 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         listDirectory(requestParameters: DirectoryApiListDirectoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<ListDirectory200Response> {
-            return localVarFp.listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
+            return localVarFp.listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于列出目录或相簿内容。 目录内容的列出顺序为：首先按照字典序列出子目录，随后根据上传时间列出媒体库中的媒体资源，或根据文件名列出文件库中的文件资源。 page翻页的深度会有限制，强烈建议业务方改用marker翻页的形式。 
@@ -1036,7 +1088,7 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         listDirectoryByPage(requestParameters: DirectoryApiListDirectoryByPageRequest, options?: RawAxiosRequestConfig): AxiosPromise<ListDirectoryByPage200Response> {
-            return localVarFp.listDirectoryByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
+            return localVarFp.listDirectoryByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于重命名或移动目录或相簿。 要求权限： admin、space_admin 或 move_directory。 该接口的源和目标均需要指定完整的目录路径或相簿名；对于文件类型媒体库，源与目标可以跨越多层级多目录，来实现将目录移动到任意其他父目录下的功能，且支持同时修改目录名； 自动创建中间所需的各级父目录。 
@@ -1046,7 +1098,7 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         moveDirectory(requestParameters: DirectoryApiMoveDirectoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<void | CopyDirectory200Response> {
-            return localVarFp.moveDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.moveDirectoryRequest, requestParameters.conflictResolutionStrategy, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.moveDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.moveDirectoryRequest, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于更新目录自定义标签。需要 admin 权限或 spaceAdmin 权限
@@ -1056,7 +1108,7 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         updateDirectoryLabels(requestParameters: DirectoryApiUpdateDirectoryLabelsRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.updateDirectoryLabels(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.update, requestParameters.accessToken, requestParameters.updateDirectoryLabelsRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.updateDirectoryLabels(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.update, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.updateDirectoryLabelsRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于更新文件的标签（Labels）或分类（Category）。 需要 admin 权限或 spaceAdmin 权限。 
@@ -1066,7 +1118,7 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         updateFileLabels(requestParameters: DirectoryApiUpdateFileLabelsRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.updateFileLabels(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.update, requestParameters.updateFileLabelsRequest, requestParameters.accessToken, options).then((request) => request(axios, basePath));
+            return localVarFp.updateFileLabels(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.update, requestParameters.updateFileLabelsRequest, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -1096,6 +1148,11 @@ export interface DirectoryApiCheckDirectoryStatusRequest {
     readonly accessToken?: string
 
     /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
@@ -1120,17 +1177,22 @@ export interface DirectoryApiCopyDirectoryRequest {
      */
     readonly filePath: string
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly copyDirectoryRequest: CopyDirectoryRequest
 
     /**
      * 最后一级目录冲突时的处理方式，ask冲突时返回 HTTP 409，rename冲突时自动重命名最后一级目录，默认为 ask
      */
     readonly conflictResolutionStrategy?: CopyDirectoryConflictResolutionStrategyEnum
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -1158,14 +1220,19 @@ export interface DirectoryApiCreateDirectoryRequest {
     readonly filePath: string
 
     /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
-    /**
      * 最后一级目录冲突时的处理方式，ask冲突时返回 HTTP 409，rename冲突时自动重命名最后一级目录，默认为 ask
      */
     readonly conflictResolutionStrategy?: CreateDirectoryConflictResolutionStrategyEnum
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -1198,14 +1265,19 @@ export interface DirectoryApiDeleteDirectoryRequest {
     readonly filePath: string
 
     /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
-    /**
      * 当媒体库开启回收站时，则该参数指定将文件移入回收站还是永久删除文件，1: 永久删除，0: 移入回收站，默认为 0
      */
     readonly permanent?: DeleteDirectoryPermanentEnum
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -1246,6 +1318,11 @@ export interface DirectoryApiInfoFileOrDirectoryRequest {
      * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
     readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 是否返回收藏状态，0 或 1，默认不返回
@@ -1328,6 +1405,11 @@ export interface DirectoryApiListDirectoryRequest {
     readonly accessToken?: string
 
     /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
@@ -1408,6 +1490,11 @@ export interface DirectoryApiListDirectoryByPageRequest {
     readonly accessToken?: string
 
     /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
@@ -1437,17 +1524,22 @@ export interface DirectoryApiMoveDirectoryRequest {
      */
     readonly filePath: string
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly moveDirectoryRequest: MoveDirectoryRequest
 
     /**
      * 最后一级目录冲突时的处理方式，ask冲突时返回 HTTP 409，rename冲突时自动重命名最后一级目录，默认为 ask
      */
     readonly conflictResolutionStrategy?: MoveDirectoryConflictResolutionStrategyEnum
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -1484,6 +1576,11 @@ export interface DirectoryApiUpdateDirectoryLabelsRequest {
      */
     readonly accessToken?: string
 
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
     readonly updateDirectoryLabelsRequest?: UpdateDirectoryLabelsRequest
 }
 
@@ -1517,6 +1614,11 @@ export interface DirectoryApiUpdateFileLabelsRequest {
      * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
     readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -1531,7 +1633,7 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public checkDirectoryStatus(requestParameters: DirectoryApiCheckDirectoryStatusRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).checkDirectoryStatus(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).checkDirectoryStatus(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1542,7 +1644,7 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public copyDirectory(requestParameters: DirectoryApiCopyDirectoryRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).copyDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.copyDirectoryRequest, requestParameters.conflictResolutionStrategy, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).copyDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.copyDirectoryRequest, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1553,7 +1655,7 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public createDirectory(requestParameters: DirectoryApiCreateDirectoryRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).createDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.conflictResolutionStrategy, requestParameters.userId, requestParameters.withInode, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).createDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withInode, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1564,7 +1666,7 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public deleteDirectory(requestParameters: DirectoryApiDeleteDirectoryRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).deleteDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.permanent, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).deleteDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.permanent, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1575,7 +1677,7 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public infoFileOrDirectory(requestParameters: DirectoryApiInfoFileOrDirectoryRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).infoFileOrDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.withInode, requestParameters.accessToken, requestParameters.withFavoriteStatus, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).infoFileOrDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.withInode, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.withFavoriteStatus, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1586,7 +1688,7 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public listDirectory(requestParameters: DirectoryApiListDirectoryRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1597,7 +1699,7 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public listDirectoryByPage(requestParameters: DirectoryApiListDirectoryByPageRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).listDirectoryByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).listDirectoryByPage(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byPage, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1608,7 +1710,7 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public moveDirectory(requestParameters: DirectoryApiMoveDirectoryRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).moveDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.moveDirectoryRequest, requestParameters.conflictResolutionStrategy, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).moveDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.moveDirectoryRequest, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1619,7 +1721,7 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public updateDirectoryLabels(requestParameters: DirectoryApiUpdateDirectoryLabelsRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).updateDirectoryLabels(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.update, requestParameters.accessToken, requestParameters.updateDirectoryLabelsRequest, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).updateDirectoryLabels(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.update, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.updateDirectoryLabelsRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1630,7 +1732,7 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public updateFileLabels(requestParameters: DirectoryApiUpdateFileLabelsRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).updateFileLabels(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.update, requestParameters.updateFileLabelsRequest, requestParameters.accessToken, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).updateFileLabels(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.update, requestParameters.updateFileLabelsRequest, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

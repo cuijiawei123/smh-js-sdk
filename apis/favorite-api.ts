@@ -37,18 +37,17 @@ export const FavoriteApiAxiosParamCreator = function (configuration?: Configurat
          * @summary 收藏指定空间文件
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {CreateFavoriteRequest} createFavoriteRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createFavorite: async (libraryId: string, spaceId: string, accessToken: string, createFavoriteRequest: CreateFavoriteRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        createFavorite: async (libraryId: string, spaceId: string, createFavoriteRequest: CreateFavoriteRequest, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('createFavorite', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('createFavorite', 'spaceId', spaceId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('createFavorite', 'accessToken', accessToken)
             // verify required parameter 'createFavoriteRequest' is not null or undefined
             assertParamExists('createFavorite', 'createFavoriteRequest', createFavoriteRequest)
             const localVarPath = `/api/v1/favorite/{LibraryId}/{SpaceId}`
@@ -67,6 +66,10 @@ export const FavoriteApiAxiosParamCreator = function (configuration?: Configurat
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
 
@@ -88,19 +91,18 @@ export const FavoriteApiAxiosParamCreator = function (configuration?: Configurat
          * @summary 取消收藏指定空间文件
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {DeleteFavoriteCancelEnum} cancel 取消收藏标志，传递该参数表示执行取消收藏操作
          * @param {CreateFavoriteRequest} deleteFavoriteRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteFavorite: async (libraryId: string, spaceId: string, accessToken: string, cancel: DeleteFavoriteCancelEnum, deleteFavoriteRequest: CreateFavoriteRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        deleteFavorite: async (libraryId: string, spaceId: string, cancel: DeleteFavoriteCancelEnum, deleteFavoriteRequest: CreateFavoriteRequest, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('deleteFavorite', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('deleteFavorite', 'spaceId', spaceId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('deleteFavorite', 'accessToken', accessToken)
             // verify required parameter 'cancel' is not null or undefined
             assertParamExists('deleteFavorite', 'cancel', cancel)
             // verify required parameter 'deleteFavoriteRequest' is not null or undefined
@@ -121,6 +123,10 @@ export const FavoriteApiAxiosParamCreator = function (configuration?: Configurat
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (cancel !== undefined) {
@@ -146,7 +152,6 @@ export const FavoriteApiAxiosParamCreator = function (configuration?: Configurat
          * @summary 查看指定空间收藏列表
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {string} [marker] 用于顺序列出分页的标识，可选参数
          * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，默认为20，可选参数
          * @param {number} [page] 分页码，默认第一页，可选参数，不能与marker和limit参数同时使用
@@ -154,16 +159,16 @@ export const FavoriteApiAxiosParamCreator = function (configuration?: Configurat
          * @param {ListFavoriteOrderByEnum} [orderBy] 排序字段，按收藏时间排序为favoriteTime（默认），目前仅支持按收藏时间排序，可选参数
          * @param {ListFavoriteOrderByTypeEnum} [orderByType] 排序方式，升序为asc，降序为desc（默认），可选参数
          * @param {boolean} [withPath] 是否返回path，返回为true，不返回为false（默认），可选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listFavorite: async (libraryId: string, spaceId: string, accessToken: string, marker?: string, limit?: number, page?: number, pageSize?: number, orderBy?: ListFavoriteOrderByEnum, orderByType?: ListFavoriteOrderByTypeEnum, withPath?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listFavorite: async (libraryId: string, spaceId: string, marker?: string, limit?: number, page?: number, pageSize?: number, orderBy?: ListFavoriteOrderByEnum, orderByType?: ListFavoriteOrderByTypeEnum, withPath?: boolean, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('listFavorite', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('listFavorite', 'spaceId', spaceId)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('listFavorite', 'accessToken', accessToken)
             const localVarPath = `/api/v1/favorite/{LibraryId}/{SpaceId}/list`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)));
@@ -210,6 +215,10 @@ export const FavoriteApiAxiosParamCreator = function (configuration?: Configurat
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
 
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -235,13 +244,14 @@ export const FavoriteApiFp = function(configuration?: Configuration) {
          * @summary 收藏指定空间文件
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {CreateFavoriteRequest} createFavoriteRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createFavorite(libraryId: string, spaceId: string, accessToken: string, createFavoriteRequest: CreateFavoriteRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateFavorite200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createFavorite(libraryId, spaceId, accessToken, createFavoriteRequest, options);
+        async createFavorite(libraryId: string, spaceId: string, createFavoriteRequest: CreateFavoriteRequest, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateFavorite200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createFavorite(libraryId, spaceId, createFavoriteRequest, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FavoriteApi.createFavorite']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -251,14 +261,15 @@ export const FavoriteApiFp = function(configuration?: Configuration) {
          * @summary 取消收藏指定空间文件
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {DeleteFavoriteCancelEnum} cancel 取消收藏标志，传递该参数表示执行取消收藏操作
          * @param {CreateFavoriteRequest} deleteFavoriteRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteFavorite(libraryId: string, spaceId: string, accessToken: string, cancel: DeleteFavoriteCancelEnum, deleteFavoriteRequest: CreateFavoriteRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteFavorite(libraryId, spaceId, accessToken, cancel, deleteFavoriteRequest, options);
+        async deleteFavorite(libraryId: string, spaceId: string, cancel: DeleteFavoriteCancelEnum, deleteFavoriteRequest: CreateFavoriteRequest, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteFavorite(libraryId, spaceId, cancel, deleteFavoriteRequest, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FavoriteApi.deleteFavorite']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -268,7 +279,6 @@ export const FavoriteApiFp = function(configuration?: Configuration) {
          * @summary 查看指定空间收藏列表
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {string} [marker] 用于顺序列出分页的标识，可选参数
          * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，默认为20，可选参数
          * @param {number} [page] 分页码，默认第一页，可选参数，不能与marker和limit参数同时使用
@@ -276,11 +286,13 @@ export const FavoriteApiFp = function(configuration?: Configuration) {
          * @param {ListFavoriteOrderByEnum} [orderBy] 排序字段，按收藏时间排序为favoriteTime（默认），目前仅支持按收藏时间排序，可选参数
          * @param {ListFavoriteOrderByTypeEnum} [orderByType] 排序方式，升序为asc，降序为desc（默认），可选参数
          * @param {boolean} [withPath] 是否返回path，返回为true，不返回为false（默认），可选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listFavorite(libraryId: string, spaceId: string, accessToken: string, marker?: string, limit?: number, page?: number, pageSize?: number, orderBy?: ListFavoriteOrderByEnum, orderByType?: ListFavoriteOrderByTypeEnum, withPath?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListFavorite200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listFavorite(libraryId, spaceId, accessToken, marker, limit, page, pageSize, orderBy, orderByType, withPath, options);
+        async listFavorite(libraryId: string, spaceId: string, marker?: string, limit?: number, page?: number, pageSize?: number, orderBy?: ListFavoriteOrderByEnum, orderByType?: ListFavoriteOrderByTypeEnum, withPath?: boolean, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListFavorite200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listFavorite(libraryId, spaceId, marker, limit, page, pageSize, orderBy, orderByType, withPath, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FavoriteApi.listFavorite']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -302,7 +314,7 @@ export const FavoriteApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         createFavorite(requestParameters: FavoriteApiCreateFavoriteRequest, options?: RawAxiosRequestConfig): AxiosPromise<CreateFavorite200Response> {
-            return localVarFp.createFavorite(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.createFavoriteRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.createFavorite(requestParameters.libraryId, requestParameters.spaceId, requestParameters.createFavoriteRequest, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
         /**
          * 取消收藏。根据路径或inode取消收藏，二者二选一；如果同时提供，以inode为准。 
@@ -312,7 +324,7 @@ export const FavoriteApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         deleteFavorite(requestParameters: FavoriteApiDeleteFavoriteRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deleteFavorite(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.cancel, requestParameters.deleteFavoriteRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.deleteFavorite(requestParameters.libraryId, requestParameters.spaceId, requestParameters.cancel, requestParameters.deleteFavoriteRequest, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
         /**
          * 查看指定空间收藏列表，支持分页和排序
@@ -322,7 +334,7 @@ export const FavoriteApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         listFavorite(requestParameters: FavoriteApiListFavoriteRequest, options?: RawAxiosRequestConfig): AxiosPromise<ListFavorite200Response> {
-            return localVarFp.listFavorite(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.marker, requestParameters.limit, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.withPath, options).then((request) => request(axios, basePath));
+            return localVarFp.listFavorite(requestParameters.libraryId, requestParameters.spaceId, requestParameters.marker, requestParameters.limit, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.withPath, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -341,12 +353,17 @@ export interface FavoriteApiCreateFavoriteRequest {
      */
     readonly spaceId: string
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly createFavoriteRequest: CreateFavoriteRequest
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -364,16 +381,21 @@ export interface FavoriteApiDeleteFavoriteRequest {
     readonly spaceId: string
 
     /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
-    /**
      * 取消收藏标志，传递该参数表示执行取消收藏操作
      */
     readonly cancel: DeleteFavoriteCancelEnum
 
     readonly deleteFavoriteRequest: CreateFavoriteRequest
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -389,11 +411,6 @@ export interface FavoriteApiListFavoriteRequest {
      * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
      */
     readonly spaceId: string
-
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
 
     /**
      * 用于顺序列出分页的标识，可选参数
@@ -429,6 +446,16 @@ export interface FavoriteApiListFavoriteRequest {
      * 是否返回path，返回为true，不返回为false（默认），可选参数
      */
     readonly withPath?: boolean
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -443,7 +470,7 @@ export class FavoriteApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public createFavorite(requestParameters: FavoriteApiCreateFavoriteRequest, options?: RawAxiosRequestConfig) {
-        return FavoriteApiFp(this.configuration).createFavorite(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.createFavoriteRequest, options).then((request) => request(this.axios, this.basePath));
+        return FavoriteApiFp(this.configuration).createFavorite(requestParameters.libraryId, requestParameters.spaceId, requestParameters.createFavoriteRequest, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -454,7 +481,7 @@ export class FavoriteApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public deleteFavorite(requestParameters: FavoriteApiDeleteFavoriteRequest, options?: RawAxiosRequestConfig) {
-        return FavoriteApiFp(this.configuration).deleteFavorite(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.cancel, requestParameters.deleteFavoriteRequest, options).then((request) => request(this.axios, this.basePath));
+        return FavoriteApiFp(this.configuration).deleteFavorite(requestParameters.libraryId, requestParameters.spaceId, requestParameters.cancel, requestParameters.deleteFavoriteRequest, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -465,7 +492,7 @@ export class FavoriteApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public listFavorite(requestParameters: FavoriteApiListFavoriteRequest, options?: RawAxiosRequestConfig) {
-        return FavoriteApiFp(this.configuration).listFavorite(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.marker, requestParameters.limit, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.withPath, options).then((request) => request(this.axios, this.basePath));
+        return FavoriteApiFp(this.configuration).listFavorite(requestParameters.libraryId, requestParameters.spaceId, requestParameters.marker, requestParameters.limit, requestParameters.page, requestParameters.pageSize, requestParameters.orderBy, requestParameters.orderByType, requestParameters.withPath, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

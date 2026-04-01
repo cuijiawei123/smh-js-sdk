@@ -19,6 +19,7 @@ export * from './apis/directory-api';
 export * from './apis/favorite-api';
 export * from './apis/file-api';
 export * from './apis/history-api';
+export * from './apis/hls-api';
 export * from './apis/quota-api';
 export * from './apis/recent-api';
 export * from './apis/recycled-api';

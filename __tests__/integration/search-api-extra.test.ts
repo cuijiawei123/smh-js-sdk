@@ -62,7 +62,7 @@ describe.skipIf(shouldSkip)('SearchApi 补充集成测试', () => {
       const firstPage = await client.search.searchFs({
         limit: 1,
         searchFsRequest: {
-          keyword: [searchKeyword],
+          keywords: [searchKeyword],
         },
       });
       expect(firstPage.status).toBe(200);
@@ -73,7 +73,7 @@ describe.skipIf(shouldSkip)('SearchApi 补充集成测试', () => {
           marker: nextMarker,
           limit: 1,
           searchFsRequest: {
-            keyword: [searchKeyword],
+            keywords: [searchKeyword],
           },
         });
         expect(secondPage.status).toBe(200);
@@ -88,7 +88,7 @@ describe.skipIf(shouldSkip)('SearchApi 补充集成测试', () => {
         const res = await client.search.searchFs({
           withFavoriteStatus: SearchFsWithFavoriteStatusEnum.NUMBER_1,
           searchFsRequest: {
-            keyword: [searchKeyword],
+            keywords: [searchKeyword],
           },
         });
         expect(res.status).toBe(200);
@@ -110,7 +110,7 @@ describe.skipIf(shouldSkip)('SearchApi 补充集成测试', () => {
       const res = await client.search.searchFs({
         userId,
         searchFsRequest: {
-          keyword: [searchKeyword],
+          keywords: [searchKeyword],
         },
       });
       expect(res.status).toBe(200);

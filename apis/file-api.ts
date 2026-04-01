@@ -83,12 +83,13 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} confirmKey 确认参数
          * @param {AbortFileUploadUploadEnum} upload 上传任务标识
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        abortFileUpload: async (libraryId: string, spaceId: string, confirmKey: string, upload: AbortFileUploadUploadEnum, accessToken: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        abortFileUpload: async (libraryId: string, spaceId: string, confirmKey: string, upload: AbortFileUploadUploadEnum, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('abortFileUpload', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -97,8 +98,6 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
             assertParamExists('abortFileUpload', 'confirmKey', confirmKey)
             // verify required parameter 'upload' is not null or undefined
             assertParamExists('abortFileUpload', 'upload', upload)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('abortFileUpload', 'accessToken', accessToken)
             const localVarPath = `/api/v1/file/{LibraryId}/{SpaceId}/{ConfirmKey}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -122,6 +121,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
             }
@@ -143,19 +146,18 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} inode 文件的 Inode
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        checkFileDeletion: async (libraryId: string, spaceId: string, inode: string, accessToken: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        checkFileDeletion: async (libraryId: string, spaceId: string, inode: string, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('checkFileDeletion', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('checkFileDeletion', 'spaceId', spaceId)
             // verify required parameter 'inode' is not null or undefined
             assertParamExists('checkFileDeletion', 'inode', inode)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('checkFileDeletion', 'accessToken', accessToken)
             const localVarPath = `/api/v1/file-deletion-check/{LibraryId}/{SpaceId}/{Inode}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -173,6 +175,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
 
@@ -194,11 +200,12 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
          * @param {string} [historyId] 历史版本 ID，用于获取不同版本的文件内容，可选参数，不传默认为最新版
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        checkFileStatus: async (libraryId: string, spaceId: string, filePath: string, historyId?: string, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        checkFileStatus: async (libraryId: string, spaceId: string, filePath: string, historyId?: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('checkFileStatus', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -228,6 +235,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
             }
@@ -250,9 +261,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} confirmKey 确认参数，指定为开始上传文件时响应体中的 confirmKey 字段的值
          * @param {CompleteFileUploadConfirmEnum} confirm 完成上传标识
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {CompleteFileUploadConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件；不传则沿用开始上传时的设置
          * @param {string} [contentCas] 文件内容的Cas标识，可选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {CompleteFileUploadWithInodeEnum} [withInode] 是否返回 inode（文件目录 ID），0 或 1，默认 0
          * @param {CompleteFileUploadWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
@@ -260,7 +272,7 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        completeFileUpload: async (libraryId: string, spaceId: string, confirmKey: string, confirm: CompleteFileUploadConfirmEnum, accessToken: string, conflictResolutionStrategy?: CompleteFileUploadConflictResolutionStrategyEnum, contentCas?: string, userId?: string, withInode?: CompleteFileUploadWithInodeEnum, withContentCas?: CompleteFileUploadWithContentCasEnum, completeFileUploadRequest?: CompleteFileUploadRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        completeFileUpload: async (libraryId: string, spaceId: string, confirmKey: string, confirm: CompleteFileUploadConfirmEnum, conflictResolutionStrategy?: CompleteFileUploadConflictResolutionStrategyEnum, contentCas?: string, accessToken?: string, librarySecret?: string, userId?: string, withInode?: CompleteFileUploadWithInodeEnum, withContentCas?: CompleteFileUploadWithContentCasEnum, completeFileUploadRequest?: CompleteFileUploadRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('completeFileUpload', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -269,8 +281,6 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
             assertParamExists('completeFileUpload', 'confirmKey', confirmKey)
             // verify required parameter 'confirm' is not null or undefined
             assertParamExists('completeFileUpload', 'confirm', confirm)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('completeFileUpload', 'accessToken', accessToken)
             const localVarPath = `/api/v1/file/{LibraryId}/{SpaceId}/{ConfirmKey}#1`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -300,6 +310,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -335,14 +349,15 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
          * @param {ConvertFileConvertEnum} convert 文档转码操作标识，固定值为1
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {ConvertFileRequest} convertFileRequest 
          * @param {ConvertFileConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        convertFile: async (libraryId: string, spaceId: string, filePath: string, convert: ConvertFileConvertEnum, accessToken: string, convertFileRequest: ConvertFileRequest, conflictResolutionStrategy?: ConvertFileConflictResolutionStrategyEnum, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        convertFile: async (libraryId: string, spaceId: string, filePath: string, convert: ConvertFileConvertEnum, convertFileRequest: ConvertFileRequest, conflictResolutionStrategy?: ConvertFileConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('convertFile', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -351,8 +366,6 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
             assertParamExists('convertFile', 'filePath', filePath)
             // verify required parameter 'convert' is not null or undefined
             assertParamExists('convertFile', 'convert', convert)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('convertFile', 'accessToken', accessToken)
             // verify required parameter 'convertFileRequest' is not null or undefined
             assertParamExists('convertFile', 'convertFileRequest', convertFileRequest)
             const localVarPath = `/api/v1/file/{LibraryId}/{SpaceId}/{FilePath}#2`
@@ -382,6 +395,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
             }
@@ -406,24 +423,23 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {CopyFileRequest} copyFileRequest 
          * @param {CopyFileConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
          * @param {string} [contentCas] 文件内容的Cas标识，可选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {CopyFileWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        copyFile: async (libraryId: string, spaceId: string, filePath: string, accessToken: string, copyFileRequest: CopyFileRequest, conflictResolutionStrategy?: CopyFileConflictResolutionStrategyEnum, contentCas?: string, userId?: string, withContentCas?: CopyFileWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        copyFile: async (libraryId: string, spaceId: string, filePath: string, copyFileRequest: CopyFileRequest, conflictResolutionStrategy?: CopyFileConflictResolutionStrategyEnum, contentCas?: string, accessToken?: string, librarySecret?: string, userId?: string, withContentCas?: CopyFileWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('copyFile', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('copyFile', 'spaceId', spaceId)
             // verify required parameter 'filePath' is not null or undefined
             assertParamExists('copyFile', 'filePath', filePath)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('copyFile', 'accessToken', accessToken)
             // verify required parameter 'copyFileRequest' is not null or undefined
             assertParamExists('copyFile', 'copyFileRequest', copyFileRequest)
             const localVarPath = `/api/v1/file/{LibraryId}/{SpaceId}/{FilePath}#3`
@@ -451,6 +467,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -481,22 +501,21 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {CreateSymlinkRequest} createSymlinkRequest 
          * @param {CreateSymlinkConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite覆盖已有文件，默认为 rename
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createSymlink: async (libraryId: string, spaceId: string, filePath: string, accessToken: string, createSymlinkRequest: CreateSymlinkRequest, conflictResolutionStrategy?: CreateSymlinkConflictResolutionStrategyEnum, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        createSymlink: async (libraryId: string, spaceId: string, filePath: string, createSymlinkRequest: CreateSymlinkRequest, conflictResolutionStrategy?: CreateSymlinkConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('createSymlink', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('createSymlink', 'spaceId', spaceId)
             // verify required parameter 'filePath' is not null or undefined
             assertParamExists('createSymlink', 'filePath', filePath)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('createSymlink', 'accessToken', accessToken)
             // verify required parameter 'createSymlinkRequest' is not null or undefined
             assertParamExists('createSymlink', 'createSymlinkRequest', createSymlinkRequest)
             const localVarPath = `/api/v1/file/{LibraryId}/{SpaceId}/{FilePath}`
@@ -520,6 +539,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -546,22 +569,21 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {DeleteFilePermanentEnum} [permanent] 当媒体库开启回收站时，则该参数指定将文件移入回收站还是永久删除文件，1: 永久删除，0: 移入回收站，默认为 0
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [contentCas] 文件内容的Cas标识，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteFile: async (libraryId: string, spaceId: string, filePath: string, accessToken: string, permanent?: DeleteFilePermanentEnum, userId?: string, contentCas?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        deleteFile: async (libraryId: string, spaceId: string, filePath: string, permanent?: DeleteFilePermanentEnum, accessToken?: string, librarySecret?: string, userId?: string, contentCas?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('deleteFile', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('deleteFile', 'spaceId', spaceId)
             // verify required parameter 'filePath' is not null or undefined
             assertParamExists('deleteFile', 'filePath', filePath)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('deleteFile', 'accessToken', accessToken)
             const localVarPath = `/api/v1/file/{LibraryId}/{SpaceId}/{FilePath}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -583,6 +605,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -614,6 +640,7 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {DownloadFileContentDispositionEnum} [contentDisposition] 用于设置Content-Disposition响应头，支持 inline 或者 attachment，可选参数，不传默认为inline
          * @param {DownloadFilePurposeEnum} [purpose] 用途，可选参数，可以设置为download或者preview，用于决定是否将该文件加入最近使用文件列表中，如果设置为preview，则会将该文件加入最近使用文件列表中，否则不会加入
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
          * @param {string} [contentCas] 文件内容的Cas标识，可选参数
@@ -621,7 +648,7 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        downloadFile: async (libraryId: string, spaceId: string, filePath: string, historyId?: string, contentDisposition?: DownloadFileContentDispositionEnum, purpose?: DownloadFilePurposeEnum, accessToken?: string, userId?: string, trafficLimit?: number, contentCas?: string, withContentCas?: DownloadFileWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        downloadFile: async (libraryId: string, spaceId: string, filePath: string, historyId?: string, contentDisposition?: DownloadFileContentDispositionEnum, purpose?: DownloadFilePurposeEnum, accessToken?: string, librarySecret?: string, userId?: string, trafficLimit?: number, contentCas?: string, withContentCas?: DownloadFileWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('downloadFile', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -659,6 +686,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
             }
@@ -687,14 +718,75 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
             };
         },
         /**
+         * 下载视频转码接口转码后的文件，扩展下载文件接口。 权限说明：同下载文件接口。 补充说明： - 若 m3u8 转封装未完成，则返回 FileConverting - 若转码未完成，则返回原始视频的下载链接 
+         * @summary 视频下载
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+         * @param {DownloadTranscodedVideoTranscodingTemplateIdEnum} transcodingTemplateId 转码模板（见视频转码接口），可支持的模板列表为：h264_360p（流畅）、h264_480p（低清）、h264_720p（高清）、h264_1080p（超清）、h264_2K、h264_4K
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        downloadTranscodedVideo: async (libraryId: string, spaceId: string, filePath: string, transcodingTemplateId: DownloadTranscodedVideoTranscodingTemplateIdEnum, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'libraryId' is not null or undefined
+            assertParamExists('downloadTranscodedVideo', 'libraryId', libraryId)
+            // verify required parameter 'spaceId' is not null or undefined
+            assertParamExists('downloadTranscodedVideo', 'spaceId', spaceId)
+            // verify required parameter 'filePath' is not null or undefined
+            assertParamExists('downloadTranscodedVideo', 'filePath', filePath)
+            // verify required parameter 'transcodingTemplateId' is not null or undefined
+            assertParamExists('downloadTranscodedVideo', 'transcodingTemplateId', transcodingTemplateId)
+            const localVarPath = `/api/v1/file/{LibraryId}/{SpaceId}/{FilePath}#4`
+                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
+                .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
+                .replace(`{${"FilePath"}}`, encodeURIComponent(String(filePath)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (transcodingTemplateId !== undefined) {
+                localVarQueryParameter['transcoding_template_id'] = transcodingTemplateId;
+            }
+
+            if (accessToken !== undefined) {
+                localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 用于开始表单上传文件（multipart/form-data）。 要求权限：admin、space_admin 或 upload_file/upload_file_force/begin_upload/begin_upload_force。 调用该接口将返回一系列用于 form 表单上传（multipart/form-data 格式）和确认上传完成的参数，上传的目标 URL 为 https://{Domain}/，其中 Domain 为响应体中的 domain 字段，例如 https://examplebucket-1250000000.cos.ap-beijing.myqcloud.com/； form 表单上传时还需要指定一系列额外的信息字段，这些字段的名和值包含在响应体中的 form 字段中，可以在 HTML form 表单中通过隐藏域或通过 JS 相关库、小程序 wx.uploadFile 等指定这些字段； form 表单中的文件字段，其表单字段名固定为 file，且必须作为表单中的最后一项； 在完成实际上传后，上传的目标 URL 将返回 HTTP 204 No Content，由于可能的跨域限制，建议直接通过相关接口的回调来判断是否上传完成，并且在上传完成后及时调用完成上传文件接口，确认上传结果； 默认情况下同名文件将自动修改文件名，可在完成上传文件接口中获取最终的文件路径； 不会自动创建所需的各级父目录，所以必须保证路径的各级目录存在。 
          * @summary 开始表单上传文件
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {FormUploadFileConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
+         * @param {string} [contentCas] 文件内容的Cas标识，可选参数
          * @param {number} [filesize] 上传文件大小，单位为字节（Byte），用于判断剩余空间是否足够
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [xSmhMeta] 自定义元数据，名称以 x-smh-meta- 开头的扩展头，值为字符串
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
@@ -704,15 +796,13 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        formUploadFile: async (libraryId: string, spaceId: string, filePath: string, accessToken: string, conflictResolutionStrategy?: FormUploadFileConflictResolutionStrategyEnum, filesize?: number, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: FormUploadFileWithContentCasEnum, formUploadFileRequest?: FormUploadFileRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        formUploadFile: async (libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: FormUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: FormUploadFileWithContentCasEnum, formUploadFileRequest?: FormUploadFileRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('formUploadFile', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('formUploadFile', 'spaceId', spaceId)
             // verify required parameter 'filePath' is not null or undefined
             assertParamExists('formUploadFile', 'filePath', filePath)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('formUploadFile', 'accessToken', accessToken)
             const localVarPath = `/api/v1/file/{LibraryId}/{SpaceId}/{FilePath}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -732,12 +822,20 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
                 localVarQueryParameter['conflict_resolution_strategy'] = conflictResolutionStrategy;
             }
 
+            if (contentCas !== undefined) {
+                localVarQueryParameter['content_cas'] = contentCas;
+            }
+
             if (filesize !== undefined) {
                 localVarQueryParameter['filesize'] = filesize;
             }
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -786,11 +884,12 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {number} [heightSize] 缩放高度，当未传 size 和 scale 时生效；未传宽度时，宽度按等比例缩放
          * @param {number} [frameNumber] 帧数，针对 gif 的降帧处理
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getCover: async (libraryId: string, spaceId: string, filePath: string, preview: number, size?: number, scale?: number, widthSize?: number, heightSize?: number, frameNumber?: number, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getCover: async (libraryId: string, spaceId: string, filePath: string, preview: number, size?: number, scale?: number, widthSize?: number, heightSize?: number, frameNumber?: number, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('getCover', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -842,6 +941,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
             }
@@ -863,20 +966,19 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} inode 文件ID
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {GetFileInfoByInodeWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFileInfoByInode: async (libraryId: string, spaceId: string, inode: string, accessToken: string, withContentCas?: GetFileInfoByInodeWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getFileInfoByInode: async (libraryId: string, spaceId: string, inode: string, accessToken?: string, librarySecret?: string, withContentCas?: GetFileInfoByInodeWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('getFileInfoByInode', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('getFileInfoByInode', 'spaceId', spaceId)
             // verify required parameter 'inode' is not null or undefined
             assertParamExists('getFileInfoByInode', 'inode', inode)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('getFileInfoByInode', 'accessToken', accessToken)
             const localVarPath = `/api/v1/inode/{LibraryId}/{SpaceId}/{Inode}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -894,6 +996,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (withContentCas !== undefined) {
@@ -918,12 +1024,13 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} confirmKey 确认参数
          * @param {GetFileUploadUploadEnum} upload 上传任务标识
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFileUpload: async (libraryId: string, spaceId: string, confirmKey: string, upload: GetFileUploadUploadEnum, accessToken: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getFileUpload: async (libraryId: string, spaceId: string, confirmKey: string, upload: GetFileUploadUploadEnum, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('getFileUpload', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -932,8 +1039,6 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
             assertParamExists('getFileUpload', 'confirmKey', confirmKey)
             // verify required parameter 'upload' is not null or undefined
             assertParamExists('getFileUpload', 'upload', upload)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('getFileUpload', 'accessToken', accessToken)
             const localVarPath = `/api/v1/file/{LibraryId}/{SpaceId}/{ConfirmKey}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -955,6 +1060,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -983,6 +1092,7 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {InfoFileContentDispositionEnum} [contentDisposition] 用于设置Content-Disposition响应头，支持 inline 或者 attachment，可选参数，不传默认为inline
          * @param {InfoFilePurposeEnum} [purpose] 用途，可选参数，可以设置为download或者preview，用于决定是否将该文件加入最近使用文件列表中，如果设置为preview，则会将该文件加入最近使用文件列表中，否则不会加入
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
          * @param {InfoFilePreCheckEnum} [preCheck] 是否只用于校验文件是否可预览和下载，设置该参数后返回结果中不包含cosUrl
@@ -991,7 +1101,7 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        infoFile: async (libraryId: string, spaceId: string, filePath: string, info: InfoFileInfoEnum, historyId?: string, contentDisposition?: InfoFileContentDispositionEnum, purpose?: InfoFilePurposeEnum, accessToken?: string, userId?: string, trafficLimit?: number, preCheck?: InfoFilePreCheckEnum, contentCas?: string, withContentCas?: InfoFileWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        infoFile: async (libraryId: string, spaceId: string, filePath: string, info: InfoFileInfoEnum, historyId?: string, contentDisposition?: InfoFileContentDispositionEnum, purpose?: InfoFilePurposeEnum, accessToken?: string, librarySecret?: string, userId?: string, trafficLimit?: number, preCheck?: InfoFilePreCheckEnum, contentCas?: string, withContentCas?: InfoFileWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('infoFile', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -1035,6 +1145,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
             }
@@ -1072,24 +1186,23 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {MoveFileRequest} moveFileRequest 
          * @param {MoveFileConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
          * @param {string} [contentCas] 文件内容的Cas标识，可选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {MoveFileWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        moveFile: async (libraryId: string, spaceId: string, filePath: string, accessToken: string, moveFileRequest: MoveFileRequest, conflictResolutionStrategy?: MoveFileConflictResolutionStrategyEnum, contentCas?: string, userId?: string, withContentCas?: MoveFileWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        moveFile: async (libraryId: string, spaceId: string, filePath: string, moveFileRequest: MoveFileRequest, conflictResolutionStrategy?: MoveFileConflictResolutionStrategyEnum, contentCas?: string, accessToken?: string, librarySecret?: string, userId?: string, withContentCas?: MoveFileWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('moveFile', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('moveFile', 'spaceId', spaceId)
             // verify required parameter 'filePath' is not null or undefined
             assertParamExists('moveFile', 'filePath', filePath)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('moveFile', 'accessToken', accessToken)
             // verify required parameter 'moveFileRequest' is not null or undefined
             assertParamExists('moveFile', 'moveFileRequest', moveFileRequest)
             const localVarPath = `/api/v1/file/{LibraryId}/{SpaceId}/{FilePath}#4`
@@ -1117,6 +1230,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -1148,9 +1265,11 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
          * @param {MultipartUploadFileMultipartEnum} multipart 是否为分块上传标识，固定值为1
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {MultipartUploadFileConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
+         * @param {string} [contentCas] 文件内容的Cas标识，可选参数
          * @param {number} [filesize] 上传文件大小，单位为字节（Byte），用于判断剩余空间是否足够
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [xSmhMeta] 自定义元数据，名称以 x-smh-meta- 开头的扩展头，值为字符串
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
@@ -1160,7 +1279,7 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        multipartUploadFile: async (libraryId: string, spaceId: string, filePath: string, multipart: MultipartUploadFileMultipartEnum, accessToken: string, conflictResolutionStrategy?: MultipartUploadFileConflictResolutionStrategyEnum, filesize?: number, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: MultipartUploadFileWithContentCasEnum, multipartUploadFileRequest?: MultipartUploadFileRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        multipartUploadFile: async (libraryId: string, spaceId: string, filePath: string, multipart: MultipartUploadFileMultipartEnum, conflictResolutionStrategy?: MultipartUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: MultipartUploadFileWithContentCasEnum, multipartUploadFileRequest?: MultipartUploadFileRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('multipartUploadFile', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -1169,8 +1288,6 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
             assertParamExists('multipartUploadFile', 'filePath', filePath)
             // verify required parameter 'multipart' is not null or undefined
             assertParamExists('multipartUploadFile', 'multipart', multipart)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('multipartUploadFile', 'accessToken', accessToken)
             const localVarPath = `/api/v1/file/{LibraryId}/{SpaceId}/{FilePath}#1`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -1194,12 +1311,20 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
                 localVarQueryParameter['conflict_resolution_strategy'] = conflictResolutionStrategy;
             }
 
+            if (contentCas !== undefined) {
+                localVarQueryParameter['content_cas'] = contentCas;
+            }
+
             if (filesize !== undefined) {
                 localVarQueryParameter['filesize'] = filesize;
             }
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -1245,11 +1370,12 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} [historyId] 历史版本 ID，用于获取不同版本的文件内容，可选参数，不传默认为最新版
          * @param {string} [type] 文档预览方式，如果设置为 pic 则以 jpg 格式预览文档首页，否则以 html 格式预览文档
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        previewFile: async (libraryId: string, spaceId: string, filePath: string, preview: PreviewFilePreviewEnum, historyId?: string, type?: string, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        previewFile: async (libraryId: string, spaceId: string, filePath: string, preview: PreviewFilePreviewEnum, historyId?: string, type?: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('previewFile', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -1289,6 +1415,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
                 localVarQueryParameter['access_token'] = accessToken;
             }
 
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
             }
@@ -1311,13 +1441,14 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} confirmKey 确认参数，指定为开始上传文件时响应体中的 confirmKey 字段的值
          * @param {RenewMultipartUploadRenewEnum} renew 续期标识
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        renewMultipartUpload: async (libraryId: string, spaceId: string, confirmKey: string, renew: RenewMultipartUploadRenewEnum, accessToken: string, userId?: string, trafficLimit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        renewMultipartUpload: async (libraryId: string, spaceId: string, confirmKey: string, renew: RenewMultipartUploadRenewEnum, accessToken?: string, librarySecret?: string, userId?: string, trafficLimit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('renewMultipartUpload', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -1326,8 +1457,6 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
             assertParamExists('renewMultipartUpload', 'confirmKey', confirmKey)
             // verify required parameter 'renew' is not null or undefined
             assertParamExists('renewMultipartUpload', 'renew', renew)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('renewMultipartUpload', 'accessToken', accessToken)
             const localVarPath = `/api/v1/file/{LibraryId}/{SpaceId}/{ConfirmKey}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -1349,6 +1478,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -1376,9 +1509,11 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {SimpleUploadFileConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
+         * @param {string} [contentCas] 文件内容的Cas标识，可选参数
          * @param {number} [filesize] 上传文件大小，单位为字节（Byte），用于判断剩余空间是否足够
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [xSmhMeta] 自定义元数据，名称以 x-smh-meta- 开头的扩展头，值为字符串
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
@@ -1388,15 +1523,13 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        simpleUploadFile: async (libraryId: string, spaceId: string, filePath: string, accessToken: string, conflictResolutionStrategy?: SimpleUploadFileConflictResolutionStrategyEnum, filesize?: number, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: SimpleUploadFileWithContentCasEnum, simpleUploadFileRequest?: SimpleUploadFileRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        simpleUploadFile: async (libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: SimpleUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: SimpleUploadFileWithContentCasEnum, simpleUploadFileRequest?: SimpleUploadFileRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('simpleUploadFile', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('simpleUploadFile', 'spaceId', spaceId)
             // verify required parameter 'filePath' is not null or undefined
             assertParamExists('simpleUploadFile', 'filePath', filePath)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('simpleUploadFile', 'accessToken', accessToken)
             const localVarPath = `/api/v1/file/{LibraryId}/{SpaceId}/{FilePath}#1`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -1416,12 +1549,20 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
                 localVarQueryParameter['conflict_resolution_strategy'] = conflictResolutionStrategy;
             }
 
+            if (contentCas !== undefined) {
+                localVarQueryParameter['content_cas'] = contentCas;
+            }
+
             if (filesize !== undefined) {
                 localVarQueryParameter['filesize'] = filesize;
             }
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -1473,13 +1614,14 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} confirmKey 确认参数
          * @param {AbortFileUploadUploadEnum} upload 上传任务标识
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async abortFileUpload(libraryId: string, spaceId: string, confirmKey: string, upload: AbortFileUploadUploadEnum, accessToken: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.abortFileUpload(libraryId, spaceId, confirmKey, upload, accessToken, userId, options);
+        async abortFileUpload(libraryId: string, spaceId: string, confirmKey: string, upload: AbortFileUploadUploadEnum, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.abortFileUpload(libraryId, spaceId, confirmKey, upload, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.abortFileUpload']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1490,12 +1632,13 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} inode 文件的 Inode
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async checkFileDeletion(libraryId: string, spaceId: string, inode: string, accessToken: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CheckFileDeletion200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.checkFileDeletion(libraryId, spaceId, inode, accessToken, options);
+        async checkFileDeletion(libraryId: string, spaceId: string, inode: string, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CheckFileDeletion200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.checkFileDeletion(libraryId, spaceId, inode, accessToken, librarySecret, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.checkFileDeletion']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1508,12 +1651,13 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
          * @param {string} [historyId] 历史版本 ID，用于获取不同版本的文件内容，可选参数，不传默认为最新版
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async checkFileStatus(libraryId: string, spaceId: string, filePath: string, historyId?: string, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.checkFileStatus(libraryId, spaceId, filePath, historyId, accessToken, userId, options);
+        async checkFileStatus(libraryId: string, spaceId: string, filePath: string, historyId?: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.checkFileStatus(libraryId, spaceId, filePath, historyId, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.checkFileStatus']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1525,9 +1669,10 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} confirmKey 确认参数，指定为开始上传文件时响应体中的 confirmKey 字段的值
          * @param {CompleteFileUploadConfirmEnum} confirm 完成上传标识
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {CompleteFileUploadConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件；不传则沿用开始上传时的设置
          * @param {string} [contentCas] 文件内容的Cas标识，可选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {CompleteFileUploadWithInodeEnum} [withInode] 是否返回 inode（文件目录 ID），0 或 1，默认 0
          * @param {CompleteFileUploadWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
@@ -1535,8 +1680,8 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async completeFileUpload(libraryId: string, spaceId: string, confirmKey: string, confirm: CompleteFileUploadConfirmEnum, accessToken: string, conflictResolutionStrategy?: CompleteFileUploadConflictResolutionStrategyEnum, contentCas?: string, userId?: string, withInode?: CompleteFileUploadWithInodeEnum, withContentCas?: CompleteFileUploadWithContentCasEnum, completeFileUploadRequest?: CompleteFileUploadRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompleteFileUpload200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.completeFileUpload(libraryId, spaceId, confirmKey, confirm, accessToken, conflictResolutionStrategy, contentCas, userId, withInode, withContentCas, completeFileUploadRequest, options);
+        async completeFileUpload(libraryId: string, spaceId: string, confirmKey: string, confirm: CompleteFileUploadConfirmEnum, conflictResolutionStrategy?: CompleteFileUploadConflictResolutionStrategyEnum, contentCas?: string, accessToken?: string, librarySecret?: string, userId?: string, withInode?: CompleteFileUploadWithInodeEnum, withContentCas?: CompleteFileUploadWithContentCasEnum, completeFileUploadRequest?: CompleteFileUploadRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CompleteFileUpload200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.completeFileUpload(libraryId, spaceId, confirmKey, confirm, conflictResolutionStrategy, contentCas, accessToken, librarySecret, userId, withInode, withContentCas, completeFileUploadRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.completeFileUpload']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1548,15 +1693,16 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
          * @param {ConvertFileConvertEnum} convert 文档转码操作标识，固定值为1
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {ConvertFileRequest} convertFileRequest 
          * @param {ConvertFileConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async convertFile(libraryId: string, spaceId: string, filePath: string, convert: ConvertFileConvertEnum, accessToken: string, convertFileRequest: ConvertFileRequest, conflictResolutionStrategy?: ConvertFileConflictResolutionStrategyEnum, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ConvertFile202Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.convertFile(libraryId, spaceId, filePath, convert, accessToken, convertFileRequest, conflictResolutionStrategy, userId, options);
+        async convertFile(libraryId: string, spaceId: string, filePath: string, convert: ConvertFileConvertEnum, convertFileRequest: ConvertFileRequest, conflictResolutionStrategy?: ConvertFileConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ConvertFile202Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.convertFile(libraryId, spaceId, filePath, convert, convertFileRequest, conflictResolutionStrategy, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.convertFile']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1567,17 +1713,18 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {CopyFileRequest} copyFileRequest 
          * @param {CopyFileConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
          * @param {string} [contentCas] 文件内容的Cas标识，可选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {CopyFileWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async copyFile(libraryId: string, spaceId: string, filePath: string, accessToken: string, copyFileRequest: CopyFileRequest, conflictResolutionStrategy?: CopyFileConflictResolutionStrategyEnum, contentCas?: string, userId?: string, withContentCas?: CopyFileWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CopyFile200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.copyFile(libraryId, spaceId, filePath, accessToken, copyFileRequest, conflictResolutionStrategy, contentCas, userId, withContentCas, options);
+        async copyFile(libraryId: string, spaceId: string, filePath: string, copyFileRequest: CopyFileRequest, conflictResolutionStrategy?: CopyFileConflictResolutionStrategyEnum, contentCas?: string, accessToken?: string, librarySecret?: string, userId?: string, withContentCas?: CopyFileWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CopyFile200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.copyFile(libraryId, spaceId, filePath, copyFileRequest, conflictResolutionStrategy, contentCas, accessToken, librarySecret, userId, withContentCas, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.copyFile']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1588,15 +1735,16 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {CreateSymlinkRequest} createSymlinkRequest 
          * @param {CreateSymlinkConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite覆盖已有文件，默认为 rename
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createSymlink(libraryId: string, spaceId: string, filePath: string, accessToken: string, createSymlinkRequest: CreateSymlinkRequest, conflictResolutionStrategy?: CreateSymlinkConflictResolutionStrategyEnum, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateSymlink200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createSymlink(libraryId, spaceId, filePath, accessToken, createSymlinkRequest, conflictResolutionStrategy, userId, options);
+        async createSymlink(libraryId: string, spaceId: string, filePath: string, createSymlinkRequest: CreateSymlinkRequest, conflictResolutionStrategy?: CreateSymlinkConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateSymlink200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createSymlink(libraryId, spaceId, filePath, createSymlinkRequest, conflictResolutionStrategy, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.createSymlink']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1607,15 +1755,16 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {DeleteFilePermanentEnum} [permanent] 当媒体库开启回收站时，则该参数指定将文件移入回收站还是永久删除文件，1: 永久删除，0: 移入回收站，默认为 0
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [contentCas] 文件内容的Cas标识，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteFile(libraryId: string, spaceId: string, filePath: string, accessToken: string, permanent?: DeleteFilePermanentEnum, userId?: string, contentCas?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void | DeleteFile200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteFile(libraryId, spaceId, filePath, accessToken, permanent, userId, contentCas, options);
+        async deleteFile(libraryId: string, spaceId: string, filePath: string, permanent?: DeleteFilePermanentEnum, accessToken?: string, librarySecret?: string, userId?: string, contentCas?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void | DeleteFile200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteFile(libraryId, spaceId, filePath, permanent, accessToken, librarySecret, userId, contentCas, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.deleteFile']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1630,6 +1779,7 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {DownloadFileContentDispositionEnum} [contentDisposition] 用于设置Content-Disposition响应头，支持 inline 或者 attachment，可选参数，不传默认为inline
          * @param {DownloadFilePurposeEnum} [purpose] 用途，可选参数，可以设置为download或者preview，用于决定是否将该文件加入最近使用文件列表中，如果设置为preview，则会将该文件加入最近使用文件列表中，否则不会加入
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
          * @param {string} [contentCas] 文件内容的Cas标识，可选参数
@@ -1637,10 +1787,28 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async downloadFile(libraryId: string, spaceId: string, filePath: string, historyId?: string, contentDisposition?: DownloadFileContentDispositionEnum, purpose?: DownloadFilePurposeEnum, accessToken?: string, userId?: string, trafficLimit?: number, contentCas?: string, withContentCas?: DownloadFileWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.downloadFile(libraryId, spaceId, filePath, historyId, contentDisposition, purpose, accessToken, userId, trafficLimit, contentCas, withContentCas, options);
+        async downloadFile(libraryId: string, spaceId: string, filePath: string, historyId?: string, contentDisposition?: DownloadFileContentDispositionEnum, purpose?: DownloadFilePurposeEnum, accessToken?: string, librarySecret?: string, userId?: string, trafficLimit?: number, contentCas?: string, withContentCas?: DownloadFileWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.downloadFile(libraryId, spaceId, filePath, historyId, contentDisposition, purpose, accessToken, librarySecret, userId, trafficLimit, contentCas, withContentCas, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.downloadFile']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 下载视频转码接口转码后的文件，扩展下载文件接口。 权限说明：同下载文件接口。 补充说明： - 若 m3u8 转封装未完成，则返回 FileConverting - 若转码未完成，则返回原始视频的下载链接 
+         * @summary 视频下载
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+         * @param {DownloadTranscodedVideoTranscodingTemplateIdEnum} transcodingTemplateId 转码模板（见视频转码接口），可支持的模板列表为：h264_360p（流畅）、h264_480p（低清）、h264_720p（高清）、h264_1080p（超清）、h264_2K、h264_4K
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async downloadTranscodedVideo(libraryId: string, spaceId: string, filePath: string, transcodingTemplateId: DownloadTranscodedVideoTranscodingTemplateIdEnum, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.downloadTranscodedVideo(libraryId, spaceId, filePath, transcodingTemplateId, accessToken, librarySecret, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FileApi.downloadTranscodedVideo']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1649,9 +1817,11 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {FormUploadFileConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
+         * @param {string} [contentCas] 文件内容的Cas标识，可选参数
          * @param {number} [filesize] 上传文件大小，单位为字节（Byte），用于判断剩余空间是否足够
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [xSmhMeta] 自定义元数据，名称以 x-smh-meta- 开头的扩展头，值为字符串
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
@@ -1661,8 +1831,8 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async formUploadFile(libraryId: string, spaceId: string, filePath: string, accessToken: string, conflictResolutionStrategy?: FormUploadFileConflictResolutionStrategyEnum, filesize?: number, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: FormUploadFileWithContentCasEnum, formUploadFileRequest?: FormUploadFileRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FormUploadFile201Response | void | FormUploadFile200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.formUploadFile(libraryId, spaceId, filePath, accessToken, conflictResolutionStrategy, filesize, userId, xSmhMeta, trafficLimit, preferSameOrigin, withContentCas, formUploadFileRequest, options);
+        async formUploadFile(libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: FormUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: FormUploadFileWithContentCasEnum, formUploadFileRequest?: FormUploadFileRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FormUploadFile201Response | void | FormUploadFile200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.formUploadFile(libraryId, spaceId, filePath, conflictResolutionStrategy, contentCas, filesize, accessToken, librarySecret, userId, xSmhMeta, trafficLimit, preferSameOrigin, withContentCas, formUploadFileRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.formUploadFile']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1680,12 +1850,13 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {number} [heightSize] 缩放高度，当未传 size 和 scale 时生效；未传宽度时，宽度按等比例缩放
          * @param {number} [frameNumber] 帧数，针对 gif 的降帧处理
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getCover(libraryId: string, spaceId: string, filePath: string, preview: number, size?: number, scale?: number, widthSize?: number, heightSize?: number, frameNumber?: number, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getCover(libraryId, spaceId, filePath, preview, size, scale, widthSize, heightSize, frameNumber, accessToken, userId, options);
+        async getCover(libraryId: string, spaceId: string, filePath: string, preview: number, size?: number, scale?: number, widthSize?: number, heightSize?: number, frameNumber?: number, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCover(libraryId, spaceId, filePath, preview, size, scale, widthSize, heightSize, frameNumber, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.getCover']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1696,13 +1867,14 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} inode 文件ID
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {GetFileInfoByInodeWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getFileInfoByInode(libraryId: string, spaceId: string, inode: string, accessToken: string, withContentCas?: GetFileInfoByInodeWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetFileInfoByInode200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getFileInfoByInode(libraryId, spaceId, inode, accessToken, withContentCas, options);
+        async getFileInfoByInode(libraryId: string, spaceId: string, inode: string, accessToken?: string, librarySecret?: string, withContentCas?: GetFileInfoByInodeWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetFileInfoByInode200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getFileInfoByInode(libraryId, spaceId, inode, accessToken, librarySecret, withContentCas, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.getFileInfoByInode']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1714,13 +1886,14 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} confirmKey 确认参数
          * @param {GetFileUploadUploadEnum} upload 上传任务标识
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getFileUpload(libraryId: string, spaceId: string, confirmKey: string, upload: GetFileUploadUploadEnum, accessToken: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetFileUpload200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getFileUpload(libraryId, spaceId, confirmKey, upload, accessToken, userId, options);
+        async getFileUpload(libraryId: string, spaceId: string, confirmKey: string, upload: GetFileUploadUploadEnum, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetFileUpload200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getFileUpload(libraryId, spaceId, confirmKey, upload, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.getFileUpload']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1736,6 +1909,7 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {InfoFileContentDispositionEnum} [contentDisposition] 用于设置Content-Disposition响应头，支持 inline 或者 attachment，可选参数，不传默认为inline
          * @param {InfoFilePurposeEnum} [purpose] 用途，可选参数，可以设置为download或者preview，用于决定是否将该文件加入最近使用文件列表中，如果设置为preview，则会将该文件加入最近使用文件列表中，否则不会加入
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
          * @param {InfoFilePreCheckEnum} [preCheck] 是否只用于校验文件是否可预览和下载，设置该参数后返回结果中不包含cosUrl
@@ -1744,8 +1918,8 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async infoFile(libraryId: string, spaceId: string, filePath: string, info: InfoFileInfoEnum, historyId?: string, contentDisposition?: InfoFileContentDispositionEnum, purpose?: InfoFilePurposeEnum, accessToken?: string, userId?: string, trafficLimit?: number, preCheck?: InfoFilePreCheckEnum, contentCas?: string, withContentCas?: InfoFileWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<InfoFile200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.infoFile(libraryId, spaceId, filePath, info, historyId, contentDisposition, purpose, accessToken, userId, trafficLimit, preCheck, contentCas, withContentCas, options);
+        async infoFile(libraryId: string, spaceId: string, filePath: string, info: InfoFileInfoEnum, historyId?: string, contentDisposition?: InfoFileContentDispositionEnum, purpose?: InfoFilePurposeEnum, accessToken?: string, librarySecret?: string, userId?: string, trafficLimit?: number, preCheck?: InfoFilePreCheckEnum, contentCas?: string, withContentCas?: InfoFileWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<InfoFile200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.infoFile(libraryId, spaceId, filePath, info, historyId, contentDisposition, purpose, accessToken, librarySecret, userId, trafficLimit, preCheck, contentCas, withContentCas, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.infoFile']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1756,17 +1930,18 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {MoveFileRequest} moveFileRequest 
          * @param {MoveFileConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
          * @param {string} [contentCas] 文件内容的Cas标识，可选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {MoveFileWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async moveFile(libraryId: string, spaceId: string, filePath: string, accessToken: string, moveFileRequest: MoveFileRequest, conflictResolutionStrategy?: MoveFileConflictResolutionStrategyEnum, contentCas?: string, userId?: string, withContentCas?: MoveFileWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MoveFile200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.moveFile(libraryId, spaceId, filePath, accessToken, moveFileRequest, conflictResolutionStrategy, contentCas, userId, withContentCas, options);
+        async moveFile(libraryId: string, spaceId: string, filePath: string, moveFileRequest: MoveFileRequest, conflictResolutionStrategy?: MoveFileConflictResolutionStrategyEnum, contentCas?: string, accessToken?: string, librarySecret?: string, userId?: string, withContentCas?: MoveFileWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MoveFile200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.moveFile(libraryId, spaceId, filePath, moveFileRequest, conflictResolutionStrategy, contentCas, accessToken, librarySecret, userId, withContentCas, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.moveFile']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1778,9 +1953,11 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
          * @param {MultipartUploadFileMultipartEnum} multipart 是否为分块上传标识，固定值为1
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {MultipartUploadFileConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
+         * @param {string} [contentCas] 文件内容的Cas标识，可选参数
          * @param {number} [filesize] 上传文件大小，单位为字节（Byte），用于判断剩余空间是否足够
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [xSmhMeta] 自定义元数据，名称以 x-smh-meta- 开头的扩展头，值为字符串
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
@@ -1790,8 +1967,8 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async multipartUploadFile(libraryId: string, spaceId: string, filePath: string, multipart: MultipartUploadFileMultipartEnum, accessToken: string, conflictResolutionStrategy?: MultipartUploadFileConflictResolutionStrategyEnum, filesize?: number, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: MultipartUploadFileWithContentCasEnum, multipartUploadFileRequest?: MultipartUploadFileRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MultipartUploadFile201Response | void | MultipartUploadFile200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.multipartUploadFile(libraryId, spaceId, filePath, multipart, accessToken, conflictResolutionStrategy, filesize, userId, xSmhMeta, trafficLimit, preferSameOrigin, withContentCas, multipartUploadFileRequest, options);
+        async multipartUploadFile(libraryId: string, spaceId: string, filePath: string, multipart: MultipartUploadFileMultipartEnum, conflictResolutionStrategy?: MultipartUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: MultipartUploadFileWithContentCasEnum, multipartUploadFileRequest?: MultipartUploadFileRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MultipartUploadFile201Response | void | MultipartUploadFile200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.multipartUploadFile(libraryId, spaceId, filePath, multipart, conflictResolutionStrategy, contentCas, filesize, accessToken, librarySecret, userId, xSmhMeta, trafficLimit, preferSameOrigin, withContentCas, multipartUploadFileRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.multipartUploadFile']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1806,12 +1983,13 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} [historyId] 历史版本 ID，用于获取不同版本的文件内容，可选参数，不传默认为最新版
          * @param {string} [type] 文档预览方式，如果设置为 pic 则以 jpg 格式预览文档首页，否则以 html 格式预览文档
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async previewFile(libraryId: string, spaceId: string, filePath: string, preview: PreviewFilePreviewEnum, historyId?: string, type?: string, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.previewFile(libraryId, spaceId, filePath, preview, historyId, type, accessToken, userId, options);
+        async previewFile(libraryId: string, spaceId: string, filePath: string, preview: PreviewFilePreviewEnum, historyId?: string, type?: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.previewFile(libraryId, spaceId, filePath, preview, historyId, type, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.previewFile']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1823,14 +2001,15 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} confirmKey 确认参数，指定为开始上传文件时响应体中的 confirmKey 字段的值
          * @param {RenewMultipartUploadRenewEnum} renew 续期标识
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async renewMultipartUpload(libraryId: string, spaceId: string, confirmKey: string, renew: RenewMultipartUploadRenewEnum, accessToken: string, userId?: string, trafficLimit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RenewMultipartUpload200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.renewMultipartUpload(libraryId, spaceId, confirmKey, renew, accessToken, userId, trafficLimit, options);
+        async renewMultipartUpload(libraryId: string, spaceId: string, confirmKey: string, renew: RenewMultipartUploadRenewEnum, accessToken?: string, librarySecret?: string, userId?: string, trafficLimit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RenewMultipartUpload200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.renewMultipartUpload(libraryId, spaceId, confirmKey, renew, accessToken, librarySecret, userId, trafficLimit, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.renewMultipartUpload']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1841,9 +2020,11 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {SimpleUploadFileConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
+         * @param {string} [contentCas] 文件内容的Cas标识，可选参数
          * @param {number} [filesize] 上传文件大小，单位为字节（Byte），用于判断剩余空间是否足够
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [xSmhMeta] 自定义元数据，名称以 x-smh-meta- 开头的扩展头，值为字符串
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
@@ -1853,8 +2034,8 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async simpleUploadFile(libraryId: string, spaceId: string, filePath: string, accessToken: string, conflictResolutionStrategy?: SimpleUploadFileConflictResolutionStrategyEnum, filesize?: number, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: SimpleUploadFileWithContentCasEnum, simpleUploadFileRequest?: SimpleUploadFileRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SimpleUploadFile201Response | void | SimpleUploadFile200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.simpleUploadFile(libraryId, spaceId, filePath, accessToken, conflictResolutionStrategy, filesize, userId, xSmhMeta, trafficLimit, preferSameOrigin, withContentCas, simpleUploadFileRequest, options);
+        async simpleUploadFile(libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: SimpleUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: SimpleUploadFileWithContentCasEnum, simpleUploadFileRequest?: SimpleUploadFileRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SimpleUploadFile201Response | void | SimpleUploadFile200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.simpleUploadFile(libraryId, spaceId, filePath, conflictResolutionStrategy, contentCas, filesize, accessToken, librarySecret, userId, xSmhMeta, trafficLimit, preferSameOrigin, withContentCas, simpleUploadFileRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.simpleUploadFile']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1876,7 +2057,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         abortFileUpload(requestParameters: FileApiAbortFileUploadRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.abortFileUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.upload, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.abortFileUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.upload, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于查询文件删除的原因，可能是用户主动删除或者 quota 超限删除。 要求权限：admin 或 space_admin 
@@ -1886,7 +2067,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         checkFileDeletion(requestParameters: FileApiCheckFileDeletionRequest, options?: RawAxiosRequestConfig): AxiosPromise<CheckFileDeletion200Response> {
-            return localVarFp.checkFileDeletion(requestParameters.libraryId, requestParameters.spaceId, requestParameters.inode, requestParameters.accessToken, options).then((request) => request(axios, basePath));
+            return localVarFp.checkFileDeletion(requestParameters.libraryId, requestParameters.spaceId, requestParameters.inode, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于检查文件状态
@@ -1896,7 +2077,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         checkFileStatus(requestParameters: FileApiCheckFileStatusRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.checkFileStatus(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.historyId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.checkFileStatus(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.historyId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于完成上传文件。 要求权限：admin、space_admin、upload_file、upload_file_force 或 confirm_upload。 在文件上传完成后，请务必及时调用该接口，否则文件将不能被正确存储；如果调用该接口时实际并未完成文件上传，将返回错误信息。 
@@ -1906,7 +2087,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         completeFileUpload(requestParameters: FileApiCompleteFileUploadRequest, options?: RawAxiosRequestConfig): AxiosPromise<CompleteFileUpload200Response> {
-            return localVarFp.completeFileUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.confirm, requestParameters.accessToken, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.userId, requestParameters.withInode, requestParameters.withContentCas, requestParameters.completeFileUploadRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.completeFileUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.confirm, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withInode, requestParameters.withContentCas, requestParameters.completeFileUploadRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于转换文档格式，当前仅支持 doc/docx 转 pdf。 要求权限： 非 acl 鉴权：admin、space_admin acl 鉴权：canDownload（当前文件夹可下载）& canUpload（目标文件夹可上传） 非 acl 鉴权是指当前用户对所有文件的操作权限，详情可参考生成访问令牌接口； acl 鉴权是通过共享授权接口给指定用户，以文件夹为单位授予的权限，详情可参考角色授权模块； 该接口的源和目标均需要指定完整的文件路径，源与目标可以跨越目录，来实现将文件移动到任意其他目录下的功能，且支持同时修改文件名； 不会自动创建中间所需的各级父目录，所以必须保证路径的各级目录存在。 
@@ -1916,7 +2097,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         convertFile(requestParameters: FileApiConvertFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<ConvertFile202Response> {
-            return localVarFp.convertFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.convert, requestParameters.accessToken, requestParameters.convertFileRequest, requestParameters.conflictResolutionStrategy, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.convertFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.convert, requestParameters.convertFileRequest, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于复制文件。 要求权限： admin、space_admin 或 copy_file/copy_file_force。 该接口的源和目标均需要指定完整的文件路径，源与目标可以跨越目录，来实现将文件复制到任意其他目录下的功能，且支持同时修改文件名； 不会自动创建中间所需的各级父目录，所以必须保证路径的各级目录存在。 
@@ -1926,7 +2107,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         copyFile(requestParameters: FileApiCopyFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<CopyFile200Response> {
-            return localVarFp.copyFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.copyFileRequest, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
+            return localVarFp.copyFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.copyFileRequest, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于创建符号链接。 要求权限： 非 acl 鉴权：admin、space_admin 或 upload_file/upload_file_force/create_symlink/create_symlink_force acl 鉴权：canUpload（当前文件夹可上传） 非 acl 鉴权是指当前用户对所有文件的操作权限，详情可参考生成访问令牌接口； acl 鉴权是通过共享授权接口给指定用户，以文件夹为单位授予的权限，详情可参考角色授权模块； 符号链接本身与文件的概念一致，可以通过删除文件、重命名或移动文件、复制文件等接口删除、重命名或移动或复制符号链接本身，而不会影响符号链接所指向的文件； 与标准文件系统略有不同，符号链接所指向的文件，不会因为重命名或移动而丢失指向； 当符号链接指向的文件被覆盖上传时，该符号链接将指向新上传的文件。 
@@ -1936,7 +2117,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         createSymlink(requestParameters: FileApiCreateSymlinkRequest, options?: RawAxiosRequestConfig): AxiosPromise<CreateSymlink200Response> {
-            return localVarFp.createSymlink(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.createSymlinkRequest, requestParameters.conflictResolutionStrategy, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.createSymlink(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.createSymlinkRequest, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于删除文件。 要求权限： admin、space_admin 或 delete_file（未开启回收站或 Permanent 为 0）/delete_file_permanent（开启回收站且 Permanent 为 1） 如果媒体库启用回收站功能，则该接口不会永久删除文件，而是将文件移入回收站，可通过相关接口永久删除或恢复回收站内的文件，或直接清空回收站。 
@@ -1946,7 +2127,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         deleteFile(requestParameters: FileApiDeleteFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<void | DeleteFile200Response> {
-            return localVarFp.deleteFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.permanent, requestParameters.userId, requestParameters.contentCas, options).then((request) => request(axios, basePath));
+            return localVarFp.deleteFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.permanent, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.contentCas, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于下载文件。 可以直接在使用文件的参数中指定该 URL，例如对于图片文件可直接在小程序 <image> 标签、 HTML <img> 标签或小程序 wx.previewImage 接口等中使用，该接口将自动 302 跳转到真实的图片 URL；视频和文件同理； 
@@ -1956,7 +2137,17 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         downloadFile(requestParameters: FileApiDownloadFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.downloadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.historyId, requestParameters.contentDisposition, requestParameters.purpose, requestParameters.accessToken, requestParameters.userId, requestParameters.trafficLimit, requestParameters.contentCas, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
+            return localVarFp.downloadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.historyId, requestParameters.contentDisposition, requestParameters.purpose, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.trafficLimit, requestParameters.contentCas, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 下载视频转码接口转码后的文件，扩展下载文件接口。 权限说明：同下载文件接口。 补充说明： - 若 m3u8 转封装未完成，则返回 FileConverting - 若转码未完成，则返回原始视频的下载链接 
+         * @summary 视频下载
+         * @param {FileApiDownloadTranscodedVideoRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        downloadTranscodedVideo(requestParameters: FileApiDownloadTranscodedVideoRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.downloadTranscodedVideo(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.transcodingTemplateId, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于开始表单上传文件（multipart/form-data）。 要求权限：admin、space_admin 或 upload_file/upload_file_force/begin_upload/begin_upload_force。 调用该接口将返回一系列用于 form 表单上传（multipart/form-data 格式）和确认上传完成的参数，上传的目标 URL 为 https://{Domain}/，其中 Domain 为响应体中的 domain 字段，例如 https://examplebucket-1250000000.cos.ap-beijing.myqcloud.com/； form 表单上传时还需要指定一系列额外的信息字段，这些字段的名和值包含在响应体中的 form 字段中，可以在 HTML form 表单中通过隐藏域或通过 JS 相关库、小程序 wx.uploadFile 等指定这些字段； form 表单中的文件字段，其表单字段名固定为 file，且必须作为表单中的最后一项； 在完成实际上传后，上传的目标 URL 将返回 HTTP 204 No Content，由于可能的跨域限制，建议直接通过相关接口的回调来判断是否上传完成，并且在上传完成后及时调用完成上传文件接口，确认上传结果； 默认情况下同名文件将自动修改文件名，可在完成上传文件接口中获取最终的文件路径； 不会自动创建所需的各级父目录，所以必须保证路径的各级目录存在。 
@@ -1966,7 +2157,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         formUploadFile(requestParameters: FileApiFormUploadFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<FormUploadFile201Response | void | FormUploadFile200Response> {
-            return localVarFp.formUploadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.conflictResolutionStrategy, requestParameters.filesize, requestParameters.userId, requestParameters.xSmhMeta, requestParameters.trafficLimit, requestParameters.preferSameOrigin, requestParameters.withContentCas, requestParameters.formUploadFileRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.formUploadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.filesize, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.xSmhMeta, requestParameters.trafficLimit, requestParameters.preferSameOrigin, requestParameters.withContentCas, requestParameters.formUploadFileRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于获取照片/视频封面缩略图。 视频封面使用该视频的首帧图片； 针对照片或视频封面，优先使用人脸识别智能缩放裁剪为 {Size}px × {Size}px 大小，如果未识别到人脸则居中缩放裁剪为 {Size}px × {Size}px 大小，如果未指定 {Size} 参数则使用照片或视频封面原图，最后 302 跳转到对应的图片的 URL； 可以直接在使用图片的参数中指定该 URL，例如小程序 <image> 标签、 HTML <img> 标签或小程序 wx.previewImage 接口等，该接口将自动 302 跳转到真实的图片 URL； 如果文件不属于可预览的媒体类型，则会跳转至文件的下载链接。 
@@ -1976,7 +2167,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         getCover(requestParameters: FileApiGetCoverRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.getCover(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.preview, requestParameters.size, requestParameters.scale, requestParameters.widthSize, requestParameters.heightSize, requestParameters.frameNumber, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.getCover(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.preview, requestParameters.size, requestParameters.scale, requestParameters.widthSize, requestParameters.heightSize, requestParameters.frameNumber, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 根据文件 ID 查询文件信息
@@ -1986,7 +2177,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         getFileInfoByInode(requestParameters: FileApiGetFileInfoByInodeRequest, options?: RawAxiosRequestConfig): AxiosPromise<GetFileInfoByInode200Response> {
-            return localVarFp.getFileInfoByInode(requestParameters.libraryId, requestParameters.spaceId, requestParameters.inode, requestParameters.accessToken, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
+            return localVarFp.getFileInfoByInode(requestParameters.libraryId, requestParameters.spaceId, requestParameters.inode, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于获取文件上传任务状态。 要求权限： admin、space_admin、upload_file、upload_file_force、begin_upload 或 begin_upload_force（注意：虽然本接口为读接口，但因为读取的是上传任务信息，故仍需上传文件的相关权限） 
@@ -1996,7 +2187,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         getFileUpload(requestParameters: FileApiGetFileUploadRequest, options?: RawAxiosRequestConfig): AxiosPromise<GetFileUpload200Response> {
-            return localVarFp.getFileUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.upload, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.getFileUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.upload, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于获取文件下载链接和信息。 要求权限：无 
@@ -2006,7 +2197,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         infoFile(requestParameters: FileApiInfoFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<InfoFile200Response> {
-            return localVarFp.infoFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.historyId, requestParameters.contentDisposition, requestParameters.purpose, requestParameters.accessToken, requestParameters.userId, requestParameters.trafficLimit, requestParameters.preCheck, requestParameters.contentCas, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
+            return localVarFp.infoFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.historyId, requestParameters.contentDisposition, requestParameters.purpose, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.trafficLimit, requestParameters.preCheck, requestParameters.contentCas, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于重命名或移动文件。 要求权限： admin、space_admin 或 move_file/move_file_force。 该接口的源和目标均需要指定完整的文件路径，源与目标可以跨越目录，来实现将文件移动到任意其他目录下的功能，且支持同时修改文件名； 不会自动创建中间所需的各级父目录，所以必须保证路径的各级目录存在。 
@@ -2016,7 +2207,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         moveFile(requestParameters: FileApiMoveFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<MoveFile200Response> {
-            return localVarFp.moveFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.moveFileRequest, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
+            return localVarFp.moveFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.moveFileRequest, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于开始分块上传文件。 要求权限：admin、space_admin 或 upload_file/upload_file_force/begin_upload/begin_upload_force。 分块上传指使用通过 HTTP PUT 请求上传一个文件的分块，通过多次上传完成整个文件的上传，每次请求的请求体为文件内容的单个分块； 调用该接口将返回一系列用于分块上传请求和确认上传完成的参数，上传的目标 URL 为 https://{Domain}{Path}?uploadId={UploadId}&partNumber={PartNumber}，其中 Domain 为响应体中的 domain 字段，Path 为响应体中的 path 字段，UploadId 为响应体中的 uploadId 字段，PartNumber 为从 1 开始的分块顺序，例如 https://examplebucket-1250000000.cos.ap-beijing.myqcloud.com/smhxxx/xxx.mp4?uploadId=xxx&partNumber=1； 上传每个分块时还需要指定一系列额外的请求头部字段，这些字段的名和值包含在响应体中的 headers 字段中； 当在浏览器使用 JS 上传文件时，需要提前在绑定的 COS 存储桶中设置跨域访问 CORS 设置； 在完成实际上传后，上传的目标 URL 将返回 HTTP 200 OK； 与对象存储 COS 的分块上传不同，SMH 的分块上传无需记录 ETag，也无需在完成上传时传入这些 ETag，只需保证上传分块的连续即可，SMH 将在完成上传时自动执行这些操作； 默认情况下同名文件将自动修改文件名，可在完成上传文件接口中获取最终的文件路径； 不会自动创建所需的各级父目录，所以必须保证路径的各级目录存在。 
@@ -2026,7 +2217,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         multipartUploadFile(requestParameters: FileApiMultipartUploadFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<MultipartUploadFile201Response | void | MultipartUploadFile200Response> {
-            return localVarFp.multipartUploadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.multipart, requestParameters.accessToken, requestParameters.conflictResolutionStrategy, requestParameters.filesize, requestParameters.userId, requestParameters.xSmhMeta, requestParameters.trafficLimit, requestParameters.preferSameOrigin, requestParameters.withContentCas, requestParameters.multipartUploadFileRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.multipartUploadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.multipart, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.filesize, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.xSmhMeta, requestParameters.trafficLimit, requestParameters.preferSameOrigin, requestParameters.withContentCas, requestParameters.multipartUploadFileRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于获取 HTML 格式文档预览。 返回HTML或JPG格式的文档用于预览； 如果文件不属于可预览的文档类型，则会跳转至文件的下载链接。 
@@ -2036,7 +2227,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         previewFile(requestParameters: FileApiPreviewFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.previewFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.preview, requestParameters.historyId, requestParameters.type, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.previewFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.preview, requestParameters.historyId, requestParameters.type, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于分块上传任务续期。 要求权限：admin、space_admin 或 upload_file/upload_file_force/begin_upload/begin_upload_force。 仅支持分块上传任务的续期。 
@@ -2046,7 +2237,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         renewMultipartUpload(requestParameters: FileApiRenewMultipartUploadRequest, options?: RawAxiosRequestConfig): AxiosPromise<RenewMultipartUpload200Response> {
-            return localVarFp.renewMultipartUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.renew, requestParameters.accessToken, requestParameters.userId, requestParameters.trafficLimit, options).then((request) => request(axios, basePath));
+            return localVarFp.renewMultipartUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.renew, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.trafficLimit, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于开始简单上传文件。 要求权限：admin、space_admin 或 upload_file/upload_file_force/begin_upload/begin_upload_force。 PUT 简单上传指使用 HTTP PUT 请求上传一个文件，请求体即为文件的内容； 调用该接口将返回一系列用于 PUT 简单上传请求和确认上传完成的参数，上传的目标 URL 为 https://{Domain}{Path}，其中 Domain 为响应体中的 domain 字段，Path 为响应体中的 path 字段，例如 https://examplebucket-1250000000.cos.ap-beijing.myqcloud.com/smhxxx/xxx.mp4； PUT 简单上传时还需要指定一系列额外的请求头部字段，这些字段的名和值包含在响应体中的 headers 字段中； 当在浏览器使用 JS 上传文件时，需要提前在绑定的 COS 存储桶中设置跨域访问 CORS 设置； 在完成实际上传后，上传的目标 URL 将返回 HTTP 200 OK； 默认情况下同名文件将自动修改文件名，可在完成上传文件接口中获取最终的文件路径； 不会自动创建所需的各级父目录，所以必须保证路径的各级目录存在。 
@@ -2056,7 +2247,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         simpleUploadFile(requestParameters: FileApiSimpleUploadFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<SimpleUploadFile201Response | void | SimpleUploadFile200Response> {
-            return localVarFp.simpleUploadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.conflictResolutionStrategy, requestParameters.filesize, requestParameters.userId, requestParameters.xSmhMeta, requestParameters.trafficLimit, requestParameters.preferSameOrigin, requestParameters.withContentCas, requestParameters.simpleUploadFileRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.simpleUploadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.filesize, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.xSmhMeta, requestParameters.trafficLimit, requestParameters.preferSameOrigin, requestParameters.withContentCas, requestParameters.simpleUploadFileRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -2086,9 +2277,14 @@ export interface FileApiAbortFileUploadRequest {
     readonly upload: AbortFileUploadUploadEnum
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -2116,9 +2312,14 @@ export interface FileApiCheckFileDeletionRequest {
     readonly inode: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -2151,6 +2352,11 @@ export interface FileApiCheckFileStatusRequest {
     readonly accessToken?: string
 
     /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
@@ -2181,11 +2387,6 @@ export interface FileApiCompleteFileUploadRequest {
     readonly confirm: CompleteFileUploadConfirmEnum
 
     /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
-    /**
      * 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件；不传则沿用开始上传时的设置
      */
     readonly conflictResolutionStrategy?: CompleteFileUploadConflictResolutionStrategyEnum
@@ -2194,6 +2395,16 @@ export interface FileApiCompleteFileUploadRequest {
      * 文件内容的Cas标识，可选参数
      */
     readonly contentCas?: string
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -2237,17 +2448,22 @@ export interface FileApiConvertFileRequest {
      */
     readonly convert: ConvertFileConvertEnum
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly convertFileRequest: ConvertFileRequest
 
     /**
      * 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
      */
     readonly conflictResolutionStrategy?: ConvertFileConflictResolutionStrategyEnum
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -2274,11 +2490,6 @@ export interface FileApiCopyFileRequest {
      */
     readonly filePath: string
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly copyFileRequest: CopyFileRequest
 
     /**
@@ -2290,6 +2501,16 @@ export interface FileApiCopyFileRequest {
      * 文件内容的Cas标识，可选参数
      */
     readonly contentCas?: string
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -2321,17 +2542,22 @@ export interface FileApiCreateSymlinkRequest {
      */
     readonly filePath: string
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly createSymlinkRequest: CreateSymlinkRequest
 
     /**
      * 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite覆盖已有文件，默认为 rename
      */
     readonly conflictResolutionStrategy?: CreateSymlinkConflictResolutionStrategyEnum
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -2359,14 +2585,19 @@ export interface FileApiDeleteFileRequest {
     readonly filePath: string
 
     /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
-    /**
      * 当媒体库开启回收站时，则该参数指定将文件移入回收站还是永久删除文件，1: 永久删除，0: 移入回收站，默认为 0
      */
     readonly permanent?: DeleteFilePermanentEnum
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -2419,6 +2650,11 @@ export interface FileApiDownloadFileRequest {
     readonly accessToken?: string
 
     /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
@@ -2437,6 +2673,41 @@ export interface FileApiDownloadFileRequest {
      * 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
      */
     readonly withContentCas?: DownloadFileWithContentCasEnum
+}
+
+/**
+ * Request parameters for downloadTranscodedVideo operation in FileApi.
+ */
+export interface FileApiDownloadTranscodedVideoRequest {
+    /**
+     * 媒体库 ID，必选参数
+     */
+    readonly libraryId: string
+
+    /**
+     * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+     */
+    readonly spaceId: string
+
+    /**
+     * 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+     */
+    readonly filePath: string
+
+    /**
+     * 转码模板（见视频转码接口），可支持的模板列表为：h264_360p（流畅）、h264_480p（低清）、h264_720p（高清）、h264_1080p（超清）、h264_2K、h264_4K
+     */
+    readonly transcodingTemplateId: DownloadTranscodedVideoTranscodingTemplateIdEnum
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 }
 
 /**
@@ -2459,19 +2730,29 @@ export interface FileApiFormUploadFileRequest {
     readonly filePath: string
 
     /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
-    /**
      * 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
      */
     readonly conflictResolutionStrategy?: FormUploadFileConflictResolutionStrategyEnum
 
     /**
+     * 文件内容的Cas标识，可选参数
+     */
+    readonly contentCas?: string
+
+    /**
      * 上传文件大小，单位为字节（Byte），用于判断剩余空间是否足够
      */
     readonly filesize?: number
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -2556,6 +2837,11 @@ export interface FileApiGetCoverRequest {
     readonly accessToken?: string
 
     /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
@@ -2581,9 +2867,14 @@ export interface FileApiGetFileInfoByInodeRequest {
     readonly inode: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
@@ -2616,9 +2907,14 @@ export interface FileApiGetFileUploadRequest {
     readonly upload: GetFileUploadUploadEnum
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -2671,6 +2967,11 @@ export interface FileApiInfoFileRequest {
     readonly accessToken?: string
 
     /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
@@ -2715,11 +3016,6 @@ export interface FileApiMoveFileRequest {
      */
     readonly filePath: string
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly moveFileRequest: MoveFileRequest
 
     /**
@@ -2731,6 +3027,16 @@ export interface FileApiMoveFileRequest {
      * 文件内容的Cas标识，可选参数
      */
     readonly contentCas?: string
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -2768,19 +3074,29 @@ export interface FileApiMultipartUploadFileRequest {
     readonly multipart: MultipartUploadFileMultipartEnum
 
     /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
-    /**
      * 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
      */
     readonly conflictResolutionStrategy?: MultipartUploadFileConflictResolutionStrategyEnum
 
     /**
+     * 文件内容的Cas标识，可选参数
+     */
+    readonly contentCas?: string
+
+    /**
      * 上传文件大小，单位为字节（Byte），用于判断剩余空间是否足够
      */
     readonly filesize?: number
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -2850,6 +3166,11 @@ export interface FileApiPreviewFileRequest {
     readonly accessToken?: string
 
     /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
@@ -2880,9 +3201,14 @@ export interface FileApiRenewMultipartUploadRequest {
     readonly renew: RenewMultipartUploadRenewEnum
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -2915,19 +3241,29 @@ export interface FileApiSimpleUploadFileRequest {
     readonly filePath: string
 
     /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
-    /**
      * 文件名冲突时的处理方式，ask冲突时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，rename冲突时自动重命名文件，overwrite如果冲突目标为目录时返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码，否则覆盖已有文件，默认为 rename
      */
     readonly conflictResolutionStrategy?: SimpleUploadFileConflictResolutionStrategyEnum
 
     /**
+     * 文件内容的Cas标识，可选参数
+     */
+    readonly contentCas?: string
+
+    /**
      * 上传文件大小，单位为字节（Byte），用于判断剩余空间是否足够
      */
     readonly filesize?: number
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -2969,7 +3305,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public abortFileUpload(requestParameters: FileApiAbortFileUploadRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).abortFileUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.upload, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).abortFileUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.upload, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2980,7 +3316,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public checkFileDeletion(requestParameters: FileApiCheckFileDeletionRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).checkFileDeletion(requestParameters.libraryId, requestParameters.spaceId, requestParameters.inode, requestParameters.accessToken, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).checkFileDeletion(requestParameters.libraryId, requestParameters.spaceId, requestParameters.inode, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2991,7 +3327,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public checkFileStatus(requestParameters: FileApiCheckFileStatusRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).checkFileStatus(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.historyId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).checkFileStatus(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.historyId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3002,7 +3338,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public completeFileUpload(requestParameters: FileApiCompleteFileUploadRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).completeFileUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.confirm, requestParameters.accessToken, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.userId, requestParameters.withInode, requestParameters.withContentCas, requestParameters.completeFileUploadRequest, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).completeFileUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.confirm, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withInode, requestParameters.withContentCas, requestParameters.completeFileUploadRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3013,7 +3349,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public convertFile(requestParameters: FileApiConvertFileRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).convertFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.convert, requestParameters.accessToken, requestParameters.convertFileRequest, requestParameters.conflictResolutionStrategy, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).convertFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.convert, requestParameters.convertFileRequest, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3024,7 +3360,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public copyFile(requestParameters: FileApiCopyFileRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).copyFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.copyFileRequest, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).copyFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.copyFileRequest, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3035,7 +3371,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public createSymlink(requestParameters: FileApiCreateSymlinkRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).createSymlink(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.createSymlinkRequest, requestParameters.conflictResolutionStrategy, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).createSymlink(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.createSymlinkRequest, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3046,7 +3382,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public deleteFile(requestParameters: FileApiDeleteFileRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).deleteFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.permanent, requestParameters.userId, requestParameters.contentCas, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).deleteFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.permanent, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.contentCas, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3057,7 +3393,18 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public downloadFile(requestParameters: FileApiDownloadFileRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).downloadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.historyId, requestParameters.contentDisposition, requestParameters.purpose, requestParameters.accessToken, requestParameters.userId, requestParameters.trafficLimit, requestParameters.contentCas, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).downloadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.historyId, requestParameters.contentDisposition, requestParameters.purpose, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.trafficLimit, requestParameters.contentCas, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 下载视频转码接口转码后的文件，扩展下载文件接口。 权限说明：同下载文件接口。 补充说明： - 若 m3u8 转封装未完成，则返回 FileConverting - 若转码未完成，则返回原始视频的下载链接 
+     * @summary 视频下载
+     * @param {FileApiDownloadTranscodedVideoRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public downloadTranscodedVideo(requestParameters: FileApiDownloadTranscodedVideoRequest, options?: RawAxiosRequestConfig) {
+        return FileApiFp(this.configuration).downloadTranscodedVideo(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.transcodingTemplateId, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3068,7 +3415,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public formUploadFile(requestParameters: FileApiFormUploadFileRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).formUploadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.conflictResolutionStrategy, requestParameters.filesize, requestParameters.userId, requestParameters.xSmhMeta, requestParameters.trafficLimit, requestParameters.preferSameOrigin, requestParameters.withContentCas, requestParameters.formUploadFileRequest, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).formUploadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.filesize, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.xSmhMeta, requestParameters.trafficLimit, requestParameters.preferSameOrigin, requestParameters.withContentCas, requestParameters.formUploadFileRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3079,7 +3426,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public getCover(requestParameters: FileApiGetCoverRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).getCover(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.preview, requestParameters.size, requestParameters.scale, requestParameters.widthSize, requestParameters.heightSize, requestParameters.frameNumber, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).getCover(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.preview, requestParameters.size, requestParameters.scale, requestParameters.widthSize, requestParameters.heightSize, requestParameters.frameNumber, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3090,7 +3437,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public getFileInfoByInode(requestParameters: FileApiGetFileInfoByInodeRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).getFileInfoByInode(requestParameters.libraryId, requestParameters.spaceId, requestParameters.inode, requestParameters.accessToken, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).getFileInfoByInode(requestParameters.libraryId, requestParameters.spaceId, requestParameters.inode, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3101,7 +3448,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public getFileUpload(requestParameters: FileApiGetFileUploadRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).getFileUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.upload, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).getFileUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.upload, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3112,7 +3459,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public infoFile(requestParameters: FileApiInfoFileRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).infoFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.historyId, requestParameters.contentDisposition, requestParameters.purpose, requestParameters.accessToken, requestParameters.userId, requestParameters.trafficLimit, requestParameters.preCheck, requestParameters.contentCas, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).infoFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.historyId, requestParameters.contentDisposition, requestParameters.purpose, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.trafficLimit, requestParameters.preCheck, requestParameters.contentCas, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3123,7 +3470,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public moveFile(requestParameters: FileApiMoveFileRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).moveFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.moveFileRequest, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).moveFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.moveFileRequest, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3134,7 +3481,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public multipartUploadFile(requestParameters: FileApiMultipartUploadFileRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).multipartUploadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.multipart, requestParameters.accessToken, requestParameters.conflictResolutionStrategy, requestParameters.filesize, requestParameters.userId, requestParameters.xSmhMeta, requestParameters.trafficLimit, requestParameters.preferSameOrigin, requestParameters.withContentCas, requestParameters.multipartUploadFileRequest, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).multipartUploadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.multipart, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.filesize, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.xSmhMeta, requestParameters.trafficLimit, requestParameters.preferSameOrigin, requestParameters.withContentCas, requestParameters.multipartUploadFileRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3145,7 +3492,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public previewFile(requestParameters: FileApiPreviewFileRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).previewFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.preview, requestParameters.historyId, requestParameters.type, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).previewFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.preview, requestParameters.historyId, requestParameters.type, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3156,7 +3503,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public renewMultipartUpload(requestParameters: FileApiRenewMultipartUploadRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).renewMultipartUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.renew, requestParameters.accessToken, requestParameters.userId, requestParameters.trafficLimit, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).renewMultipartUpload(requestParameters.libraryId, requestParameters.spaceId, requestParameters.confirmKey, requestParameters.renew, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.trafficLimit, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3167,7 +3514,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public simpleUploadFile(requestParameters: FileApiSimpleUploadFileRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).simpleUploadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.conflictResolutionStrategy, requestParameters.filesize, requestParameters.userId, requestParameters.xSmhMeta, requestParameters.trafficLimit, requestParameters.preferSameOrigin, requestParameters.withContentCas, requestParameters.simpleUploadFileRequest, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).simpleUploadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.filesize, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.xSmhMeta, requestParameters.trafficLimit, requestParameters.preferSameOrigin, requestParameters.withContentCas, requestParameters.simpleUploadFileRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -3242,6 +3589,15 @@ export const DownloadFileWithContentCasEnum = {
     NUMBER_1: 1
 } as const;
 export type DownloadFileWithContentCasEnum = typeof DownloadFileWithContentCasEnum[keyof typeof DownloadFileWithContentCasEnum];
+export const DownloadTranscodedVideoTranscodingTemplateIdEnum = {
+    H264360p: 'h264_360p',
+    H264480p: 'h264_480p',
+    H264720p: 'h264_720p',
+    H2641080p: 'h264_1080p',
+    H2642K: 'h264_2K',
+    H2644K: 'h264_4K'
+} as const;
+export type DownloadTranscodedVideoTranscodingTemplateIdEnum = typeof DownloadTranscodedVideoTranscodingTemplateIdEnum[keyof typeof DownloadTranscodedVideoTranscodingTemplateIdEnum];
 export const FormUploadFileConflictResolutionStrategyEnum = {
     Ask: 'ask',
     Rename: 'rename',
