@@ -56,21 +56,20 @@ export const BatchApiAxiosParamCreator = function (configuration?: Configuration
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {BatchCopyCopyEnum} copy 开启批量复制操作
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {Array<BatchCopyRequestInner>} batchCopyRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        batchCopy: async (libraryId: string, spaceId: string, copy: BatchCopyCopyEnum, accessToken: string, batchCopyRequest: Array<BatchCopyRequestInner>, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        batchCopy: async (libraryId: string, spaceId: string, copy: BatchCopyCopyEnum, batchCopyRequest: Array<BatchCopyRequestInner>, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('batchCopy', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('batchCopy', 'spaceId', spaceId)
             // verify required parameter 'copy' is not null or undefined
             assertParamExists('batchCopy', 'copy', copy)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('batchCopy', 'accessToken', accessToken)
             // verify required parameter 'batchCopyRequest' is not null or undefined
             assertParamExists('batchCopy', 'batchCopyRequest', batchCopyRequest)
             const localVarPath = `/api/v1/batch/{LibraryId}/{SpaceId}`
@@ -93,6 +92,10 @@ export const BatchApiAxiosParamCreator = function (configuration?: Configuration
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -119,21 +122,20 @@ export const BatchApiAxiosParamCreator = function (configuration?: Configuration
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {BatchDeleteDeleteEnum} _delete 开启批量删除操作
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {Array<BatchDeleteRequestInner>} batchDeleteRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        batchDelete: async (libraryId: string, spaceId: string, _delete: BatchDeleteDeleteEnum, accessToken: string, batchDeleteRequest: Array<BatchDeleteRequestInner>, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        batchDelete: async (libraryId: string, spaceId: string, _delete: BatchDeleteDeleteEnum, batchDeleteRequest: Array<BatchDeleteRequestInner>, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('batchDelete', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('batchDelete', 'spaceId', spaceId)
             // verify required parameter '_delete' is not null or undefined
             assertParamExists('batchDelete', '_delete', _delete)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('batchDelete', 'accessToken', accessToken)
             // verify required parameter 'batchDeleteRequest' is not null or undefined
             assertParamExists('batchDelete', 'batchDeleteRequest', batchDeleteRequest)
             const localVarPath = `/api/v1/batch/{LibraryId}/{SpaceId}#2`
@@ -156,6 +158,10 @@ export const BatchApiAxiosParamCreator = function (configuration?: Configuration
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -182,21 +188,20 @@ export const BatchApiAxiosParamCreator = function (configuration?: Configuration
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {BatchMoveMoveEnum} move 开启批量重命名或移动操作
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {Array<BatchMoveRequestInner>} batchMoveRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        batchMove: async (libraryId: string, spaceId: string, move: BatchMoveMoveEnum, accessToken: string, batchMoveRequest: Array<BatchMoveRequestInner>, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        batchMove: async (libraryId: string, spaceId: string, move: BatchMoveMoveEnum, batchMoveRequest: Array<BatchMoveRequestInner>, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('batchMove', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('batchMove', 'spaceId', spaceId)
             // verify required parameter 'move' is not null or undefined
             assertParamExists('batchMove', 'move', move)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('batchMove', 'accessToken', accessToken)
             // verify required parameter 'batchMoveRequest' is not null or undefined
             assertParamExists('batchMove', 'batchMoveRequest', batchMoveRequest)
             const localVarPath = `/api/v1/batch/{LibraryId}/{SpaceId}#1`
@@ -219,6 +224,10 @@ export const BatchApiAxiosParamCreator = function (configuration?: Configuration
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -254,14 +263,15 @@ export const BatchApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {BatchCopyCopyEnum} copy 开启批量复制操作
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {Array<BatchCopyRequestInner>} batchCopyRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async batchCopy(libraryId: string, spaceId: string, copy: BatchCopyCopyEnum, accessToken: string, batchCopyRequest: Array<BatchCopyRequestInner>, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BatchCopy200Response | BatchCopy202Response | BatchCopy207Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.batchCopy(libraryId, spaceId, copy, accessToken, batchCopyRequest, userId, options);
+        async batchCopy(libraryId: string, spaceId: string, copy: BatchCopyCopyEnum, batchCopyRequest: Array<BatchCopyRequestInner>, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BatchCopy200Response | BatchCopy202Response | BatchCopy207Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.batchCopy(libraryId, spaceId, copy, batchCopyRequest, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BatchApi.batchCopy']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -272,14 +282,15 @@ export const BatchApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {BatchDeleteDeleteEnum} _delete 开启批量删除操作
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {Array<BatchDeleteRequestInner>} batchDeleteRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async batchDelete(libraryId: string, spaceId: string, _delete: BatchDeleteDeleteEnum, accessToken: string, batchDeleteRequest: Array<BatchDeleteRequestInner>, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BatchDelete200Response | BatchDelete202Response | BatchDelete207Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.batchDelete(libraryId, spaceId, _delete, accessToken, batchDeleteRequest, userId, options);
+        async batchDelete(libraryId: string, spaceId: string, _delete: BatchDeleteDeleteEnum, batchDeleteRequest: Array<BatchDeleteRequestInner>, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BatchDelete200Response | BatchDelete202Response | BatchDelete207Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.batchDelete(libraryId, spaceId, _delete, batchDeleteRequest, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BatchApi.batchDelete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -290,14 +301,15 @@ export const BatchApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {BatchMoveMoveEnum} move 开启批量重命名或移动操作
-         * @param {string} accessToken 访问令牌，必选参数
          * @param {Array<BatchMoveRequestInner>} batchMoveRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async batchMove(libraryId: string, spaceId: string, move: BatchMoveMoveEnum, accessToken: string, batchMoveRequest: Array<BatchMoveRequestInner>, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BatchMove200Response | BatchMove202Response | BatchMove207Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.batchMove(libraryId, spaceId, move, accessToken, batchMoveRequest, userId, options);
+        async batchMove(libraryId: string, spaceId: string, move: BatchMoveMoveEnum, batchMoveRequest: Array<BatchMoveRequestInner>, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BatchMove200Response | BatchMove202Response | BatchMove207Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.batchMove(libraryId, spaceId, move, batchMoveRequest, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BatchApi.batchMove']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -319,7 +331,7 @@ export const BatchApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         batchCopy(requestParameters: BatchApiBatchCopyRequest, options?: RawAxiosRequestConfig): AxiosPromise<BatchCopy200Response | BatchCopy202Response | BatchCopy207Response> {
-            return localVarFp.batchCopy(requestParameters.libraryId, requestParameters.spaceId, requestParameters.copy, requestParameters.accessToken, requestParameters.batchCopyRequest, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.batchCopy(requestParameters.libraryId, requestParameters.spaceId, requestParameters.copy, requestParameters.batchCopyRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于批量删除目录或文件
@@ -329,7 +341,7 @@ export const BatchApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         batchDelete(requestParameters: BatchApiBatchDeleteRequest, options?: RawAxiosRequestConfig): AxiosPromise<BatchDelete200Response | BatchDelete202Response | BatchDelete207Response> {
-            return localVarFp.batchDelete(requestParameters.libraryId, requestParameters.spaceId, requestParameters._delete, requestParameters.accessToken, requestParameters.batchDeleteRequest, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.batchDelete(requestParameters.libraryId, requestParameters.spaceId, requestParameters._delete, requestParameters.batchDeleteRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于批量重命名或移动目录或文件
@@ -339,7 +351,7 @@ export const BatchApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         batchMove(requestParameters: BatchApiBatchMoveRequest, options?: RawAxiosRequestConfig): AxiosPromise<BatchMove200Response | BatchMove202Response | BatchMove207Response> {
-            return localVarFp.batchMove(requestParameters.libraryId, requestParameters.spaceId, requestParameters.move, requestParameters.accessToken, requestParameters.batchMoveRequest, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.batchMove(requestParameters.libraryId, requestParameters.spaceId, requestParameters.move, requestParameters.batchMoveRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -363,12 +375,17 @@ export interface BatchApiBatchCopyRequest {
      */
     readonly copy: BatchCopyCopyEnum
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly batchCopyRequest: Array<BatchCopyRequestInner>
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -395,12 +412,17 @@ export interface BatchApiBatchDeleteRequest {
      */
     readonly _delete: BatchDeleteDeleteEnum
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly batchDeleteRequest: Array<BatchDeleteRequestInner>
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -427,12 +449,17 @@ export interface BatchApiBatchMoveRequest {
      */
     readonly move: BatchMoveMoveEnum
 
-    /**
-     * 访问令牌，必选参数
-     */
-    readonly accessToken: string
-
     readonly batchMoveRequest: Array<BatchMoveRequestInner>
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -452,7 +479,7 @@ export class BatchApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public batchCopy(requestParameters: BatchApiBatchCopyRequest, options?: RawAxiosRequestConfig) {
-        return BatchApiFp(this.configuration).batchCopy(requestParameters.libraryId, requestParameters.spaceId, requestParameters.copy, requestParameters.accessToken, requestParameters.batchCopyRequest, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return BatchApiFp(this.configuration).batchCopy(requestParameters.libraryId, requestParameters.spaceId, requestParameters.copy, requestParameters.batchCopyRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -463,7 +490,7 @@ export class BatchApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public batchDelete(requestParameters: BatchApiBatchDeleteRequest, options?: RawAxiosRequestConfig) {
-        return BatchApiFp(this.configuration).batchDelete(requestParameters.libraryId, requestParameters.spaceId, requestParameters._delete, requestParameters.accessToken, requestParameters.batchDeleteRequest, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return BatchApiFp(this.configuration).batchDelete(requestParameters.libraryId, requestParameters.spaceId, requestParameters._delete, requestParameters.batchDeleteRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -474,7 +501,7 @@ export class BatchApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public batchMove(requestParameters: BatchApiBatchMoveRequest, options?: RawAxiosRequestConfig) {
-        return BatchApiFp(this.configuration).batchMove(requestParameters.libraryId, requestParameters.spaceId, requestParameters.move, requestParameters.accessToken, requestParameters.batchMoveRequest, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return BatchApiFp(this.configuration).batchMove(requestParameters.libraryId, requestParameters.spaceId, requestParameters.move, requestParameters.batchMoveRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

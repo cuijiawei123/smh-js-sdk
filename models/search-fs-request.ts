@@ -18,7 +18,7 @@ export interface SearchFsRequest {
     /**
      * 搜索关键字，可选参数，字符串数组，或的关系
      */
-    'keyword'?: Array<string>;
+    'keywords'?: Array<string>;
     /**
      * 搜索文件后缀，可选参数，字符串数组，或的关系
      */

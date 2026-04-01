@@ -1033,7 +1033,7 @@ describe('SearchApi Factory/Fp 层覆盖', () => {
     const fp = SearchApiFp();
 
     it('searchFs', async () => {
-      const fn = await fp.searchFs('lib-1', 'space-1', 'token', { keyword: 'test' } as any);
+      const fn = await fp.searchFs('lib-1', 'space-1', 'token', { keywords: 'test' } as any);
       expect(await fn(mockAxios, MOCK_BASE)).toBeDefined();
     });
   });
@@ -1043,7 +1043,7 @@ describe('SearchApi Factory/Fp 层覆盖', () => {
       const factory = SearchApiFactory(undefined, MOCK_BASE, mockAxios);
 
       await expect(factory.searchFs({
-        libraryId: 'lib-1', spaceId: 'space-1', accessToken: 'token', searchFsRequest: { keyword: 'test' } as any,
+        libraryId: 'lib-1', spaceId: 'space-1', accessToken: 'token', searchFsRequest: { keywords: 'test' } as any,
       })).resolves.toBeDefined();
     });
   });

@@ -35,18 +35,17 @@ export const TaskApiAxiosParamCreator = function (configuration?: Configuration)
          * @summary 查询媒体库任务接口
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} taskIdList 任务 ID 列表，用逗号分隔，例如 10 或 10,12,13
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        queryLibraryTask: async (libraryId: string, taskIdList: string, accessToken: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        queryLibraryTask: async (libraryId: string, taskIdList: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('queryLibraryTask', 'libraryId', libraryId)
             // verify required parameter 'taskIdList' is not null or undefined
             assertParamExists('queryLibraryTask', 'taskIdList', taskIdList)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('queryLibraryTask', 'accessToken', accessToken)
             const localVarPath = `/api/v1/task/{LibraryId}/{TaskIdList}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"TaskIdList"}}`, encodeURIComponent(String(taskIdList)));
@@ -63,6 +62,10 @@ export const TaskApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -86,20 +89,19 @@ export const TaskApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} taskIdList 任务 ID 列表，用逗号分隔，例如 10 或 10,12,13
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        queryTask: async (libraryId: string, spaceId: string, taskIdList: string, accessToken: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        queryTask: async (libraryId: string, spaceId: string, taskIdList: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('queryTask', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
             assertParamExists('queryTask', 'spaceId', spaceId)
             // verify required parameter 'taskIdList' is not null or undefined
             assertParamExists('queryTask', 'taskIdList', taskIdList)
-            // verify required parameter 'accessToken' is not null or undefined
-            assertParamExists('queryTask', 'accessToken', accessToken)
             const localVarPath = `/api/v1/task/{LibraryId}/{SpaceId}/{TaskIdList}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
@@ -117,6 +119,10 @@ export const TaskApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -148,13 +154,14 @@ export const TaskApiFp = function(configuration?: Configuration) {
          * @summary 查询媒体库任务接口
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} taskIdList 任务 ID 列表，用逗号分隔，例如 10 或 10,12,13
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async queryLibraryTask(libraryId: string, taskIdList: string, accessToken: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<QueryLibraryTask200ResponseInner>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.queryLibraryTask(libraryId, taskIdList, accessToken, userId, options);
+        async queryLibraryTask(libraryId: string, taskIdList: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<QueryLibraryTask200ResponseInner>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.queryLibraryTask(libraryId, taskIdList, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['TaskApi.queryLibraryTask']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -165,13 +172,14 @@ export const TaskApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} taskIdList 任务 ID 列表，用逗号分隔，例如 10 或 10,12,13
-         * @param {string} accessToken 访问令牌，必选参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async queryTask(libraryId: string, spaceId: string, taskIdList: string, accessToken: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<QueryTask200ResponseInner>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.queryTask(libraryId, spaceId, taskIdList, accessToken, userId, options);
+        async queryTask(libraryId: string, spaceId: string, taskIdList: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<QueryTask200ResponseInner>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.queryTask(libraryId, spaceId, taskIdList, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['TaskApi.queryTask']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -193,7 +201,7 @@ export const TaskApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         queryLibraryTask(requestParameters: TaskApiQueryLibraryTaskRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<QueryLibraryTask200ResponseInner>> {
-            return localVarFp.queryLibraryTask(requestParameters.libraryId, requestParameters.taskIdList, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.queryLibraryTask(requestParameters.libraryId, requestParameters.taskIdList, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于查询耗时任务执行情况。任务的具体返回请参阅会产生异步任务的接口说明，部分接口会根据任务耗时情况返回同步或异步结果，此时异步结果通常与同步结果的格式保持一致；仅能查询到任务结束时间在最近30天的任务，更早期的任务无法查询；
@@ -203,7 +211,7 @@ export const TaskApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         queryTask(requestParameters: TaskApiQueryTaskRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<QueryTask200ResponseInner>> {
-            return localVarFp.queryTask(requestParameters.libraryId, requestParameters.spaceId, requestParameters.taskIdList, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.queryTask(requestParameters.libraryId, requestParameters.spaceId, requestParameters.taskIdList, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -223,9 +231,14 @@ export interface TaskApiQueryLibraryTaskRequest {
     readonly taskIdList: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -253,9 +266,14 @@ export interface TaskApiQueryTaskRequest {
     readonly taskIdList: string
 
     /**
-     * 访问令牌，必选参数
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
-    readonly accessToken: string
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -275,7 +293,7 @@ export class TaskApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public queryLibraryTask(requestParameters: TaskApiQueryLibraryTaskRequest, options?: RawAxiosRequestConfig) {
-        return TaskApiFp(this.configuration).queryLibraryTask(requestParameters.libraryId, requestParameters.taskIdList, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return TaskApiFp(this.configuration).queryLibraryTask(requestParameters.libraryId, requestParameters.taskIdList, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -286,7 +304,7 @@ export class TaskApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public queryTask(requestParameters: TaskApiQueryTaskRequest, options?: RawAxiosRequestConfig) {
-        return TaskApiFp(this.configuration).queryTask(requestParameters.libraryId, requestParameters.spaceId, requestParameters.taskIdList, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return TaskApiFp(this.configuration).queryTask(requestParameters.libraryId, requestParameters.spaceId, requestParameters.taskIdList, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

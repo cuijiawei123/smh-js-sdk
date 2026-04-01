@@ -43,6 +43,7 @@ import { DirectoryApi } from '../apis/directory-api';
 import { FavoriteApi } from '../apis/favorite-api';
 import { FileApi } from '../apis/file-api';
 import { HistoryApi } from '../apis/history-api';
+import { HlsApi } from '../apis/hls-api';
 import { QuotaApi } from '../apis/quota-api';
 import { RecentApi } from '../apis/recent-api';
 import { RecycledApi } from '../apis/recycled-api';
@@ -95,6 +96,7 @@ export class SMHClient {
     private _favorite: FavoriteApi;
     private _file: FileApi;
     private _history: HistoryApi;
+    private _hls: HlsApi;
     private _quota: QuotaApi;
     private _recent: RecentApi;
     private _recycled: RecycledApi;
@@ -110,6 +112,7 @@ export class SMHClient {
     public readonly favorite: WrapApiMethods<FavoriteApi>;
     public readonly file: WrapApiMethods<FileApi>;
     public readonly history: WrapApiMethods<HistoryApi>;
+    public readonly hls: WrapApiMethods<HlsApi>;
     public readonly quota: WrapApiMethods<QuotaApi>;
     public readonly recent: WrapApiMethods<RecentApi>;
     public readonly recycled: WrapApiMethods<RecycledApi>;
@@ -153,6 +156,7 @@ export class SMHClient {
         this._favorite = new FavoriteApi(this.configuration, basePath, this.axiosInstance);
         this._file = new FileApi(this.configuration, basePath, this.axiosInstance);
         this._history = new HistoryApi(this.configuration, basePath, this.axiosInstance);
+        this._hls = new HlsApi(this.configuration, basePath, this.axiosInstance);
         this._quota = new QuotaApi(this.configuration, basePath, this.axiosInstance);
         this._recent = new RecentApi(this.configuration, basePath, this.axiosInstance);
         this._recycled = new RecycledApi(this.configuration, basePath, this.axiosInstance);
@@ -168,6 +172,7 @@ export class SMHClient {
         this.favorite = this.wrapApi(this._favorite);
         this.file = this.wrapApi(this._file);
         this.history = this.wrapApi(this._history);
+        this.hls = this.wrapApi(this._hls);
         this.quota = this.wrapApi(this._quota);
         this.recent = this.wrapApi(this._recent);
         this.recycled = this.wrapApi(this._recycled);

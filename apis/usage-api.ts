@@ -35,11 +35,12 @@ export const UsageApiAxiosParamCreator = function (configuration?: Configuration
          * @summary 查询媒体库容量信息
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getLibraryUsage: async (libraryId: string, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getLibraryUsage: async (libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('getLibraryUsage', 'libraryId', libraryId)
             const localVarPath = `/api/v1/usage/{LibraryId}`
@@ -57,6 +58,10 @@ export const UsageApiAxiosParamCreator = function (configuration?: Configuration
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -80,11 +85,12 @@ export const UsageApiAxiosParamCreator = function (configuration?: Configuration
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceIds 空间列表，以逗号分隔，如 space1,space2
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUsage: async (libraryId: string, spaceIds: string, accessToken?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getUsage: async (libraryId: string, spaceIds: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('getUsage', 'libraryId', libraryId)
             // verify required parameter 'spaceIds' is not null or undefined
@@ -105,6 +111,10 @@ export const UsageApiAxiosParamCreator = function (configuration?: Configuration
 
             if (accessToken !== undefined) {
                 localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
             }
 
             if (userId !== undefined) {
@@ -136,12 +146,13 @@ export const UsageApiFp = function(configuration?: Configuration) {
          * @summary 查询媒体库容量信息
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getLibraryUsage(libraryId: string, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetLibraryUsage200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getLibraryUsage(libraryId, accessToken, userId, options);
+        async getLibraryUsage(libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetLibraryUsage200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getLibraryUsage(libraryId, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsageApi.getLibraryUsage']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -152,12 +163,13 @@ export const UsageApiFp = function(configuration?: Configuration) {
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceIds 空间列表，以逗号分隔，如 space1,space2
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getUsage(libraryId: string, spaceIds: string, accessToken?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<GetUsage200ResponseInner>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getUsage(libraryId, spaceIds, accessToken, userId, options);
+        async getUsage(libraryId: string, spaceIds: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<GetUsage200ResponseInner>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUsage(libraryId, spaceIds, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsageApi.getUsage']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -179,7 +191,7 @@ export const UsageApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         getLibraryUsage(requestParameters: UsageApiGetLibraryUsageRequest, options?: RawAxiosRequestConfig): AxiosPromise<GetLibraryUsage200Response> {
-            return localVarFp.getLibraryUsage(requestParameters.libraryId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.getLibraryUsage(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于批量查询列出租户空间容量信息。 要求权限：admin 或 space_admin 如果要查询任意空间的容量信息则需要 admin 权限，如果是 space_admin 权限，则只能查询访问令牌指定的租户空间的容量信息 
@@ -189,7 +201,7 @@ export const UsageApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         getUsage(requestParameters: UsageApiGetUsageRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<GetUsage200ResponseInner>> {
-            return localVarFp.getUsage(requestParameters.libraryId, requestParameters.spaceIds, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.getUsage(requestParameters.libraryId, requestParameters.spaceIds, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -207,6 +219,11 @@ export interface UsageApiGetLibraryUsageRequest {
      * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
     readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
 
     /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
@@ -234,6 +251,11 @@ export interface UsageApiGetUsageRequest {
     readonly accessToken?: string
 
     /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
@@ -251,7 +273,7 @@ export class UsageApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public getLibraryUsage(requestParameters: UsageApiGetLibraryUsageRequest, options?: RawAxiosRequestConfig) {
-        return UsageApiFp(this.configuration).getLibraryUsage(requestParameters.libraryId, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return UsageApiFp(this.configuration).getLibraryUsage(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -262,7 +284,7 @@ export class UsageApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public getUsage(requestParameters: UsageApiGetUsageRequest, options?: RawAxiosRequestConfig) {
-        return UsageApiFp(this.configuration).getUsage(requestParameters.libraryId, requestParameters.spaceIds, requestParameters.accessToken, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return UsageApiFp(this.configuration).getUsage(requestParameters.libraryId, requestParameters.spaceIds, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
