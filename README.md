@@ -393,7 +393,7 @@ resetServerErrorMessages()
 | `response.status` | number \| undefined | 兼容旧版本读取方式 |
 | `response.requestId` | string \| undefined | 兼容旧版本读取方式 |
 
-### 3) SDK 错误码（`ErrorCode`）
+### 3) SDK 自定义错误码（`ErrorCode`）
 
 | 错误码 | 含义 |
 |------|------|

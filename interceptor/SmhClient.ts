@@ -394,7 +394,8 @@ export class SMHClient {
                                     return await originalMethod.apply(target, args);
                                 }
                             } catch (refreshError) {
-                                // 续期失败，抛出原始错误
+                                // 续期失败，不处理；继续走下方逻辑抛出原始 token 过期错误
+                                console.warn('[SMHClient] Token refresh failed, will throw original error:', (refreshError as Error)?.message || refreshError);
                             }
                         }
 
