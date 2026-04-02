@@ -22,15 +22,15 @@ export interface SearchFsRequest {
     /**
      * 搜索文件后缀，可选参数，字符串数组，或的关系
      */
-    'extname'?: Array<string>;
+    'inExtnames'?: Array<string>;
     /**
      * 不包含的搜索文件后缀，可选参数，字符串数组，与的关系
      */
-    'excludeExtName'?: Array<string>;
+    'excludeExtnames'?: Array<string>;
     /**
      * 文件类型，可选参数，字符串数组，file：文件，dir：目录，symlink：符号链接，或的关系
      */
-    'fileType'?: Array<SearchFsRequestFileTypeEnum>;
+    'fileTypes'?: Array<SearchFsRequestFileTypesEnum>;
     /**
      * 搜索文件大小范围，整数，单位 Byte，可选参数
      */
@@ -69,13 +69,13 @@ export interface SearchFsRequest {
     'marker'?: string;
 }
 
-export const SearchFsRequestFileTypeEnum = {
+export const SearchFsRequestFileTypesEnum = {
     File: 'file',
     Dir: 'dir',
     Symlink: 'symlink'
 } as const;
 
-export type SearchFsRequestFileTypeEnum = typeof SearchFsRequestFileTypeEnum[keyof typeof SearchFsRequestFileTypeEnum];
+export type SearchFsRequestFileTypesEnum = typeof SearchFsRequestFileTypesEnum[keyof typeof SearchFsRequestFileTypesEnum];
 export const SearchFsRequestOrderByEnum = {
     Name: 'name',
     ModificationTime: 'modificationTime',

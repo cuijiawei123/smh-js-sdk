@@ -98,8 +98,8 @@ await client.file.deleteFile({
 })
 
 // 搜索文件
-const searchResult = await client.search.createSearch({
-  createSearchRequest: { keyword: 'test' },
+const searchResult = await client.search.searchFs({
+  searchFsRequest: { keywords: ['test'] },
 })
 ```
 
@@ -250,9 +250,7 @@ await downloader.cancel()
 
 ### 搜索功能（SearchApi）
 
-- 搜索目录与文件
-- 继续获取搜索结果（分页）
-- 删除搜索任务
+- 搜索目录与文件（支持分页）
 
 ### 收藏管理（FavoriteApi）
 
