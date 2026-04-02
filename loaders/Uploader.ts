@@ -17,7 +17,7 @@ import {
   CRC64_INIT_VALUE,
   calculateBlobCRC64
 } from '../utils/crc64';
-import { SMHError, ErrorCode, newError, analyzeError } from '../utils/ErrorHandler';
+import { SMHError, ErrorCode, newError, analyzeError, wrapErrorToSMHError } from '../utils/ErrorHandler';
 import { CommonLoader } from './CommonLoader';
 import { 
   TaskStatus, 
@@ -1064,6 +1064,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     
     if (typeof this.options.onProgress === 'function') {
       this.options.onProgress({
+        state,
         loaded: this.loaded,
         total: this.file.size,
         progress: progress,
@@ -1090,21 +1091,16 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
    * 处理错误
    */
   protected async handleError(e: Error): Promise<SMHError> {
-    let smhError: SMHError;
-    if (e instanceof SMHError) {
-      smhError = e;
-    } else {
-      smhError = newError(
-        ErrorCode.UPLOAD_FAILED,
-        e.message || 'Upload failed',
-        e,
-        {
-          fileName: this.file.name,
-          fileSize: this.file.size,
-          elapsedTime: (this.end_time || Date.now()) - this.start_time
-        }
-      );
-    }
+    const smhError = wrapErrorToSMHError(
+      e,
+      ErrorCode.UPLOAD_FAILED,
+      'Upload failed',
+      {
+        fileName: this.file.name,
+        fileSize: this.file.size,
+        elapsedTime: (this.end_time || Date.now()) - this.start_time,
+      }
+    );
     
     this.logError(`Upload failed: ${this.file.name}, error: ${smhError.message}`);
     

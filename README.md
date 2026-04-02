@@ -61,7 +61,39 @@ const client = new SMHClient({
 
 ### 3. AccessToken 续期
 
-`accessToken` 有有效期限制（默认 24 小时），过期后需要调用 `renewToken` 进行续期：
+`accessToken` 有有效期限制（默认 24 小时），过期后需要续期。
+
+#### 方式一：自动续期（推荐）
+
+通过 `onTokenRefresh` 回调实现自动续期，token 过期时 SDK 自动调用回调获取新 token 并重试请求，业务侧无需关心续期时机：
+
+```typescript
+const client = new SMHClient({
+  basePath: 'https://smhxxx.api.tencentsmh.cn',
+  libraryId: 'your-library-id',
+  spaceId: 'your-space-id',
+  accessToken: 'your-access-token',
+  onTokenRefresh: async () => {
+    // 调用后端服务获取新 token
+    const res = await fetch('/api/refresh-smh-token')
+    const { accessToken } = await res.json()
+    return accessToken
+  }
+})
+```
+
+也可以运行时动态设置：
+
+```typescript
+client.setOnTokenRefresh(async () => {
+  const { accessToken } = await myBackend.refreshToken()
+  return accessToken
+})
+```
+
+> 多个并发请求同时遇到 token 过期时，只会触发一次续期回调，其余请求等待同一结果。
+
+#### 方式二：手动续期
 
 ```typescript
 const renewResponse = await client.token.renewToken({
@@ -75,7 +107,7 @@ const newAccessToken = renewResponse.data.accessToken
 client.setDefaultAccessToken(newAccessToken)
 ```
 
-> **注意**：建议在业务逻辑中提前进行续期以避免请求失败。
+> **注意**：手动续期方式建议在业务逻辑中提前进行续期以避免请求失败。
 
 ### 4. 使用 API
 
@@ -103,6 +135,41 @@ const searchResult = await client.search.createSearch({
 })
 ```
 
+#### 错误处理
+
+```typescript
+import { SMHError, ErrorCode, ServerErrorCode } from 'smh-js-sdk'
+
+try {
+  await client.directory.listDirectory({ filePath: '/' })
+} catch (error) {
+  if (error instanceof SMHError) {
+    // error.message 已是友好文案，可直接展示给用户
+    alert(error.message)
+
+    // 按 SDK 错误码做分支
+    switch (error.code) {
+      case ErrorCode.NETWORK_ERROR:
+        console.warn('网络异常，请检查连接')
+        break
+      case ErrorCode.SERVER_ERROR:
+        console.warn('服务器异常，请稍后重试')
+        break
+      case ErrorCode.OPERATION_FAILED:
+        // 可进一步按服务端错误码细分
+        const serverCode = error.response?.serverCode
+        if (serverCode === ServerErrorCode.NoPermission) {
+          console.warn('没有权限')
+        }
+        break
+    }
+
+    // 排障信息
+    console.log('status:', error.status, 'reqId:', error.reqId)
+  }
+}
+```
+
 ### 5. 文件上传
 
 ```typescript
@@ -117,7 +184,7 @@ const uploader = client.createUploadTask({
     console.log('状态:', state)    // start → computing_hash → created → running → success
   },
   onProgress: (info) => {
-    console.log(`进度: ${info.progress}%, 速度: ${info.speed} B/s`)
+    console.log(`[${info.state}] 进度: ${info.progress}%, 速度: ${info.speed} B/s`)
   },
   onPartComplete: (checkpoint, partInfo) => {
     console.log(`分片 ${partInfo.part_number} 完成`)
@@ -130,6 +197,28 @@ await uploader.start()
 await uploader.pause()
 await uploader.start()   // 恢复（自动断点续传）
 await uploader.cancel()
+```
+
+#### 上传错误处理
+
+```typescript
+const uploader = client.createUploadTask({
+  filePath: '/remote/path/file.txt',
+  file: fileInput.files[0],
+
+  onStateChange: (checkpoint, state, error) => {
+    if (state === 'error' && error) {
+      // error 即 SMHError，message 已是友好文案
+      console.error('上传失败:', error.message)
+      console.log('错误码:', error.code)       // 如 'UploadFailed'
+      console.log('HTTP 状态:', error.status)   // 如 400
+      console.log('服务端错误码:', error.response?.serverCode) // 如 'QuotaLimitReached'
+      console.log('请求 ID:', error.reqId)      // 用于排障
+    }
+  },
+})
+
+await uploader.start()
 ```
 
 ### 6. 文件下载
@@ -159,7 +248,7 @@ const downloader = client.createDownloadTask({
     console.log('状态:', state)
   },
   onProgress: (info) => {
-    console.log(`进度: ${info.progress}%`)
+    console.log(`[${info.state}] 进度: ${info.progress}%`)
   },
 })
 
@@ -169,6 +258,36 @@ const blob = await downloader.startAndGetBlob()  // 返回 Blob 对象
 await downloader.pause()
 await downloader.start()   // 恢复（自动断点续传）
 await downloader.cancel()
+```
+
+#### 下载错误处理
+
+```typescript
+const downloader = client.createDownloadTask({
+  filePath: '/remote/path/file.txt',
+
+  onStateChange: (checkpoint, state, error) => {
+    if (state === 'error' && error) {
+      console.error('下载失败:', error.message)
+      console.log('错误码:', error.code)       // 如 'DownloadFailed'
+      console.log('HTTP 状态:', error.status)
+      console.log('服务端错误码:', error.response?.serverCode)
+      console.log('请求 ID:', error.reqId)
+    }
+  },
+})
+
+// 方式一：start() 不抛异常，错误走 onStateChange
+await downloader.start()
+
+// 方式二：startAndGetBlob() 会抛异常，需要 catch
+try {
+  const blob = await downloader.startAndGetBlob()
+} catch (error) {
+  if (error instanceof SMHError) {
+    alert(error.message)
+  }
+}
 ```
 
 ## SMHClient 初始化参数
@@ -183,6 +302,143 @@ await downloader.cancel()
 | `retryDelay` | number | 1000 | 重试基础延迟（毫秒），使用指数退避策略 |
 | `timeout` | number | 30000 | 请求超时时间（毫秒） |
 | `baseOptions` | object | - | 传递给 axios 的额外配置 |
+| `onTokenRefresh` | `() => Promise<string>` | - | Token 续期回调，设置后 token 过期时自动调用并重试请求 |
+
+## 错误处理与错误码
+
+SDK 会将请求异常统一包装为 `SMHError`，并默认优先使用服务端错误码映射后的友好文案作为 `error.message`。通常业务侧**无需再手动做一次错误码转文案**；只有在需要多语言、自定义文案或更细粒度分流时，才建议自行处理。
+
+### 1) 基础用法
+
+```typescript
+import {
+  SMHClient,
+  SMHError,
+  ErrorCode,
+  ServerErrorCode,
+  getServerErrorMessage,
+  setServerErrorMessages,
+  resetServerErrorMessages,
+  wrapErrorToSMHError,
+} from 'smh-js-sdk'
+
+const client = new SMHClient({
+  basePath: 'https://smhxxx.api.tencentsmh.cn',
+  libraryId: 'your-library-id',
+  spaceId: 'your-space-id',
+  accessToken: 'your-access-token',
+})
+
+try {
+  await client.file.infoFile({ filePath: '/not-exist.txt', info: 1 })
+} catch (error) {
+  if (error instanceof SMHError) {
+    // SDK 级错误码（稳定，可用于分支判断）
+    console.log('code:', error.code)
+
+    // HTTP 状态码（推荐优先读 status）
+    console.log('status:', error.status)
+
+    // 向后兼容：仍可通过 response.status 读取
+    console.log('compat response.status:', error.response?.status)
+
+    // 服务端请求 ID（用于排障）
+    console.log('reqId:', error.reqId || error.response?.requestId)
+
+    // 服务端错误码（如 LibraryNotFound / NoPermission）
+    const serverCode = error.response?.serverCode as string | undefined
+    console.log('serverCode:', serverCode)
+
+    // 通常直接用 error.message 即可（SDK 已完成默认映射）
+    console.log('friendlyMessage:', error.message)
+
+    // 仅在你需要自定义兜底策略时再手动调用
+    console.log('friendlyMessage(custom-fallback):', getServerErrorMessage(serverCode, '操作失败，请稍后重试'))
+
+    if (error.code === ErrorCode.NETWORK_ERROR) {
+      // 无响应的网络错误（超时/断网/DNS/连接失败等）
+      console.warn('网络异常，请检查网络连接后重试')
+    }
+
+    if (error.code === ErrorCode.SERVER_ERROR) {
+      // 服务端返回 5xx 错误
+      console.warn('服务器异常，请稍后重试')
+    }
+
+    if (serverCode === ServerErrorCode.QuotaLimitReached) {
+      console.warn('空间不足，请清理文件或扩容')
+    }
+  }
+}
+
+// 可按业务自定义（覆盖）服务端错误码文案
+setServerErrorMessages({
+  [ServerErrorCode.QuotaLimitReached]: '您的网盘空间已满，请升级套餐',
+  [ServerErrorCode.NoPermission]: '无权限执行该操作，请联系管理员',
+})
+
+// 恢复为 SDK 默认文案
+resetServerErrorMessages()
+```
+
+### 2) `SMHError` 关键字段
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `code` | `ErrorCode` | SDK 统一错误码 |
+| `message` | string | 错误消息（优先使用服务端友好文案） |
+| `status` | number \| undefined | HTTP 状态码 |
+| `reqId` | string \| undefined | 服务端请求 ID |
+| `response` | object | 额外上下文（`api`、`serverCode`、`serverMessage`、`responseData` 等） |
+| `response.status` | number \| undefined | 兼容旧版本读取方式 |
+| `response.requestId` | string \| undefined | 兼容旧版本读取方式 |
+
+### 3) SDK 自定义错误码（`ErrorCode`）
+
+| 错误码 | 含义 |
+|------|------|
+| `FileNotFound` | 文件不存在 |
+| `FileModified` | 文件已被修改 |
+| `FileSizeMismatch` | 文件大小不匹配 |
+| `FileCrc64Mismatch` | CRC64 校验不一致 |
+| `FileTooLarge` | 文件过大 |
+| `InvalidFile` | 非法文件对象 |
+| `UploadFailed` | 上传失败 |
+| `UploadCanceled` | 上传已取消 |
+| `UploadPaused` | 上传已暂停 |
+| `PartUploadFailed` | 分片上传失败 |
+| `RenewUploadFailed` | 上传续期失败 |
+| `DownloadFailed` | 下载失败 |
+| `DownloadCanceled` | 下载已取消 |
+| `DownloadPaused` | 下载已暂停 |
+| `InvalidParameter` | 参数非法 |
+| `NetworkError` | 网络错误（无响应的网络异常：超时、断网、DNS 等） |
+| `ServerError` | 服务端错误（HTTP 5xx） |
+| `RequestTimeout` | 请求超时 |
+| `OperationFailed` | 通用操作失败 |
+
+### 4) 服务端错误码（`ServerErrorCode`）
+
+SDK 内置了完整的服务端错误码枚举和中文映射，详见 [服务端错误码文档](https://cloud.tencent.com/document/product/1339)。
+
+### 5) 错误处理建议
+
+- 优先按 `error.code` 做业务分支，保证逻辑稳定。
+- `NetworkError` 表示客户端网络不可达（断网/超时/DNS 等），`ServerError` 表示服务端返回 5xx，两者可分别制定重试策略。
+- 需要展示给用户时，**优先直接使用 `error.message`**（默认已映射）；仅在需要覆盖文案时再调用 `getServerErrorMessage(serverCode)`。
+- 需要排障时，记录 `status`、`reqId`、`response.serverCode`、`response.responseData`。
+- 与旧代码兼容时，可继续使用 `error.response?.status`。
+
+### 6) 工具方法
+
+| 方法 | 说明 |
+|------|------|
+| `getServerErrorMessage(serverCode, fallback?)` | 根据服务端错误码获取友好提示 |
+| `setServerErrorMessages(messages)` | 批量自定义/覆盖服务端错误码文案 |
+| `resetServerErrorMessages()` | 恢复为 SDK 默认的错误码文案映射 |
+| `wrapErrorToSMHError(error, defaultCode, fallbackMsg, extra?)` | 将任意错误统一包装为 `SMHError`（自动提取 AxiosError 详情） |
+| `newError(code, message, cause?, response?, options?)` | 手动创建 `SMHError` 实例 |
+| `client.setOnTokenRefresh(callback)` | 运行时动态设置/更新 Token 续期回调 |
 
 ## 主要功能
 

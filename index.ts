@@ -18,7 +18,7 @@ export * from "./configuration";
 export * from "./models";
 
 // SMH Client - 提供集中管理和网络请求重试功能
-export { SMHClient, SMHClientOptions } from "./interceptor/SmhClient";
+export { SMHClient, SMHClientOptions, type OnTokenRefresh } from "./interceptor/SmhClient";
 
 // Loaders - 文件上传/下载器
 export {
@@ -42,7 +42,12 @@ export {
 export {
   SMHError,
   ErrorCode,
+  ServerErrorCode,
   newError,
+  getServerErrorMessage,
+  setServerErrorMessages,
+  resetServerErrorMessages,
+  wrapErrorToSMHError,
   EventEmitter,
   formatSize,
   formatTime,
