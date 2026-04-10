@@ -788,7 +788,7 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-         * @param {string} [xSmhMeta] 自定义元数据，名称以 x-smh-meta- 开头的扩展头，值为字符串
+         * @param {{ [key: string]: string; }} [xSmhMeta] 自定义元数据头，支持 x-smh-meta-* 格式的任意 Header，值为字符串
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
          * @param {boolean} [preferSameOrigin] 是否倾向于保持相同域名，可选参数，可能的值为 true 或 false。此参数仅当上传文件的路径存在同名文件，且 ConflictResolutionStrategy 设置为 rename 或 overwrite 时生效。当设置此参数时，后台会尽量保证新上传的文件与原文件使用相同的域名进行上传或下载，但在特殊情况下仍有可能使用不同域名，因此不应过于依赖此参数。
          * @param {FormUploadFileWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
@@ -796,7 +796,7 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        formUploadFile: async (libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: FormUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: FormUploadFileWithContentCasEnum, formUploadFileRequest?: FormUploadFileRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        formUploadFile: async (libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: FormUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: { [key: string]: string; }, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: FormUploadFileWithContentCasEnum, formUploadFileRequest?: FormUploadFileRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('formUploadFile', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -859,7 +859,15 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
             if (xSmhMeta != null) {
-                localVarHeaderParameter['x-smh-meta-*'] = String(xSmhMeta);
+                if (typeof xSmhMeta === 'object' && !Array.isArray(xSmhMeta)) {
+                    for (const [key, value] of Object.entries(xSmhMeta)) {
+                        localVarHeaderParameter[key] = String(value);
+                    }
+                } else {
+                    localVarHeaderParameter['x-smh-meta'] = typeof xSmhMeta === 'string'
+                        ? xSmhMeta
+                        : JSON.stringify(xSmhMeta);
+                }
             }
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1271,7 +1279,7 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-         * @param {string} [xSmhMeta] 自定义元数据，名称以 x-smh-meta- 开头的扩展头，值为字符串
+         * @param {{ [key: string]: string; }} [xSmhMeta] 自定义元数据头，支持 x-smh-meta-* 格式的任意 Header，值为字符串
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
          * @param {boolean} [preferSameOrigin] 是否倾向于保持相同域名，可选参数，可能的值为 true 或 false。此参数仅当上传文件的路径存在同名文件，且 ConflictResolutionStrategy 设置为 rename 或 overwrite 时生效。当设置此参数时，后台会尽量保证新上传的文件与原文件使用相同的域名进行上传或下载，但在特殊情况下仍有可能使用不同域名，因此不应过于依赖此参数。
          * @param {MultipartUploadFileWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
@@ -1279,7 +1287,7 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        multipartUploadFile: async (libraryId: string, spaceId: string, filePath: string, multipart: MultipartUploadFileMultipartEnum, conflictResolutionStrategy?: MultipartUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: MultipartUploadFileWithContentCasEnum, multipartUploadFileRequest?: MultipartUploadFileRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        multipartUploadFile: async (libraryId: string, spaceId: string, filePath: string, multipart: MultipartUploadFileMultipartEnum, conflictResolutionStrategy?: MultipartUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: { [key: string]: string; }, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: MultipartUploadFileWithContentCasEnum, multipartUploadFileRequest?: MultipartUploadFileRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('multipartUploadFile', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -1348,7 +1356,15 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
             if (xSmhMeta != null) {
-                localVarHeaderParameter['x-smh-meta-*'] = String(xSmhMeta);
+                if (typeof xSmhMeta === 'object' && !Array.isArray(xSmhMeta)) {
+                    for (const [key, value] of Object.entries(xSmhMeta)) {
+                        localVarHeaderParameter[key] = String(value);
+                    }
+                } else {
+                    localVarHeaderParameter['x-smh-meta'] = typeof xSmhMeta === 'string'
+                        ? xSmhMeta
+                        : JSON.stringify(xSmhMeta);
+                }
             }
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1515,7 +1531,7 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-         * @param {string} [xSmhMeta] 自定义元数据，名称以 x-smh-meta- 开头的扩展头，值为字符串
+         * @param {{ [key: string]: string; }} [xSmhMeta] 自定义元数据头，支持 x-smh-meta-* 格式的任意 Header，值为字符串
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
          * @param {boolean} [preferSameOrigin] 是否倾向于保持相同域名，可选参数，可能的值为 true 或 false。此参数仅当上传文件的路径存在同名文件，且 ConflictResolutionStrategy 设置为 rename 或 overwrite 时生效。当设置此参数时，后台会尽量保证新上传的文件与原文件使用相同的域名进行上传或下载，但在特殊情况下仍有可能使用不同域名，因此不应过于依赖此参数。
          * @param {SimpleUploadFileWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
@@ -1523,7 +1539,7 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        simpleUploadFile: async (libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: SimpleUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: SimpleUploadFileWithContentCasEnum, simpleUploadFileRequest?: SimpleUploadFileRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        simpleUploadFile: async (libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: SimpleUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: { [key: string]: string; }, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: SimpleUploadFileWithContentCasEnum, simpleUploadFileRequest?: SimpleUploadFileRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('simpleUploadFile', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -1586,7 +1602,15 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
             localVarHeaderParameter['Content-Type'] = 'application/json';
 
             if (xSmhMeta != null) {
-                localVarHeaderParameter['x-smh-meta-*'] = String(xSmhMeta);
+                if (typeof xSmhMeta === 'object' && !Array.isArray(xSmhMeta)) {
+                    for (const [key, value] of Object.entries(xSmhMeta)) {
+                        localVarHeaderParameter[key] = String(value);
+                    }
+                } else {
+                    localVarHeaderParameter['x-smh-meta'] = typeof xSmhMeta === 'string'
+                        ? xSmhMeta
+                        : JSON.stringify(xSmhMeta);
+                }
             }
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1823,7 +1847,7 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-         * @param {string} [xSmhMeta] 自定义元数据，名称以 x-smh-meta- 开头的扩展头，值为字符串
+         * @param {{ [key: string]: string; }} [xSmhMeta] 自定义元数据头，支持 x-smh-meta-* 格式的任意 Header，值为字符串
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
          * @param {boolean} [preferSameOrigin] 是否倾向于保持相同域名，可选参数，可能的值为 true 或 false。此参数仅当上传文件的路径存在同名文件，且 ConflictResolutionStrategy 设置为 rename 或 overwrite 时生效。当设置此参数时，后台会尽量保证新上传的文件与原文件使用相同的域名进行上传或下载，但在特殊情况下仍有可能使用不同域名，因此不应过于依赖此参数。
          * @param {FormUploadFileWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
@@ -1831,7 +1855,7 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async formUploadFile(libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: FormUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: FormUploadFileWithContentCasEnum, formUploadFileRequest?: FormUploadFileRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FormUploadFile201Response | void | FormUploadFile200Response>> {
+        async formUploadFile(libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: FormUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: { [key: string]: string; }, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: FormUploadFileWithContentCasEnum, formUploadFileRequest?: FormUploadFileRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FormUploadFile201Response | void | FormUploadFile200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.formUploadFile(libraryId, spaceId, filePath, conflictResolutionStrategy, contentCas, filesize, accessToken, librarySecret, userId, xSmhMeta, trafficLimit, preferSameOrigin, withContentCas, formUploadFileRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.formUploadFile']?.[localVarOperationServerIndex]?.url;
@@ -1959,7 +1983,7 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-         * @param {string} [xSmhMeta] 自定义元数据，名称以 x-smh-meta- 开头的扩展头，值为字符串
+         * @param {{ [key: string]: string; }} [xSmhMeta] 自定义元数据头，支持 x-smh-meta-* 格式的任意 Header，值为字符串
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
          * @param {boolean} [preferSameOrigin] 是否倾向于保持相同域名，可选参数，可能的值为 true 或 false。此参数仅当上传文件的路径存在同名文件，且 ConflictResolutionStrategy 设置为 rename 或 overwrite 时生效。当设置此参数时，后台会尽量保证新上传的文件与原文件使用相同的域名进行上传或下载，但在特殊情况下仍有可能使用不同域名，因此不应过于依赖此参数。
          * @param {MultipartUploadFileWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
@@ -1967,7 +1991,7 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async multipartUploadFile(libraryId: string, spaceId: string, filePath: string, multipart: MultipartUploadFileMultipartEnum, conflictResolutionStrategy?: MultipartUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: MultipartUploadFileWithContentCasEnum, multipartUploadFileRequest?: MultipartUploadFileRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MultipartUploadFile201Response | void | MultipartUploadFile200Response>> {
+        async multipartUploadFile(libraryId: string, spaceId: string, filePath: string, multipart: MultipartUploadFileMultipartEnum, conflictResolutionStrategy?: MultipartUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: { [key: string]: string; }, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: MultipartUploadFileWithContentCasEnum, multipartUploadFileRequest?: MultipartUploadFileRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MultipartUploadFile201Response | void | MultipartUploadFile200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.multipartUploadFile(libraryId, spaceId, filePath, multipart, conflictResolutionStrategy, contentCas, filesize, accessToken, librarySecret, userId, xSmhMeta, trafficLimit, preferSameOrigin, withContentCas, multipartUploadFileRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.multipartUploadFile']?.[localVarOperationServerIndex]?.url;
@@ -2026,7 +2050,7 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-         * @param {string} [xSmhMeta] 自定义元数据，名称以 x-smh-meta- 开头的扩展头，值为字符串
+         * @param {{ [key: string]: string; }} [xSmhMeta] 自定义元数据头，支持 x-smh-meta-* 格式的任意 Header，值为字符串
          * @param {number} [trafficLimit] 单链接下载限速，范围100KB/s-100MB/s，单位B
          * @param {boolean} [preferSameOrigin] 是否倾向于保持相同域名，可选参数，可能的值为 true 或 false。此参数仅当上传文件的路径存在同名文件，且 ConflictResolutionStrategy 设置为 rename 或 overwrite 时生效。当设置此参数时，后台会尽量保证新上传的文件与原文件使用相同的域名进行上传或下载，但在特殊情况下仍有可能使用不同域名，因此不应过于依赖此参数。
          * @param {SimpleUploadFileWithContentCasEnum} [withContentCas] 0 或 1，是否返回文件内容的Cas标识，可选，默认不返回
@@ -2034,7 +2058,7 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async simpleUploadFile(libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: SimpleUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: string, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: SimpleUploadFileWithContentCasEnum, simpleUploadFileRequest?: SimpleUploadFileRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SimpleUploadFile201Response | void | SimpleUploadFile200Response>> {
+        async simpleUploadFile(libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: SimpleUploadFileConflictResolutionStrategyEnum, contentCas?: string, filesize?: number, accessToken?: string, librarySecret?: string, userId?: string, xSmhMeta?: { [key: string]: string; }, trafficLimit?: number, preferSameOrigin?: boolean, withContentCas?: SimpleUploadFileWithContentCasEnum, simpleUploadFileRequest?: SimpleUploadFileRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SimpleUploadFile201Response | void | SimpleUploadFile200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.simpleUploadFile(libraryId, spaceId, filePath, conflictResolutionStrategy, contentCas, filesize, accessToken, librarySecret, userId, xSmhMeta, trafficLimit, preferSameOrigin, withContentCas, simpleUploadFileRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.simpleUploadFile']?.[localVarOperationServerIndex]?.url;
@@ -2760,9 +2784,9 @@ export interface FileApiFormUploadFileRequest {
     readonly userId?: string
 
     /**
-     * 自定义元数据，名称以 x-smh-meta- 开头的扩展头，值为字符串
+     * 自定义元数据头，支持 x-smh-meta-* 格式的任意 Header，值为字符串
      */
-    readonly xSmhMeta?: string
+    readonly xSmhMeta?: { [key: string]: string; }
 
     /**
      * 单链接下载限速，范围100KB/s-100MB/s，单位B
@@ -3104,9 +3128,9 @@ export interface FileApiMultipartUploadFileRequest {
     readonly userId?: string
 
     /**
-     * 自定义元数据，名称以 x-smh-meta- 开头的扩展头，值为字符串
+     * 自定义元数据头，支持 x-smh-meta-* 格式的任意 Header，值为字符串
      */
-    readonly xSmhMeta?: string
+    readonly xSmhMeta?: { [key: string]: string; }
 
     /**
      * 单链接下载限速，范围100KB/s-100MB/s，单位B
@@ -3271,9 +3295,9 @@ export interface FileApiSimpleUploadFileRequest {
     readonly userId?: string
 
     /**
-     * 自定义元数据，名称以 x-smh-meta- 开头的扩展头，值为字符串
+     * 自定义元数据头，支持 x-smh-meta-* 格式的任意 Header，值为字符串
      */
-    readonly xSmhMeta?: string
+    readonly xSmhMeta?: { [key: string]: string; }
 
     /**
      * 单链接下载限速，范围100KB/s-100MB/s，单位B

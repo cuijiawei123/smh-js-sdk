@@ -13,13 +13,23 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { PrepareM3u8UploadRequestSegmentsInnerOneOf } from './prepare-m3u8-upload-request-segments-inner-one-of';
 
-/**
- * @type PrepareM3u8UploadRequestSegmentsInner
- */
-export type PrepareM3u8UploadRequestSegmentsInner = PrepareM3u8UploadRequestSegmentsInnerOneOf | string;
+export interface PrepareM3u8UploadRequestSegmentsInner {
+    /**
+     * 分片文件路径，如 1.ts 或 abc/def/1.ts，不能包含特殊字符
+     */
+    'path'?: string;
+    /**
+     * 上传类型
+     */
+    'uploadMethod'?: PrepareM3u8UploadRequestSegmentsInnerUploadMethodEnum;
+}
+
+export const PrepareM3u8UploadRequestSegmentsInnerUploadMethodEnum = {
+    Simple: 'simple',
+    Multipart: 'multipart'
+} as const;
+
+export type PrepareM3u8UploadRequestSegmentsInnerUploadMethodEnum = typeof PrepareM3u8UploadRequestSegmentsInnerUploadMethodEnum[keyof typeof PrepareM3u8UploadRequestSegmentsInnerUploadMethodEnum];
 
 

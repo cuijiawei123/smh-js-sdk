@@ -14,14 +14,14 @@
 
 
 
-export interface ConfirmM3u8UploadRequestSegmentsInner {
+export interface VerifyExtractionCode200Response {
     /**
-     * 分片文件路径，如 dir/1.ts
+     * 分享访问令牌，用于后续访问分享内容，有效期为 10 分钟
      */
-    'path'?: string;
+    'accessToken'?: string;
     /**
-     * 指定 crc64 时进行一致性校验
+     * ISO 8601格式的日期与时间字符串，令牌过期时间
      */
-    'crc64'?: string;
+    'expireTime'?: string;
 }
 

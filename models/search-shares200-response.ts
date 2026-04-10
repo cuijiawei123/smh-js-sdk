@@ -13,15 +13,22 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { SearchShares200ResponseContentsInner } from './search-shares200-response-contents-inner';
 
-export interface ConfirmM3u8UploadRequestSegmentsInner {
+export interface SearchShares200Response {
     /**
-     * 分片文件路径，如 dir/1.ts
+     * 分享列表数组
      */
-    'path'?: string;
+    'contents'?: Array<SearchShares200ResponseContentsInner>;
     /**
-     * 指定 crc64 时进行一致性校验
+     * 分页标记，用于获取下一页
      */
-    'crc64'?: string;
+    'marker'?: string;
+    /**
+     * 是否还有更多数据
+     */
+    'hasMore'?: boolean;
 }
 

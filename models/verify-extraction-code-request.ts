@@ -14,14 +14,22 @@
 
 
 
-export interface ConfirmM3u8UploadRequestSegmentsInner {
+export interface VerifyExtractionCodeRequest {
     /**
-     * 分片文件路径，如 dir/1.ts
+     * 提取码，必选参数
      */
-    'path'?: string;
+    'extractionCode': string;
     /**
-     * 指定 crc64 时进行一致性校验
+     * 访问者的媒体库 ID，当分享要求登录时必选，否则返回 InvalidAccessToken
      */
-    'crc64'?: string;
+    'libraryId'?: string;
+    /**
+     * 访问者的访问令牌，当分享要求登录时必选
+     */
+    'access_token'?: string;
+    /**
+     * 设备 ID，可选参数
+     */
+    'device_id'?: string;
 }
 

@@ -13,15 +13,19 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { CreateShareRequestConfig } from './create-share-request-config';
 
-export interface ConfirmM3u8UploadRequestSegmentsInner {
+export interface CreateShareRequest {
     /**
-     * 分片文件路径，如 dir/1.ts
+     * 分享名称
      */
-    'path'?: string;
+    'name': string;
     /**
-     * 指定 crc64 时进行一致性校验
+     * 要分享的文件或目录路径数组，最多 1000 条
      */
-    'crc64'?: string;
+    'filePath': Array<string>;
+    'config'?: CreateShareRequestConfig;
 }
 

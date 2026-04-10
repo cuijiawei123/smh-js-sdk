@@ -14,14 +14,17 @@
 
 
 
-export interface ConfirmM3u8UploadRequestSegmentsInner {
+/**
+ * 目录统计校准任务结果（taskType 为 calibrateDirectoryStats 时返回）
+ */
+export interface QueryTaskV2200ResponseCalibrateDirectoryStatsResult {
     /**
-     * 分片文件路径，如 dir/1.ts
+     * 单个文件操作状态码
      */
-    'path'?: string;
+    'status'?: number;
     /**
-     * 指定 crc64 时进行一致性校验
+     * 操作结果代码
      */
-    'crc64'?: string;
+    'code'?: string;
 }
 

@@ -248,6 +248,22 @@ await downloader.cancel()
 - 获取/设置历史版本配置
 - 清空历史版本
 
+### 分享管理（ShareApi）
+
+- 创建分享链接
+- 删除分享
+- 获取分享详情
+- 获取分享链接详情
+- 列出分享列表
+- 搜索分享
+- 更新分享设置
+- 启用/禁用分享
+- 验证提取码
+- 列出分享文件
+- 下载分享文件
+- 预览分享文件
+- 保存分享文件到个人空间
+
 ### 搜索功能（SearchApi）
 
 - 搜索目录与文件（支持分页）
@@ -346,36 +362,9 @@ Demo 仓库地址：[smh-js-sdk-demo](https://git.woa.com/smh/smh-js-sdk-demo)
 - 文件操作（重命名、复制、移动、删除）
 - 目录操作（创建、重命名、复制、移动、删除）
 - 搜索、批量操作、回收站、历史版本、收藏
+- 分享管理（创建/查看/删除分享、验证提取码）
 - 空间管理、Token 管理
 
-### 运行 Demo
-
-```bash
-# 1. 克隆项目
-git clone https://git.woa.com/smh/smh-js-sdk-demo.git
-cd smh-js-sdk-demo
-
-# 2. 配置环境变量
-cp .env.example .env
-```
-
-编辑 `.env` 文件，填入你的 SMH 配置：
-
-```env
-VITE_SMH_BASE_PATH=https://api.tencentsmh.cn
-VITE_SMH_LIBRARY_ID=your_library_id
-VITE_SMH_SPACE_ID=your_space_id
-VITE_SMH_ACCESS_TOKEN=your_access_token
-VITE_SMH_USER_ID=your_user_id
-```
-
-```bash
-# 3. 安装依赖并启动
-npm install
-npm run dev
-```
-
-浏览器打开 `http://localhost:5173` 即可使用。页面顶部的配置区支持在线修改参数（会覆盖 `.env` 中的默认值）。
 
 ## 文档
 

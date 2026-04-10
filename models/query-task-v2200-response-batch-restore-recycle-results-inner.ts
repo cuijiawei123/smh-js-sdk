@@ -14,14 +14,26 @@
 
 
 
-export interface ConfirmM3u8UploadRequestSegmentsInner {
+export interface QueryTaskV2200ResponseBatchRestoreRecycleResultsInner {
     /**
-     * 分片文件路径，如 dir/1.ts
+     * 单个文件操作状态码
      */
-    'path'?: string;
+    'status'?: number;
     /**
-     * 指定 crc64 时进行一致性校验
+     * 操作结果代码
      */
-    'crc64'?: string;
+    'code'?: string;
+    /**
+     * 回收站条目 ID
+     */
+    'recycledItemId'?: number;
+    /**
+     * 恢复后的文件路径数组
+     */
+    'path'?: Array<string>;
+    /**
+     * 操作结果消息
+     */
+    'message'?: string;
 }
 

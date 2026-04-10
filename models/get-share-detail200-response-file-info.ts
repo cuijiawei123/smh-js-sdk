@@ -14,14 +14,21 @@
 
 
 
-export interface ConfirmM3u8UploadRequestSegmentsInner {
+/**
+ * 文件信息（仅当请求参数 with_file_info=1 时返回）
+ */
+export interface GetShareDetail200ResponseFileInfo {
     /**
-     * 分片文件路径，如 dir/1.ts
+     * 文件名（随机返回一个分享里面的文件/文件夹的 name）
      */
-    'path'?: string;
+    'fileName'?: string;
     /**
-     * 指定 crc64 时进行一致性校验
+     * 文件类型（文件或者文件夹）
      */
-    'crc64'?: string;
+    'fileType'?: string;
+    /**
+     * 文件大小，文件为目录时为空
+     */
+    'size'?: string;
 }
 

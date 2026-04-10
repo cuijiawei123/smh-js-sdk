@@ -14,14 +14,10 @@
 
 
 
-export interface ConfirmM3u8UploadRequestSegmentsInner {
-    /**
-     * 分片文件路径，如 dir/1.ts
-     */
-    'path'?: string;
-    /**
-     * 指定 crc64 时进行一致性校验
-     */
-    'crc64'?: string;
-}
+/**
+ * @type SaveShareFile200ResponseResultInnerCopyFrom
+ * 发起请求时传入的对应源路径
+ */
+export type SaveShareFile200ResponseResultInnerCopyFrom = Array<string> | string;
+
 

@@ -14,14 +14,13 @@
 
 
 
-export interface ConfirmM3u8UploadRequestSegmentsInner {
+/**
+ * 分享域名配置
+ */
+export interface GetShareUrlDetail200ResponseDomain {
     /**
-     * 分片文件路径，如 dir/1.ts
+     * 可用的分享域名列表
      */
-    'path'?: string;
-    /**
-     * 指定 crc64 时进行一致性校验
-     */
-    'crc64'?: string;
+    'shareDomain'?: Array<string>;
 }
 

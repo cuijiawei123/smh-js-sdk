@@ -24,6 +24,7 @@ export * from './apis/quota-api';
 export * from './apis/recent-api';
 export * from './apis/recycled-api';
 export * from './apis/search-api';
+export * from './apis/share-api';
 export * from './apis/space-api';
 export * from './apis/task-api';
 export * from './apis/token-api';
