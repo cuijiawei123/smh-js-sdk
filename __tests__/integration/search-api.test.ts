@@ -63,7 +63,7 @@ describe.skipIf(shouldSkip)('SearchApi 集成测试', () => {
     const res = await client.search.searchFs({
       searchFsRequest: {
         keywords: [searchKeyword],
-        extname: ['.txt'],
+        inExtnames: ['.txt'],
       },
     });
     expect(res.status).toBe(200);
