@@ -103,6 +103,7 @@ export interface UploadOptions {
   
   enableInstantUpload?: boolean;       // 是否启用秒传，默认true
   trafficLimit?: number;               // 单链接限速，范围100KB/s-100MB/s，单位B
+  internalDomain?: 0 | 1;             // 是否使用内网域名，0不使用，1使用，默认不使用
   
   // 文件元信息
   labels?: string[];                   // 文件标签列表
@@ -172,6 +173,8 @@ export interface DownloadOptions {
   parallel?: number;                   // 并发数，默认2
   partFileSize?: number;               // 分块下载阈值，单位MB，默认32MB
   trafficLimit?: number;               // 单链接限速
+  historyId?: string;                  // 历史版本 ID，用于获取不同版本的文件内容，不传默认为最新版
+  internalDomain?: 0 | 1;             // 是否使用内网域名，0不使用，1使用，默认不使用
   
   // 回调函数
   onStateChange?: (checkpoint: DownloadCheckpoint, state: TaskStatus, error?: Error) => void;
@@ -194,6 +197,8 @@ export interface UrlDownloadOptions {
   accessToken: string;
   userId?: string;
   trafficLimit?: number;
+  historyId?: string;                  // 历史版本 ID，用于获取不同版本的文件内容，不传默认为最新版
+  internalDomain?: 0 | 1;             // 是否使用内网域名，0不使用，1使用，默认不使用
   /** 下载保存的文件名，默认从 filePath 提取 */
   fileName?: string;
 }

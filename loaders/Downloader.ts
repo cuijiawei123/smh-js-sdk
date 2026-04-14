@@ -65,6 +65,8 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
       accessToken: options.accessToken,
       userId: options.userId,
       trafficLimit: options.trafficLimit,
+      historyId: options.historyId,
+      internalDomain: options.internalDomain,
       purpose: 'download'
     } as FileApiInfoFileRequest);
 
@@ -402,6 +404,8 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
         accessToken: this.options.accessToken,
         userId: this.options.userId,
         trafficLimit: this.options.trafficLimit,
+        historyId: this.options.historyId,
+        internalDomain: this.options.internalDomain,
         purpose: 'download'
       } as FileApiInfoFileRequest);
       

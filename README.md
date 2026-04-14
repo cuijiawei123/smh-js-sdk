@@ -313,6 +313,7 @@ await downloader.cancel()
 | `partFileSize` | number | 32 | 分片上传阈值 (MB)，范围 1~5120 |
 | `enableInstantUpload` | boolean | true | 是否启用秒传 |
 | `trafficLimit` | number | - | 单链接限速 (100KB/s ~ 100MB/s) |
+| `internalDomain` | 0 \| 1 | - | 是否使用内网域名生成上传链接，1 为使用，适用于同地域内网访问场景 |
 | `conflictResolutionStrategy` | string | - | 冲突策略：`ask` / `rename` / `overwrite` |
 | `checkpoint` | UploadCheckpoint | - | 断点续传 checkpoint |
 | `verbose` | boolean | false | 详细日志 |
@@ -330,6 +331,8 @@ await downloader.cancel()
 |------|------|-------|------|
 | `filePath` | string | (必填) | 远端文件路径 |
 | `fileName` | string | - | 自定义下载文件名，不传则使用远端文件名 |
+| `historyId` | string | - | 历史版本 ID，用于下载指定历史版本的文件，不传则下载最新版 |
+| `internalDomain` | 0 \| 1 | - | 是否使用内网域名生成下载链接，1 为使用，适用于同地域内网访问场景 |
 
 ### `createDownloadTask` 配置项
 
@@ -340,6 +343,8 @@ await downloader.cancel()
 | `parallel` | number | 2 | 并发数 |
 | `partFileSize` | number | 32 | 分块下载阈值 (MB) |
 | `trafficLimit` | number | - | 单链接限速 |
+| `historyId` | string | - | 历史版本 ID，用于下载指定历史版本的文件，不传则下载最新版 |
+| `internalDomain` | 0 \| 1 | - | 是否使用内网域名生成下载链接，1 为使用，适用于同地域内网访问场景 |
 | `checkpoint` | DownloadCheckpoint | - | 断点续传 checkpoint |
 | `verbose` | boolean | false | 详细日志 |
 | `onStateChange` | function | - | 状态变更回调 |

@@ -351,6 +351,9 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
       simpleUploadFileRequest: simpleUploadRequest,
       ...(this.options.conflictResolutionStrategy && { 
         conflictResolutionStrategy: this.options.conflictResolutionStrategy 
+      }),
+      ...(this.options.internalDomain != null && {
+        internalDomain: this.options.internalDomain
       })
     });
     
@@ -381,6 +384,9 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
         },
         ...(this.options.conflictResolutionStrategy && { 
           conflictResolutionStrategy: this.options.conflictResolutionStrategy 
+        }),
+        ...(this.options.internalDomain != null && {
+          internalDomain: this.options.internalDomain
         })
       });
       
@@ -461,6 +467,9 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
             simpleUploadFileRequest: { ...this.getFileMetaFields() },
             ...(this.options.conflictResolutionStrategy && { 
               conflictResolutionStrategy: this.options.conflictResolutionStrategy 
+            }),
+            ...(this.options.internalDomain != null && {
+              internalDomain: this.options.internalDomain
             })
           });
           
@@ -558,6 +567,9 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
         multipartUploadFileRequest: multipartUploadRequest,
         ...(this.options.conflictResolutionStrategy && { 
           conflictResolutionStrategy: this.options.conflictResolutionStrategy 
+        }),
+        ...(this.options.internalDomain != null && {
+          internalDomain: this.options.internalDomain
         })
       });
       
@@ -589,6 +601,9 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
           },
           ...(this.options.conflictResolutionStrategy && { 
             conflictResolutionStrategy: this.options.conflictResolutionStrategy 
+          }),
+          ...(this.options.internalDomain != null && {
+            internalDomain: this.options.internalDomain
           })
         });
         
@@ -943,6 +958,9 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
         trafficLimit: this.options.trafficLimit,
         accessToken: this.options.accessToken,
         userId: this.options.userId,
+        ...(this.options.internalDomain != null && {
+          internalDomain: this.options.internalDomain
+        })
       });
       
       const renewData = response.data as any;
