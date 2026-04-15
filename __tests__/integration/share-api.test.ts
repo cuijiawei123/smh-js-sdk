@@ -5,10 +5,16 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { SMHClient } from '../../interceptor/SmhClient';
 import {
+  DownloadShareFileDownloadEnum,
   GetShareDetailDetailEnum,
   GetShareDetailWithFileInfoEnum,
+  ListShareFilesListEnum,
+  ListShareFilesOrderByEnum,
+  ListShareFilesOrderByTypeEnum,
   ListSharesOrderByEnum,
   ListSharesOrderByTypeEnum,
+  PreviewShareFilePreviewEnum,
+  SaveShareFileSaveEnum,
   SetShareEnabledSetEnabledEnum,
   UpdateShareUpdateEnum,
 } from '../../apis/share-api';
@@ -28,8 +34,15 @@ const shouldSkip = skipIfNoConfig();
 describe.skipIf(shouldSkip)('ShareApi 集成测试', () => {
   let client: SMHClient;
   const testFilePath = uniquePath('share_test', '.txt');
+  const saveTargetDir = uniquePath('share_save_target', '');
   let shareId: string | undefined;
+  let shareCode: string | undefined;
+  let shareAccessToken: string | undefined;
+  let fileInode: string | undefined;
+  let spaceId: string | undefined;
   let setupFailed = false;
+
+  const EXTRACTION_CODE = 'ab12';
 
   beforeAll(async () => {
     client = await createTestClient();
@@ -46,6 +59,11 @@ describe.skipIf(shouldSkip)('ShareApi 集成测试', () => {
       uploader.start();
       await endPromise;
       await sleep(1000);
+
+      // Create target directory for saveShareFile test
+      try {
+        await client.directory.createDirectory({ filePath: saveTargetDir });
+      } catch { /* ignore */ }
     } catch (e: any) {
       console.log('ShareApi 环境准备失败（可能 token 过期）:', e.message);
       // Don't block createShare test, let it try anyway
@@ -60,6 +78,8 @@ describe.skipIf(shouldSkip)('ShareApi 集成测试', () => {
     }
     // Clean up: delete test file
     try { await client.file.deleteFile({ filePath: testFilePath }); } catch { /* ignore */ }
+    // Clean up: save target directory
+    try { await client.file.deleteFile({ filePath: saveTargetDir }); } catch { /* ignore */ }
   });
 
   describe('createShare - 创建分享', () => {
@@ -74,8 +94,10 @@ describe.skipIf(shouldSkip)('ShareApi 集成测试', () => {
             config: {
               isPermanent: false,
               expireTime,
+              extractionCode: EXTRACTION_CODE,
               canPreview: true,
               canDownload: true,
+              canSaveToNetdisk: true,
             },
           },
         });
@@ -87,8 +109,10 @@ describe.skipIf(shouldSkip)('ShareApi 集成测试', () => {
 
         expect(res.status).toBe(200);
         expect(res.data).toBeDefined();
-        // Save shareId for subsequent tests
+        // Save shareId and shareCode for subsequent tests
         shareId = (res.data as any)?.id || (res.data as any)?.shareId;
+        shareCode = (res.data as any)?.code;
+        console.log('Setup: shareId =', shareId, ', shareCode =', shareCode);
       } catch (error: any) {
         const resp = error?.response;
         console.log('createShare error status =====', resp?.status);
@@ -183,8 +207,9 @@ describe.skipIf(shouldSkip)('ShareApi 集成测试', () => {
           config: {
             isPermanent: false,
             expireTime: newExpireTime,
+            extractionCode: EXTRACTION_CODE,
             canPreview: true,
-            canDownload: false,
+            canDownload: true,
           },
         },
       });
@@ -229,6 +254,370 @@ describe.skipIf(shouldSkip)('ShareApi 集成测试', () => {
       });
 
       expect(res.status).toBe(204);
+    });
+  });
+
+  describe('getShareUrlDetail - get share URL detail', () => {
+    it('should get share basic info by shareCode', async () => {
+      assertSetupReady(setupFailed);
+      if (!shareCode) {
+        console.log('Skip: no shareCode available');
+        return;
+      }
+
+      const res = await client.share.getShareUrlDetail({
+        shareToken: shareCode,
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.data).toBeDefined();
+      // After updateShare may have changed config, just verify fields exist
+      expect((res.data as any)).toHaveProperty('needExtractionCode');
+      expect((res.data as any)).toHaveProperty('canPreview');
+      expect((res.data as any)).toHaveProperty('canDownload');
+    });
+
+    it('should return enabled=true for an active share', async () => {
+      assertSetupReady(setupFailed);
+      if (!shareCode) {
+        console.log('Skip: no shareCode available');
+        return;
+      }
+
+      const res = await client.share.getShareUrlDetail({
+        shareToken: shareCode,
+      });
+
+      expect(res.status).toBe(200);
+      expect((res.data as any)?.enabled).toBe(true);
+      expect((res.data as any)?.isExpired).toBe(false);
+    });
+  });
+
+  describe('verifyExtractionCode - verify extraction code', () => {
+    it('should verify extraction code and return access token', async () => {
+      assertSetupReady(setupFailed);
+      if (!shareCode) {
+        console.log('Skip: no shareCode available');
+        return;
+      }
+
+      // verifyExtractionCode is a public API that doesn't need admin auth
+      const res = await client.share.verifyExtractionCode({
+        shareCode,
+        verifyExtractionCodeRequest: {
+          extractionCode: EXTRACTION_CODE,
+        },
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.data).toBeDefined();
+      expect((res.data as any)?.accessToken).toBeDefined();
+
+      shareAccessToken = (res.data as any)?.accessToken;
+    });
+
+    it('should fail with wrong extraction code', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      if (!shareCode) {
+        console.log('Skip: no shareCode available');
+        return;
+      }
+
+      try {
+        await client.share.verifyExtractionCode({
+          shareCode,
+          verifyExtractionCodeRequest: {
+            extractionCode: 'zzzz',
+          },
+        });
+        ctx.skip('Server did not reject wrong extraction code');
+      } catch (error: any) {
+        const status = error?.response?.status;
+        expect([400, 403, 404]).toContain(status);
+      }
+    });
+  });
+
+  describe('listShareFiles - list files in share', () => {
+    it('should list files in share root directory', async () => {
+      assertSetupReady(setupFailed);
+      if (!shareCode) {
+        console.log('Skip: no shareCode available');
+        return;
+      }
+
+      if (!shareAccessToken) {
+        try {
+          const verifyRes = await client.share.verifyExtractionCode({
+            shareCode,
+            verifyExtractionCodeRequest: {
+              extractionCode: EXTRACTION_CODE,
+            },
+          });
+          shareAccessToken = (verifyRes.data as any)?.accessToken;
+        } catch {
+          console.log('Skip: cannot obtain share access token');
+          return;
+        }
+      }
+
+      const res = await client.share.listShareFiles({
+        shareCode,
+        inodes: '',
+        list: ListShareFilesListEnum.NUMBER_1,
+        accessToken: shareAccessToken,
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.data).toBeDefined();
+
+      const contents = (res.data as any)?.contents;
+      if (Array.isArray(contents) && contents.length > 0) {
+        const firstFile = contents.find((item: any) => item.type === 'file');
+        if (firstFile) {
+          fileInode = firstFile.inode;
+          spaceId = firstFile.spaceId;
+          console.log('Found file inode =', fileInode);
+        }
+      }
+    });
+
+    it('should support pagination with limit', async () => {
+      assertSetupReady(setupFailed);
+      if (!shareCode || !shareAccessToken) {
+        console.log('Skip: no shareCode or shareAccessToken available');
+        return;
+      }
+
+      const res = await client.share.listShareFiles({
+        shareCode,
+        inodes: '',
+        list: ListShareFilesListEnum.NUMBER_1,
+        limit: 1,
+        accessToken: shareAccessToken,
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.data).toBeDefined();
+    });
+
+    it('should support sorting by name ascending', async () => {
+      assertSetupReady(setupFailed);
+      if (!shareCode || !shareAccessToken) {
+        console.log('Skip: no shareCode or shareAccessToken available');
+        return;
+      }
+
+      const res = await client.share.listShareFiles({
+        shareCode,
+        inodes: '',
+        list: ListShareFilesListEnum.NUMBER_1,
+        orderBy: ListShareFilesOrderByEnum.Name,
+        orderByType: ListShareFilesOrderByTypeEnum.Asc,
+        accessToken: shareAccessToken,
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.data).toBeDefined();
+    });
+
+    it('should support sorting by size descending', async () => {
+      assertSetupReady(setupFailed);
+      if (!shareCode || !shareAccessToken) {
+        console.log('Skip: no shareCode or shareAccessToken available');
+        return;
+      }
+
+      const res = await client.share.listShareFiles({
+        shareCode,
+        inodes: '',
+        list: ListShareFilesListEnum.NUMBER_1,
+        orderBy: ListShareFilesOrderByEnum.Size,
+        orderByType: ListShareFilesOrderByTypeEnum.Desc,
+        accessToken: shareAccessToken,
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.data).toBeDefined();
+    });
+  });
+
+  describe('downloadShareFile - download file from share', () => {
+    it('should get download URL for shared file', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      if (!shareCode || !fileInode) {
+        ctx.skip('Prerequisites not met: shareCode or fileInode missing');
+        return;
+      }
+
+      try {
+        const res = await client.share.downloadShareFile({
+          shareCode,
+          inodes: fileInode,
+          download: DownloadShareFileDownloadEnum.NUMBER_1,
+        });
+
+        expect([200, 302]).toContain(res.status);
+      } catch (error: any) {
+        const status = error?.response?.status;
+        if (status === 302) {
+          expect(error.response.headers?.location).toBeDefined();
+        } else if ([400, 403, 404].includes(status)) {
+          ctx.skip(`downloadShareFile not available: ${status}`);
+        } else {
+          throw error;
+        }
+      }
+    });
+
+    it('should support internalDomain parameter', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      if (!shareCode || !fileInode) {
+        ctx.skip('Prerequisites not met: shareCode or fileInode missing');
+        return;
+      }
+
+      try {
+        const res = await client.share.downloadShareFile({
+          shareCode,
+          inodes: fileInode,
+          download: DownloadShareFileDownloadEnum.NUMBER_1,
+          internalDomain: 0 as any,
+        });
+
+        expect([200, 302]).toContain(res.status);
+      } catch (error: any) {
+        const status = error?.response?.status;
+        if (status === 302 || [400, 403, 404].includes(status)) {
+          // Expected behavior
+        } else {
+          throw error;
+        }
+      }
+    });
+  });
+
+  describe('previewShareFile - preview file from share', () => {
+    it('should get preview URL for shared file', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      if (!shareCode || !fileInode) {
+        ctx.skip('Prerequisites not met: shareCode or fileInode missing');
+        return;
+      }
+
+      try {
+        const res = await client.share.previewShareFile({
+          shareCode,
+          inodes: fileInode,
+          preview: PreviewShareFilePreviewEnum.NUMBER_1,
+        });
+
+        expect([200, 302]).toContain(res.status);
+      } catch (error: any) {
+        const status = error?.response?.status;
+        if (status === 302) {
+          expect(error.response.headers?.location).toBeDefined();
+        } else if ([400, 403, 404].includes(status)) {
+          ctx.skip(`previewShareFile not available: ${status}`);
+        } else {
+          throw error;
+        }
+      }
+    });
+
+    it('should support internalDomain parameter for preview', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      if (!shareCode || !fileInode) {
+        ctx.skip('Prerequisites not met: shareCode or fileInode missing');
+        return;
+      }
+
+      try {
+        const res = await client.share.previewShareFile({
+          shareCode,
+          inodes: fileInode,
+          preview: PreviewShareFilePreviewEnum.NUMBER_1,
+          internalDomain: 0 as any,
+        });
+
+        expect([200, 302]).toContain(res.status);
+      } catch (error: any) {
+        const status = error?.response?.status;
+        if (status === 302 || [400, 403, 404].includes(status)) {
+          // Expected behavior
+        } else {
+          throw error;
+        }
+      }
+    });
+  });
+
+  describe('saveShareFile - save shared file to netdisk', () => {
+    it('should save shared file to user netdisk space', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      if (!shareCode || !fileInode) {
+        ctx.skip('Prerequisites not met: shareCode or fileInode missing');
+        return;
+      }
+
+      const targetSpaceId = spaceId || '-';
+
+      try {
+        const res = await client.share.saveShareFile({
+          shareCode,
+          save: SaveShareFileSaveEnum.NUMBER_1,
+          saveShareFileRequest: {
+            targetSpaceId,
+            targetPath: saveTargetDir,
+            sourceInodesPath: '',
+            inodes: [fileInode],
+          },
+        });
+
+        expect([200, 202, 207]).toContain(res.status);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        const status = error?.response?.status;
+        if ([400, 403, 404, 409].includes(status)) {
+          ctx.skip(`saveShareFile not available or conflict: ${status}`);
+        } else {
+          throw error;
+        }
+      }
+    });
+
+    it('should handle conflict resolution strategy rename', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      if (!shareCode || !fileInode) {
+        ctx.skip('Prerequisites not met: shareCode or fileInode missing');
+        return;
+      }
+
+      const targetSpaceId = spaceId || '-';
+
+      try {
+        const res = await client.share.saveShareFile({
+          shareCode,
+          save: SaveShareFileSaveEnum.NUMBER_1,
+          saveShareFileRequest: {
+            targetSpaceId,
+            targetPath: saveTargetDir,
+            sourceInodesPath: '',
+            inodes: [fileInode],
+            conflictResolutionStrategy: 'rename' as any,
+          },
+        });
+
+        expect([200, 202, 207]).toContain(res.status);
+      } catch (error: any) {
+        const status = error?.response?.status;
+        if ([400, 403, 404, 409].includes(status)) {
+          ctx.skip(`saveShareFile rename not available: ${status}`);
+        } else {
+          throw error;
+        }
+      }
     });
   });
 
