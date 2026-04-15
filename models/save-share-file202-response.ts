@@ -14,14 +14,10 @@
 
 
 
-export interface ConfirmM3u8UploadRequestSegmentsInner {
+export interface SaveShareFile202Response {
     /**
-     * 分片文件路径，如 dir/1.ts
+     * 异步方式复制时的任务 ID，可通过查询任务接口查询任务状态
      */
-    'path'?: string;
-    /**
-     * 指定 crc64 时进行一致性校验
-     */
-    'crc64'?: string;
+    'taskId'?: number;
 }
 

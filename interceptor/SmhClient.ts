@@ -63,6 +63,7 @@ import { SearchApi } from '../apis/search-api';
 import { SpaceApi } from '../apis/space-api';
 import { TaskApi } from '../apis/task-api';
 import { TokenApi } from '../apis/token-api';
+import { ShareApi } from '../apis/share-api';
 import { UsageApi } from '../apis/usage-api';
 
 export interface SMHClientOptions {
@@ -136,6 +137,7 @@ export class SMHClient {
     private _recent: RecentApi;
     private _recycled: RecycledApi;
     private _search: SearchApi;
+    private _share: ShareApi;
     private _space: SpaceApi;
     private _task: TaskApi;
     private _token: TokenApi;
@@ -152,6 +154,7 @@ export class SMHClient {
     public readonly recent: WrapApiMethods<RecentApi>;
     public readonly recycled: WrapApiMethods<RecycledApi>;
     public readonly search: WrapApiMethods<SearchApi>;
+    public readonly share: WrapApiMethods<ShareApi>;
     public readonly space: WrapApiMethods<SpaceApi>;
     public readonly task: WrapApiMethods<TaskApi>;
     public readonly token: WrapApiMethods<TokenApi>;
@@ -197,6 +200,7 @@ export class SMHClient {
         this._recent = new RecentApi(this.configuration, basePath, this.axiosInstance);
         this._recycled = new RecycledApi(this.configuration, basePath, this.axiosInstance);
         this._search = new SearchApi(this.configuration, basePath, this.axiosInstance);
+        this._share = new ShareApi(this.configuration, basePath, this.axiosInstance);
         this._space = new SpaceApi(this.configuration, basePath, this.axiosInstance);
         this._task = new TaskApi(this.configuration, basePath, this.axiosInstance);
         this._token = new TokenApi(this.configuration, basePath, this.axiosInstance);
@@ -213,6 +217,7 @@ export class SMHClient {
         this.recent = this.wrapApi(this._recent);
         this.recycled = this.wrapApi(this._recycled);
         this.search = this.wrapApi(this._search);
+        this.share = this.wrapApi(this._share);
         this.space = this.wrapApi(this._space);
         this.task = this.wrapApi(this._task);
         this.token = this.wrapApi(this._token, { skipTokenRefresh: true });

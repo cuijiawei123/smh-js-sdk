@@ -14,14 +14,14 @@
 
 
 
-export interface ConfirmM3u8UploadRequestSegmentsInner {
+export interface SetShareEnabledRequest {
     /**
-     * 分片文件路径，如 dir/1.ts
+     * 管理员启用状态，可选参数（只有管理员和群组管理员可以设置）
      */
-    'path'?: string;
+    'adminEnabled'?: boolean;
     /**
-     * 指定 crc64 时进行一致性校验
+     * 创建者启用状态，可选参数（创建者可以设置，或者已通过管理员权限检查的用户也可以设置）
      */
-    'crc64'?: string;
+    'ownerEnabled'?: boolean;
 }
 

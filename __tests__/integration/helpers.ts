@@ -72,13 +72,15 @@ async function createIntegrationAccessToken(baseConfig: IntegrationBaseConfig): 
 }
 
 /**
- * 获取集成测试配置（首次调用时动态签发 token 并缓存）
+ * 获取集成测试配置（优先使用环境变量中的 accessToken，否则动态签发并缓存）
  */
 export async function getConfig(): Promise<IntegrationConfig> {
   if (!cachedConfigPromise) {
     cachedConfigPromise = (async () => {
       const baseConfig = getBaseConfig();
-      const accessToken = await createIntegrationAccessToken(baseConfig);
+      // If SMH_ACCESS_TOKEN is provided, use it directly (skip token creation)
+      const envToken = process.env.SMH_ACCESS_TOKEN;
+      const accessToken = envToken || await createIntegrationAccessToken(baseConfig);
       return {
         basePath: baseConfig.basePath,
         libraryId: baseConfig.libraryId,

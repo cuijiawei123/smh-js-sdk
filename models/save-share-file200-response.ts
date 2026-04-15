@@ -13,15 +13,11 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { SaveShareFile200ResponseResultInner } from './save-share-file200-response-result-inner';
 
-export interface ConfirmM3u8UploadRequestSegmentsInner {
-    /**
-     * 分片文件路径，如 dir/1.ts
-     */
-    'path'?: string;
-    /**
-     * 指定 crc64 时进行一致性校验
-     */
-    'crc64'?: string;
+export interface SaveShareFile200Response {
+    'result'?: Array<SaveShareFile200ResponseResultInner>;
 }
 

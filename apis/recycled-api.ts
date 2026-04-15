@@ -106,10 +106,11 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
          * @param {number} info 获取文件详情，固定值为1
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {RecycleInfoInternalDomainEnum} [internalDomain] 0 或 1，是否使用内网域名生成文件访问/上传链接，可选参数，默认不使用；当设置为 1 时，返回的 URL 将使用内网域名，适用于同地域内网访问场景以提升访问速度
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        recycleInfo: async (libraryId: string, spaceId: string, recycledItemId: number, info: number, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        recycleInfo: async (libraryId: string, spaceId: string, recycledItemId: number, info: number, accessToken?: string, librarySecret?: string, internalDomain?: RecycleInfoInternalDomainEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('recycleInfo', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -143,6 +144,10 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
 
             if (librarySecret !== undefined) {
                 localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
+            if (internalDomain !== undefined) {
+                localVarQueryParameter['internal_domain'] = internalDomain;
             }
 
 
@@ -331,10 +336,11 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
          * @param {number} [frameNumber] gif 文件降帧的帧数，仅在预览 gif 类型文件时生效
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {RecyclePreviewInternalDomainEnum} [internalDomain] 0 或 1，是否使用内网域名生成文件访问/上传链接，可选参数，默认不使用；当设置为 1 时，返回的 URL 将使用内网域名，适用于同地域内网访问场景以提升访问速度
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        recyclePreview: async (libraryId: string, spaceId: string, recycledItemId: number, preview: number, type?: string, size?: number, scale?: number, widthSize?: number, heightSize?: number, frameNumber?: number, accessToken?: string, librarySecret?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        recyclePreview: async (libraryId: string, spaceId: string, recycledItemId: number, preview: number, type?: string, size?: number, scale?: number, widthSize?: number, heightSize?: number, frameNumber?: number, accessToken?: string, librarySecret?: string, internalDomain?: RecyclePreviewInternalDomainEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('recyclePreview', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -392,6 +398,10 @@ export const RecycledApiAxiosParamCreator = function (configuration?: Configurat
 
             if (librarySecret !== undefined) {
                 localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
+            if (internalDomain !== undefined) {
+                localVarQueryParameter['internal_domain'] = internalDomain;
             }
 
 
@@ -769,11 +779,12 @@ export const RecycledApiFp = function(configuration?: Configuration) {
          * @param {number} info 获取文件详情，固定值为1
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {RecycleInfoInternalDomainEnum} [internalDomain] 0 或 1，是否使用内网域名生成文件访问/上传链接，可选参数，默认不使用；当设置为 1 时，返回的 URL 将使用内网域名，适用于同地域内网访问场景以提升访问速度
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async recycleInfo(libraryId: string, spaceId: string, recycledItemId: number, info: number, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecycleInfo200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleInfo(libraryId, spaceId, recycledItemId, info, accessToken, librarySecret, options);
+        async recycleInfo(libraryId: string, spaceId: string, recycledItemId: number, info: number, accessToken?: string, librarySecret?: string, internalDomain?: RecycleInfoInternalDomainEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RecycleInfo200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recycleInfo(libraryId, spaceId, recycledItemId, info, accessToken, librarySecret, internalDomain, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RecycledApi.recycleInfo']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -837,11 +848,12 @@ export const RecycledApiFp = function(configuration?: Configuration) {
          * @param {number} [frameNumber] gif 文件降帧的帧数，仅在预览 gif 类型文件时生效
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {RecyclePreviewInternalDomainEnum} [internalDomain] 0 或 1，是否使用内网域名生成文件访问/上传链接，可选参数，默认不使用；当设置为 1 时，返回的 URL 将使用内网域名，适用于同地域内网访问场景以提升访问速度
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async recyclePreview(libraryId: string, spaceId: string, recycledItemId: number, preview: number, type?: string, size?: number, scale?: number, widthSize?: number, heightSize?: number, frameNumber?: number, accessToken?: string, librarySecret?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void | RecyclePreview200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.recyclePreview(libraryId, spaceId, recycledItemId, preview, type, size, scale, widthSize, heightSize, frameNumber, accessToken, librarySecret, options);
+        async recyclePreview(libraryId: string, spaceId: string, recycledItemId: number, preview: number, type?: string, size?: number, scale?: number, widthSize?: number, heightSize?: number, frameNumber?: number, accessToken?: string, librarySecret?: string, internalDomain?: RecyclePreviewInternalDomainEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void | RecyclePreview200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.recyclePreview(libraryId, spaceId, recycledItemId, preview, type, size, scale, widthSize, heightSize, frameNumber, accessToken, librarySecret, internalDomain, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RecycledApi.recyclePreview']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -969,7 +981,7 @@ export const RecycledApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         recycleInfo(requestParameters: RecycledApiRecycleInfoRequest, options?: RawAxiosRequestConfig): AxiosPromise<RecycleInfo200Response> {
-            return localVarFp.recycleInfo(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.info, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
+            return localVarFp.recycleInfo(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.info, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.internalDomain, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于列出回收站项目。 目录内容的列出顺序为：默认无排序，根据传入参数 orderBy 和 orderByType 来决定排列顺序。 
@@ -999,7 +1011,7 @@ export const RecycledApiFactory = function (configuration?: Configuration, baseP
          * @throws {RequiredError}
          */
         recyclePreview(requestParameters: RecycledApiRecyclePreviewRequest, options?: RawAxiosRequestConfig): AxiosPromise<void | RecyclePreview200Response> {
-            return localVarFp.recyclePreview(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.preview, requestParameters.type, requestParameters.size, requestParameters.scale, requestParameters.widthSize, requestParameters.heightSize, requestParameters.frameNumber, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(axios, basePath));
+            return localVarFp.recyclePreview(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.preview, requestParameters.type, requestParameters.size, requestParameters.scale, requestParameters.widthSize, requestParameters.heightSize, requestParameters.frameNumber, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.internalDomain, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于永久删除指定回收站项目。要求权限：admin、space_admin 或 delete_recycled。
@@ -1117,6 +1129,11 @@ export interface RecycledApiRecycleInfoRequest {
      * 访问媒体库密钥，可选参数
      */
     readonly librarySecret?: string
+
+    /**
+     * 0 或 1，是否使用内网域名生成文件访问/上传链接，可选参数，默认不使用；当设置为 1 时，返回的 URL 将使用内网域名，适用于同地域内网访问场景以提升访问速度
+     */
+    readonly internalDomain?: RecycleInfoInternalDomainEnum
 }
 
 /**
@@ -1292,6 +1309,11 @@ export interface RecycledApiRecyclePreviewRequest {
      * 访问媒体库密钥，可选参数
      */
     readonly librarySecret?: string
+
+    /**
+     * 0 或 1，是否使用内网域名生成文件访问/上传链接，可选参数，默认不使用；当设置为 1 时，返回的 URL 将使用内网域名，适用于同地域内网访问场景以提升访问速度
+     */
+    readonly internalDomain?: RecyclePreviewInternalDomainEnum
 }
 
 /**
@@ -1513,7 +1535,7 @@ export class RecycledApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public recycleInfo(requestParameters: RecycledApiRecycleInfoRequest, options?: RawAxiosRequestConfig) {
-        return RecycledApiFp(this.configuration).recycleInfo(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.info, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
+        return RecycledApiFp(this.configuration).recycleInfo(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.info, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.internalDomain, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1546,7 +1568,7 @@ export class RecycledApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public recyclePreview(requestParameters: RecycledApiRecyclePreviewRequest, options?: RawAxiosRequestConfig) {
-        return RecycledApiFp(this.configuration).recyclePreview(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.preview, requestParameters.type, requestParameters.size, requestParameters.scale, requestParameters.widthSize, requestParameters.heightSize, requestParameters.frameNumber, requestParameters.accessToken, requestParameters.librarySecret, options).then((request) => request(this.axios, this.basePath));
+        return RecycledApiFp(this.configuration).recyclePreview(requestParameters.libraryId, requestParameters.spaceId, requestParameters.recycledItemId, requestParameters.preview, requestParameters.type, requestParameters.size, requestParameters.scale, requestParameters.widthSize, requestParameters.heightSize, requestParameters.frameNumber, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.internalDomain, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1605,6 +1627,11 @@ export class RecycledApi extends BaseAPI {
     }
 }
 
+export const RecycleInfoInternalDomainEnum = {
+    NUMBER_0: 0,
+    NUMBER_1: 1
+} as const;
+export type RecycleInfoInternalDomainEnum = typeof RecycleInfoInternalDomainEnum[keyof typeof RecycleInfoInternalDomainEnum];
 export const RecycleListByMarkerEnum = {
     NUMBER_1: 1
 } as const;
@@ -1639,6 +1666,11 @@ export const RecycleListByPageOrderByTypeEnum = {
     Desc: 'desc'
 } as const;
 export type RecycleListByPageOrderByTypeEnum = typeof RecycleListByPageOrderByTypeEnum[keyof typeof RecycleListByPageOrderByTypeEnum];
+export const RecyclePreviewInternalDomainEnum = {
+    NUMBER_0: 0,
+    NUMBER_1: 1
+} as const;
+export type RecyclePreviewInternalDomainEnum = typeof RecyclePreviewInternalDomainEnum[keyof typeof RecyclePreviewInternalDomainEnum];
 export const RecycleRestoreRestoreEnum = {
     NUMBER_1: 1
 } as const;

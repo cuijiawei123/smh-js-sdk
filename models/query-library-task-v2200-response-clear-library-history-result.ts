@@ -14,14 +14,21 @@
 
 
 
-export interface ConfirmM3u8UploadRequestSegmentsInner {
+/**
+ * 清空媒体库历史版本任务结果（taskType 为 clearLibraryHistory 时返回）
+ */
+export interface QueryLibraryTaskV2200ResponseClearLibraryHistoryResult {
     /**
-     * 分片文件路径，如 dir/1.ts
+     * 任务操作状态码
      */
-    'path'?: string;
+    'status'?: number;
     /**
-     * 指定 crc64 时进行一致性校验
+     * 操作结果代码
      */
-    'crc64'?: string;
+    'code'?: string;
+    /**
+     * 删除的历史版本数量
+     */
+    'deleteCount'?: number;
 }
 

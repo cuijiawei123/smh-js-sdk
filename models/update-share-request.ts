@@ -13,15 +13,15 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { UpdateShareRequestConfig } from './update-share-request-config';
 
-export interface ConfirmM3u8UploadRequestSegmentsInner {
+export interface UpdateShareRequest {
     /**
-     * 分片文件路径，如 dir/1.ts
+     * 分享名称，可选参数
      */
-    'path'?: string;
-    /**
-     * 指定 crc64 时进行一致性校验
-     */
-    'crc64'?: string;
+    'name'?: string;
+    'config': UpdateShareRequestConfig;
 }
 

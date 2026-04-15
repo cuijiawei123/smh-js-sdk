@@ -24,7 +24,11 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 // @ts-ignore
 import type { QueryLibraryTask200ResponseInner } from '../models';
 // @ts-ignore
+import type { QueryLibraryTaskV2200Response } from '../models';
+// @ts-ignore
 import type { QueryTask200ResponseInner } from '../models';
+// @ts-ignore
+import type { QueryTaskV2200Response } from '../models';
 /**
  * TaskApi - axios parameter creator
  */
@@ -49,6 +53,59 @@ export const TaskApiAxiosParamCreator = function (configuration?: Configuration)
             const localVarPath = `/api/v1/task/{LibraryId}/{TaskIdList}`
                 .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
                 .replace(`{${"TaskIdList"}}`, encodeURIComponent(String(taskIdList)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (accessToken !== undefined) {
+                localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 本接口用于查询媒体库级别异步任务的执行状态和结果。与空间级别的任务查询接口不同，本接口不需要指定 SpaceId，适用于媒体库级别的耗时任务。  任务的具体返回请参阅会产生异步任务的接口说明，部分接口会根据任务耗时情况返回同步或异步结果，此时异步结果通常与同步结果的格式保持一致； 仅能查询到任务结束时间在最近30天的任务，更早期的任务无法查询；  ### taskType 任务类型枚举  | taskType 值 | 描述 | 结果字段名 | 结果类型 | |---|---|---|---| | clearLibraryHistory | 清空媒体库历史版本 | clearLibraryHistoryResult | ClearLibraryHistoryResult |  ### 状态码说明  | 状态码 | 含义 | 描述 | 客户端行为 | |---|---|---|---| | 202 | 处理中 | 任务正在执行中 | 继续轮询 | | 200 | 成功 | 任务执行成功完成 | 读取结果 | | 500 | 任务失败 | 内部错误 | 不返回结果 |  ### 任务类型映射表  | 任务类型（驼峰） | 任务动作名（ActionName） | 结果类型 | |---|---|---| | clearLibraryHistory | ClearLibraryHistoryFiles | ClearLibraryHistoryResult | 
+         * @summary 查询媒体库任务接口 V2
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} taskId 任务唯一标识符
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        queryLibraryTaskV2: async (libraryId: string, taskId: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'libraryId' is not null or undefined
+            assertParamExists('queryLibraryTaskV2', 'libraryId', libraryId)
+            // verify required parameter 'taskId' is not null or undefined
+            assertParamExists('queryLibraryTaskV2', 'taskId', taskId)
+            const localVarPath = `/api/v1/task-result/{LibraryId}/{TaskId}`
+                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
+                .replace(`{${"TaskId"}}`, encodeURIComponent(String(taskId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -140,6 +197,63 @@ export const TaskApiAxiosParamCreator = function (configuration?: Configuration)
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 本接口用于查询异步任务的执行状态和结果。支持多种任务类型，每种任务类型有对应的结果结构。  ### taskType 任务类型枚举  | taskType 值 | 描述 | 结果字段名 | 结果类型 | |---|---|---|---| | batchMove | 批量移动文件 | batchMoveResults | BatchMoveResultItem[] | | batchCopy | 批量复制文件 | batchCopyResults | BatchCopyResultItem[] | | batchDelete | 批量删除文件 | batchDeleteResults | BatchDeleteResultItem[] | | batchRestoreRecycle | 批量恢复回收站 | batchRestoreRecycleResults | BatchRestoreRecycleResultItem[] | | convertFile | 文档转换 | convertFileResult | ConvertFileResult | | calibrateDirectoryStats | 目录统计校准 | calibrateDirectoryStatsResult | CalibrateDirectoryStatsResult | | videoTranscode | 视频转码 | videoTranscodeResult | VideoTranscodeResult |  ### 状态码说明  | 状态码 | 含义 | 描述 | 客户端行为 | |---|---|---|---| | 202 | 处理中 | 任务正在执行中 | 继续轮询 | | 200 | 成功 | 任务执行成功完成 | 遍历结果 | | 207 | 部分成功 | 批量任务部分成功 | 遍历结果 | | 400 | 全部失败 | 所有的子任务全部失败 | 遍历结果 | | 500 | 任务失败 | 内部错误 | 不返回结果 | 
+         * @summary 查询任务接口 V2
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} taskId 任务唯一标识符
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        queryTaskV2: async (libraryId: string, spaceId: string, taskId: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'libraryId' is not null or undefined
+            assertParamExists('queryTaskV2', 'libraryId', libraryId)
+            // verify required parameter 'spaceId' is not null or undefined
+            assertParamExists('queryTaskV2', 'spaceId', spaceId)
+            // verify required parameter 'taskId' is not null or undefined
+            assertParamExists('queryTaskV2', 'taskId', taskId)
+            const localVarPath = `/api/v1/task-result/{LibraryId}/{SpaceId}/{TaskId}`
+                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
+                .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
+                .replace(`{${"TaskId"}}`, encodeURIComponent(String(taskId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (accessToken !== undefined) {
+                localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -167,6 +281,23 @@ export const TaskApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 本接口用于查询媒体库级别异步任务的执行状态和结果。与空间级别的任务查询接口不同，本接口不需要指定 SpaceId，适用于媒体库级别的耗时任务。  任务的具体返回请参阅会产生异步任务的接口说明，部分接口会根据任务耗时情况返回同步或异步结果，此时异步结果通常与同步结果的格式保持一致； 仅能查询到任务结束时间在最近30天的任务，更早期的任务无法查询；  ### taskType 任务类型枚举  | taskType 值 | 描述 | 结果字段名 | 结果类型 | |---|---|---|---| | clearLibraryHistory | 清空媒体库历史版本 | clearLibraryHistoryResult | ClearLibraryHistoryResult |  ### 状态码说明  | 状态码 | 含义 | 描述 | 客户端行为 | |---|---|---|---| | 202 | 处理中 | 任务正在执行中 | 继续轮询 | | 200 | 成功 | 任务执行成功完成 | 读取结果 | | 500 | 任务失败 | 内部错误 | 不返回结果 |  ### 任务类型映射表  | 任务类型（驼峰） | 任务动作名（ActionName） | 结果类型 | |---|---|---| | clearLibraryHistory | ClearLibraryHistoryFiles | ClearLibraryHistoryResult | 
+         * @summary 查询媒体库任务接口 V2
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} taskId 任务唯一标识符
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async queryLibraryTaskV2(libraryId: string, taskId: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryLibraryTaskV2200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.queryLibraryTaskV2(libraryId, taskId, accessToken, librarySecret, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TaskApi.queryLibraryTaskV2']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 用于查询耗时任务执行情况。任务的具体返回请参阅会产生异步任务的接口说明，部分接口会根据任务耗时情况返回同步或异步结果，此时异步结果通常与同步结果的格式保持一致；仅能查询到任务结束时间在最近30天的任务，更早期的任务无法查询；
          * @summary 查询任务接口
          * @param {string} libraryId 媒体库 ID，必选参数
@@ -182,6 +313,24 @@ export const TaskApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.queryTask(libraryId, spaceId, taskIdList, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['TaskApi.queryTask']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 本接口用于查询异步任务的执行状态和结果。支持多种任务类型，每种任务类型有对应的结果结构。  ### taskType 任务类型枚举  | taskType 值 | 描述 | 结果字段名 | 结果类型 | |---|---|---|---| | batchMove | 批量移动文件 | batchMoveResults | BatchMoveResultItem[] | | batchCopy | 批量复制文件 | batchCopyResults | BatchCopyResultItem[] | | batchDelete | 批量删除文件 | batchDeleteResults | BatchDeleteResultItem[] | | batchRestoreRecycle | 批量恢复回收站 | batchRestoreRecycleResults | BatchRestoreRecycleResultItem[] | | convertFile | 文档转换 | convertFileResult | ConvertFileResult | | calibrateDirectoryStats | 目录统计校准 | calibrateDirectoryStatsResult | CalibrateDirectoryStatsResult | | videoTranscode | 视频转码 | videoTranscodeResult | VideoTranscodeResult |  ### 状态码说明  | 状态码 | 含义 | 描述 | 客户端行为 | |---|---|---|---| | 202 | 处理中 | 任务正在执行中 | 继续轮询 | | 200 | 成功 | 任务执行成功完成 | 遍历结果 | | 207 | 部分成功 | 批量任务部分成功 | 遍历结果 | | 400 | 全部失败 | 所有的子任务全部失败 | 遍历结果 | | 500 | 任务失败 | 内部错误 | 不返回结果 | 
+         * @summary 查询任务接口 V2
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} taskId 任务唯一标识符
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async queryTaskV2(libraryId: string, spaceId: string, taskId: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<QueryTaskV2200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.queryTaskV2(libraryId, spaceId, taskId, accessToken, librarySecret, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TaskApi.queryTaskV2']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -204,6 +353,16 @@ export const TaskApiFactory = function (configuration?: Configuration, basePath?
             return localVarFp.queryLibraryTask(requestParameters.libraryId, requestParameters.taskIdList, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
+         * 本接口用于查询媒体库级别异步任务的执行状态和结果。与空间级别的任务查询接口不同，本接口不需要指定 SpaceId，适用于媒体库级别的耗时任务。  任务的具体返回请参阅会产生异步任务的接口说明，部分接口会根据任务耗时情况返回同步或异步结果，此时异步结果通常与同步结果的格式保持一致； 仅能查询到任务结束时间在最近30天的任务，更早期的任务无法查询；  ### taskType 任务类型枚举  | taskType 值 | 描述 | 结果字段名 | 结果类型 | |---|---|---|---| | clearLibraryHistory | 清空媒体库历史版本 | clearLibraryHistoryResult | ClearLibraryHistoryResult |  ### 状态码说明  | 状态码 | 含义 | 描述 | 客户端行为 | |---|---|---|---| | 202 | 处理中 | 任务正在执行中 | 继续轮询 | | 200 | 成功 | 任务执行成功完成 | 读取结果 | | 500 | 任务失败 | 内部错误 | 不返回结果 |  ### 任务类型映射表  | 任务类型（驼峰） | 任务动作名（ActionName） | 结果类型 | |---|---|---| | clearLibraryHistory | ClearLibraryHistoryFiles | ClearLibraryHistoryResult | 
+         * @summary 查询媒体库任务接口 V2
+         * @param {TaskApiQueryLibraryTaskV2Request} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        queryLibraryTaskV2(requestParameters: TaskApiQueryLibraryTaskV2Request, options?: RawAxiosRequestConfig): AxiosPromise<QueryLibraryTaskV2200Response> {
+            return localVarFp.queryLibraryTaskV2(requestParameters.libraryId, requestParameters.taskId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 用于查询耗时任务执行情况。任务的具体返回请参阅会产生异步任务的接口说明，部分接口会根据任务耗时情况返回同步或异步结果，此时异步结果通常与同步结果的格式保持一致；仅能查询到任务结束时间在最近30天的任务，更早期的任务无法查询；
          * @summary 查询任务接口
          * @param {TaskApiQueryTaskRequest} requestParameters Request parameters.
@@ -212,6 +371,16 @@ export const TaskApiFactory = function (configuration?: Configuration, basePath?
          */
         queryTask(requestParameters: TaskApiQueryTaskRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<QueryTask200ResponseInner>> {
             return localVarFp.queryTask(requestParameters.libraryId, requestParameters.spaceId, requestParameters.taskIdList, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 本接口用于查询异步任务的执行状态和结果。支持多种任务类型，每种任务类型有对应的结果结构。  ### taskType 任务类型枚举  | taskType 值 | 描述 | 结果字段名 | 结果类型 | |---|---|---|---| | batchMove | 批量移动文件 | batchMoveResults | BatchMoveResultItem[] | | batchCopy | 批量复制文件 | batchCopyResults | BatchCopyResultItem[] | | batchDelete | 批量删除文件 | batchDeleteResults | BatchDeleteResultItem[] | | batchRestoreRecycle | 批量恢复回收站 | batchRestoreRecycleResults | BatchRestoreRecycleResultItem[] | | convertFile | 文档转换 | convertFileResult | ConvertFileResult | | calibrateDirectoryStats | 目录统计校准 | calibrateDirectoryStatsResult | CalibrateDirectoryStatsResult | | videoTranscode | 视频转码 | videoTranscodeResult | VideoTranscodeResult |  ### 状态码说明  | 状态码 | 含义 | 描述 | 客户端行为 | |---|---|---|---| | 202 | 处理中 | 任务正在执行中 | 继续轮询 | | 200 | 成功 | 任务执行成功完成 | 遍历结果 | | 207 | 部分成功 | 批量任务部分成功 | 遍历结果 | | 400 | 全部失败 | 所有的子任务全部失败 | 遍历结果 | | 500 | 任务失败 | 内部错误 | 不返回结果 | 
+         * @summary 查询任务接口 V2
+         * @param {TaskApiQueryTaskV2Request} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        queryTaskV2(requestParameters: TaskApiQueryTaskV2Request, options?: RawAxiosRequestConfig): AxiosPromise<QueryTaskV2200Response> {
+            return localVarFp.queryTaskV2(requestParameters.libraryId, requestParameters.spaceId, requestParameters.taskId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -229,6 +398,36 @@ export interface TaskApiQueryLibraryTaskRequest {
      * 任务 ID 列表，用逗号分隔，例如 10 或 10,12,13
      */
     readonly taskIdList: string
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
+     * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+     */
+    readonly userId?: string
+}
+
+/**
+ * Request parameters for queryLibraryTaskV2 operation in TaskApi.
+ */
+export interface TaskApiQueryLibraryTaskV2Request {
+    /**
+     * 媒体库 ID，必选参数
+     */
+    readonly libraryId: string
+
+    /**
+     * 任务唯一标识符
+     */
+    readonly taskId: string
 
     /**
      * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
@@ -282,6 +481,41 @@ export interface TaskApiQueryTaskRequest {
 }
 
 /**
+ * Request parameters for queryTaskV2 operation in TaskApi.
+ */
+export interface TaskApiQueryTaskV2Request {
+    /**
+     * 媒体库 ID，必选参数
+     */
+    readonly libraryId: string
+
+    /**
+     * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+     */
+    readonly spaceId: string
+
+    /**
+     * 任务唯一标识符
+     */
+    readonly taskId: string
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
+     * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+     */
+    readonly userId?: string
+}
+
+/**
  * TaskApi - object-oriented interface
  */
 export class TaskApi extends BaseAPI {
@@ -297,6 +531,17 @@ export class TaskApi extends BaseAPI {
     }
 
     /**
+     * 本接口用于查询媒体库级别异步任务的执行状态和结果。与空间级别的任务查询接口不同，本接口不需要指定 SpaceId，适用于媒体库级别的耗时任务。  任务的具体返回请参阅会产生异步任务的接口说明，部分接口会根据任务耗时情况返回同步或异步结果，此时异步结果通常与同步结果的格式保持一致； 仅能查询到任务结束时间在最近30天的任务，更早期的任务无法查询；  ### taskType 任务类型枚举  | taskType 值 | 描述 | 结果字段名 | 结果类型 | |---|---|---|---| | clearLibraryHistory | 清空媒体库历史版本 | clearLibraryHistoryResult | ClearLibraryHistoryResult |  ### 状态码说明  | 状态码 | 含义 | 描述 | 客户端行为 | |---|---|---|---| | 202 | 处理中 | 任务正在执行中 | 继续轮询 | | 200 | 成功 | 任务执行成功完成 | 读取结果 | | 500 | 任务失败 | 内部错误 | 不返回结果 |  ### 任务类型映射表  | 任务类型（驼峰） | 任务动作名（ActionName） | 结果类型 | |---|---|---| | clearLibraryHistory | ClearLibraryHistoryFiles | ClearLibraryHistoryResult | 
+     * @summary 查询媒体库任务接口 V2
+     * @param {TaskApiQueryLibraryTaskV2Request} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public queryLibraryTaskV2(requestParameters: TaskApiQueryLibraryTaskV2Request, options?: RawAxiosRequestConfig) {
+        return TaskApiFp(this.configuration).queryLibraryTaskV2(requestParameters.libraryId, requestParameters.taskId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 用于查询耗时任务执行情况。任务的具体返回请参阅会产生异步任务的接口说明，部分接口会根据任务耗时情况返回同步或异步结果，此时异步结果通常与同步结果的格式保持一致；仅能查询到任务结束时间在最近30天的任务，更早期的任务无法查询；
      * @summary 查询任务接口
      * @param {TaskApiQueryTaskRequest} requestParameters Request parameters.
@@ -305,6 +550,17 @@ export class TaskApi extends BaseAPI {
      */
     public queryTask(requestParameters: TaskApiQueryTaskRequest, options?: RawAxiosRequestConfig) {
         return TaskApiFp(this.configuration).queryTask(requestParameters.libraryId, requestParameters.spaceId, requestParameters.taskIdList, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 本接口用于查询异步任务的执行状态和结果。支持多种任务类型，每种任务类型有对应的结果结构。  ### taskType 任务类型枚举  | taskType 值 | 描述 | 结果字段名 | 结果类型 | |---|---|---|---| | batchMove | 批量移动文件 | batchMoveResults | BatchMoveResultItem[] | | batchCopy | 批量复制文件 | batchCopyResults | BatchCopyResultItem[] | | batchDelete | 批量删除文件 | batchDeleteResults | BatchDeleteResultItem[] | | batchRestoreRecycle | 批量恢复回收站 | batchRestoreRecycleResults | BatchRestoreRecycleResultItem[] | | convertFile | 文档转换 | convertFileResult | ConvertFileResult | | calibrateDirectoryStats | 目录统计校准 | calibrateDirectoryStatsResult | CalibrateDirectoryStatsResult | | videoTranscode | 视频转码 | videoTranscodeResult | VideoTranscodeResult |  ### 状态码说明  | 状态码 | 含义 | 描述 | 客户端行为 | |---|---|---|---| | 202 | 处理中 | 任务正在执行中 | 继续轮询 | | 200 | 成功 | 任务执行成功完成 | 遍历结果 | | 207 | 部分成功 | 批量任务部分成功 | 遍历结果 | | 400 | 全部失败 | 所有的子任务全部失败 | 遍历结果 | | 500 | 任务失败 | 内部错误 | 不返回结果 | 
+     * @summary 查询任务接口 V2
+     * @param {TaskApiQueryTaskV2Request} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public queryTaskV2(requestParameters: TaskApiQueryTaskV2Request, options?: RawAxiosRequestConfig) {
+        return TaskApiFp(this.configuration).queryTaskV2(requestParameters.libraryId, requestParameters.spaceId, requestParameters.taskId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
