@@ -104,6 +104,7 @@ export interface UploadOptions {
   enableInstantUpload?: boolean;       // 是否启用秒传，默认true
   trafficLimit?: number;               // 单链接限速，范围100KB/s-100MB/s，单位B
   internalDomain?: 0 | 1;             // 是否使用内网域名，0不使用，1使用，默认不使用
+  protocol?: 'https:' | 'http:';      // 直传COS时使用的协议，默认 'https:'
   
   // 文件元信息
   labels?: string[];                   // 文件标签列表

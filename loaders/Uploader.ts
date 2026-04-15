@@ -500,7 +500,8 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
    */
   private async simpleUpload(uploadData: any): Promise<void> {
     const headers = uploadData.headers || {};
-    const url = `https://${uploadData.domain}${uploadData.path || ''}`;
+    const protocol = this.options.protocol || 'https:';
+    const url = `${protocol}//${uploadData.domain}${uploadData.path || ''}`;
     
     this.updateProgress(0, { immediately: true });
     
@@ -682,7 +683,8 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
 
     part.start_time = Date.now();
 
-    const partUrl = `https://${uploadData.domain}${uploadData.path || ''}?partNumber=${part.part_number}&uploadId=${this.upload_id}`;
+    const protocol = this.options.protocol || 'https:';
+    const partUrl = `${protocol}//${uploadData.domain}${uploadData.path || ''}?partNumber=${part.part_number}&uploadId=${this.upload_id}`;
     
     // 获取分片 Blob
     const partBlob = this.options.file.slice(part.from, part.to);
