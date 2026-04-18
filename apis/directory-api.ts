@@ -22,6 +22,8 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { CalibrateDirectoryStats200Response } from '../models';
+// @ts-ignore
 import type { CopyDirectory200Response } from '../models';
 // @ts-ignore
 import type { CopyDirectory202Response } from '../models';
@@ -31,6 +33,8 @@ import type { CopyDirectoryRequest } from '../models';
 import type { CreateDirectory201Response } from '../models';
 // @ts-ignore
 import type { DeleteFile200Response } from '../models';
+// @ts-ignore
+import type { GetDirectoryStats200Response } from '../models';
 // @ts-ignore
 import type { InfoFileOrDirectory200Response } from '../models';
 // @ts-ignore
@@ -48,6 +52,82 @@ import type { UpdateFileLabelsRequest } from '../models';
  */
 export const DirectoryApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * 用于修正目录统计数据。 - 目录统计可能因为网络抖动等不确定因素，与实际值存在差异，可以调用此接口对统计值进行修正 - 修正期间，尽量减少对该目录及其子目录的写操作，否则修正结果存在偏差 - 此接口有频控限制，请勿频繁调用 - 要求权限：admin、space_admin 
+         * @summary 修正目录统计数据
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+         * @param {CalibrateDirectoryStatsCalibrateEnum} calibrate 固定值为 1，表示修正目录统计数据
+         * @param {CalibrateDirectoryStatsStatsTypeEnum} statsType 统计类型，normal 表示普通目录统计量，recycle 表示回收站目录统计量，history 表示目录的历史版本统计量
+         * @param {string} [recycledId] 回收站项目 ID，修正回收站的统计量时，为必选参数（根目录除外）
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        calibrateDirectoryStats: async (libraryId: string, spaceId: string, filePath: string, calibrate: CalibrateDirectoryStatsCalibrateEnum, statsType: CalibrateDirectoryStatsStatsTypeEnum, recycledId?: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'libraryId' is not null or undefined
+            assertParamExists('calibrateDirectoryStats', 'libraryId', libraryId)
+            // verify required parameter 'spaceId' is not null or undefined
+            assertParamExists('calibrateDirectoryStats', 'spaceId', spaceId)
+            // verify required parameter 'filePath' is not null or undefined
+            assertParamExists('calibrateDirectoryStats', 'filePath', filePath)
+            // verify required parameter 'calibrate' is not null or undefined
+            assertParamExists('calibrateDirectoryStats', 'calibrate', calibrate)
+            // verify required parameter 'statsType' is not null or undefined
+            assertParamExists('calibrateDirectoryStats', 'statsType', statsType)
+            const localVarPath = `/api/v1/directory/{LibraryId}/{SpaceId}/{FilePath}#3`
+                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
+                .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
+                .replace(`{${"FilePath"}}`, encodeURIComponent(String(filePath)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (calibrate !== undefined) {
+                localVarQueryParameter['calibrate'] = calibrate;
+            }
+
+            if (statsType !== undefined) {
+                localVarQueryParameter['stats_type'] = statsType;
+            }
+
+            if (recycledId !== undefined) {
+                localVarQueryParameter['recycled_id'] = recycledId;
+            }
+
+            if (accessToken !== undefined) {
+                localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 用于检查目录或相簿状态
          * @summary 检查目录或相簿状态
@@ -277,6 +357,82 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
 
             if (permanent !== undefined) {
                 localVarQueryParameter['permanent'] = permanent;
+            }
+
+            if (accessToken !== undefined) {
+                localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 用于查询目录的统计数据，包括子目录数量、文件数量、包含的文件总大小。 - 可以查询普通目录的统计结果、回收站目录的统计结果、某个目录的历史版本的统计结果 - 文件写操作和查询目录统计结果之间存在秒级时延，以最新查询结果为准 
+         * @summary 查询目录统计数据
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+         * @param {GetDirectoryStatsStatsEnum} stats 固定值为 1，表示查询目录统计数据
+         * @param {GetDirectoryStatsStatsTypeEnum} statsType 统计类型，normal 表示普通目录统计量，recycle 表示回收站目录统计量，history 表示目录的历史版本统计量
+         * @param {string} [recycledId] 回收站项目 ID，查询回收站的统计量时，为必选参数（根目录除外）
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDirectoryStats: async (libraryId: string, spaceId: string, filePath: string, stats: GetDirectoryStatsStatsEnum, statsType: GetDirectoryStatsStatsTypeEnum, recycledId?: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'libraryId' is not null or undefined
+            assertParamExists('getDirectoryStats', 'libraryId', libraryId)
+            // verify required parameter 'spaceId' is not null or undefined
+            assertParamExists('getDirectoryStats', 'spaceId', spaceId)
+            // verify required parameter 'filePath' is not null or undefined
+            assertParamExists('getDirectoryStats', 'filePath', filePath)
+            // verify required parameter 'stats' is not null or undefined
+            assertParamExists('getDirectoryStats', 'stats', stats)
+            // verify required parameter 'statsType' is not null or undefined
+            assertParamExists('getDirectoryStats', 'statsType', statsType)
+            const localVarPath = `/api/v1/directory/{LibraryId}/{SpaceId}/{FilePath}#3`
+                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
+                .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
+                .replace(`{${"FilePath"}}`, encodeURIComponent(String(filePath)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (stats !== undefined) {
+                localVarQueryParameter['stats'] = stats;
+            }
+
+            if (statsType !== undefined) {
+                localVarQueryParameter['stats_type'] = statsType;
+            }
+
+            if (recycledId !== undefined) {
+                localVarQueryParameter['recycled_id'] = recycledId;
             }
 
             if (accessToken !== undefined) {
@@ -800,6 +956,27 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = DirectoryApiAxiosParamCreator(configuration)
     return {
         /**
+         * 用于修正目录统计数据。 - 目录统计可能因为网络抖动等不确定因素，与实际值存在差异，可以调用此接口对统计值进行修正 - 修正期间，尽量减少对该目录及其子目录的写操作，否则修正结果存在偏差 - 此接口有频控限制，请勿频繁调用 - 要求权限：admin、space_admin 
+         * @summary 修正目录统计数据
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+         * @param {CalibrateDirectoryStatsCalibrateEnum} calibrate 固定值为 1，表示修正目录统计数据
+         * @param {CalibrateDirectoryStatsStatsTypeEnum} statsType 统计类型，normal 表示普通目录统计量，recycle 表示回收站目录统计量，history 表示目录的历史版本统计量
+         * @param {string} [recycledId] 回收站项目 ID，修正回收站的统计量时，为必选参数（根目录除外）
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async calibrateDirectoryStats(libraryId: string, spaceId: string, filePath: string, calibrate: CalibrateDirectoryStatsCalibrateEnum, statsType: CalibrateDirectoryStatsStatsTypeEnum, recycledId?: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CalibrateDirectoryStats200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.calibrateDirectoryStats(libraryId, spaceId, filePath, calibrate, statsType, recycledId, accessToken, librarySecret, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DirectoryApi.calibrateDirectoryStats']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 用于检查目录或相簿状态
          * @summary 检查目录或相簿状态
          * @param {string} libraryId 媒体库 ID，必选参数
@@ -874,6 +1051,27 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteDirectory(libraryId, spaceId, filePath, permanent, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.deleteDirectory']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 用于查询目录的统计数据，包括子目录数量、文件数量、包含的文件总大小。 - 可以查询普通目录的统计结果、回收站目录的统计结果、某个目录的历史版本的统计结果 - 文件写操作和查询目录统计结果之间存在秒级时延，以最新查询结果为准 
+         * @summary 查询目录统计数据
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+         * @param {GetDirectoryStatsStatsEnum} stats 固定值为 1，表示查询目录统计数据
+         * @param {GetDirectoryStatsStatsTypeEnum} statsType 统计类型，normal 表示普通目录统计量，recycle 表示回收站目录统计量，history 表示目录的历史版本统计量
+         * @param {string} [recycledId] 回收站项目 ID，查询回收站的统计量时，为必选参数（根目录除外）
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getDirectoryStats(libraryId: string, spaceId: string, filePath: string, stats: GetDirectoryStatsStatsEnum, statsType: GetDirectoryStatsStatsTypeEnum, recycledId?: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetDirectoryStats200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getDirectoryStats(libraryId, spaceId, filePath, stats, statsType, recycledId, accessToken, librarySecret, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DirectoryApi.getDirectoryStats']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1021,6 +1219,16 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
     const localVarFp = DirectoryApiFp(configuration)
     return {
         /**
+         * 用于修正目录统计数据。 - 目录统计可能因为网络抖动等不确定因素，与实际值存在差异，可以调用此接口对统计值进行修正 - 修正期间，尽量减少对该目录及其子目录的写操作，否则修正结果存在偏差 - 此接口有频控限制，请勿频繁调用 - 要求权限：admin、space_admin 
+         * @summary 修正目录统计数据
+         * @param {DirectoryApiCalibrateDirectoryStatsRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        calibrateDirectoryStats(requestParameters: DirectoryApiCalibrateDirectoryStatsRequest, options?: RawAxiosRequestConfig): AxiosPromise<CalibrateDirectoryStats200Response> {
+            return localVarFp.calibrateDirectoryStats(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.calibrate, requestParameters.statsType, requestParameters.recycledId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 用于检查目录或相簿状态
          * @summary 检查目录或相簿状态
          * @param {DirectoryApiCheckDirectoryStatusRequest} requestParameters Request parameters.
@@ -1059,6 +1267,16 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          */
         deleteDirectory(requestParameters: DirectoryApiDeleteDirectoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<void | DeleteFile200Response> {
             return localVarFp.deleteDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.permanent, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 用于查询目录的统计数据，包括子目录数量、文件数量、包含的文件总大小。 - 可以查询普通目录的统计结果、回收站目录的统计结果、某个目录的历史版本的统计结果 - 文件写操作和查询目录统计结果之间存在秒级时延，以最新查询结果为准 
+         * @summary 查询目录统计数据
+         * @param {DirectoryApiGetDirectoryStatsRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDirectoryStats(requestParameters: DirectoryApiGetDirectoryStatsRequest, options?: RawAxiosRequestConfig): AxiosPromise<GetDirectoryStats200Response> {
+            return localVarFp.getDirectoryStats(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.stats, requestParameters.statsType, requestParameters.recycledId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 此接口可同时用于查看文件或文件夹详情，路径如果为文件，则返回文件详情，如果为文件夹，则返回文件夹详情。 
@@ -1122,6 +1340,56 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
         },
     };
 };
+
+/**
+ * Request parameters for calibrateDirectoryStats operation in DirectoryApi.
+ */
+export interface DirectoryApiCalibrateDirectoryStatsRequest {
+    /**
+     * 媒体库 ID，必选参数
+     */
+    readonly libraryId: string
+
+    /**
+     * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+     */
+    readonly spaceId: string
+
+    /**
+     * 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+     */
+    readonly filePath: string
+
+    /**
+     * 固定值为 1，表示修正目录统计数据
+     */
+    readonly calibrate: CalibrateDirectoryStatsCalibrateEnum
+
+    /**
+     * 统计类型，normal 表示普通目录统计量，recycle 表示回收站目录统计量，history 表示目录的历史版本统计量
+     */
+    readonly statsType: CalibrateDirectoryStatsStatsTypeEnum
+
+    /**
+     * 回收站项目 ID，修正回收站的统计量时，为必选参数（根目录除外）
+     */
+    readonly recycledId?: string
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
+     * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+     */
+    readonly userId?: string
+}
 
 /**
  * Request parameters for checkDirectoryStatus operation in DirectoryApi.
@@ -1268,6 +1536,56 @@ export interface DirectoryApiDeleteDirectoryRequest {
      * 当媒体库开启回收站时，则该参数指定将文件移入回收站还是永久删除文件，1: 永久删除，0: 移入回收站，默认为 0
      */
     readonly permanent?: DeleteDirectoryPermanentEnum
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
+     * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+     */
+    readonly userId?: string
+}
+
+/**
+ * Request parameters for getDirectoryStats operation in DirectoryApi.
+ */
+export interface DirectoryApiGetDirectoryStatsRequest {
+    /**
+     * 媒体库 ID，必选参数
+     */
+    readonly libraryId: string
+
+    /**
+     * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+     */
+    readonly spaceId: string
+
+    /**
+     * 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+     */
+    readonly filePath: string
+
+    /**
+     * 固定值为 1，表示查询目录统计数据
+     */
+    readonly stats: GetDirectoryStatsStatsEnum
+
+    /**
+     * 统计类型，normal 表示普通目录统计量，recycle 表示回收站目录统计量，history 表示目录的历史版本统计量
+     */
+    readonly statsType: GetDirectoryStatsStatsTypeEnum
+
+    /**
+     * 回收站项目 ID，查询回收站的统计量时，为必选参数（根目录除外）
+     */
+    readonly recycledId?: string
 
     /**
      * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
@@ -1626,6 +1944,17 @@ export interface DirectoryApiUpdateFileLabelsRequest {
  */
 export class DirectoryApi extends BaseAPI {
     /**
+     * 用于修正目录统计数据。 - 目录统计可能因为网络抖动等不确定因素，与实际值存在差异，可以调用此接口对统计值进行修正 - 修正期间，尽量减少对该目录及其子目录的写操作，否则修正结果存在偏差 - 此接口有频控限制，请勿频繁调用 - 要求权限：admin、space_admin 
+     * @summary 修正目录统计数据
+     * @param {DirectoryApiCalibrateDirectoryStatsRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public calibrateDirectoryStats(requestParameters: DirectoryApiCalibrateDirectoryStatsRequest, options?: RawAxiosRequestConfig) {
+        return DirectoryApiFp(this.configuration).calibrateDirectoryStats(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.calibrate, requestParameters.statsType, requestParameters.recycledId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 用于检查目录或相簿状态
      * @summary 检查目录或相簿状态
      * @param {DirectoryApiCheckDirectoryStatusRequest} requestParameters Request parameters.
@@ -1667,6 +1996,17 @@ export class DirectoryApi extends BaseAPI {
      */
     public deleteDirectory(requestParameters: DirectoryApiDeleteDirectoryRequest, options?: RawAxiosRequestConfig) {
         return DirectoryApiFp(this.configuration).deleteDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.permanent, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 用于查询目录的统计数据，包括子目录数量、文件数量、包含的文件总大小。 - 可以查询普通目录的统计结果、回收站目录的统计结果、某个目录的历史版本的统计结果 - 文件写操作和查询目录统计结果之间存在秒级时延，以最新查询结果为准 
+     * @summary 查询目录统计数据
+     * @param {DirectoryApiGetDirectoryStatsRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getDirectoryStats(requestParameters: DirectoryApiGetDirectoryStatsRequest, options?: RawAxiosRequestConfig) {
+        return DirectoryApiFp(this.configuration).getDirectoryStats(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.stats, requestParameters.statsType, requestParameters.recycledId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1736,6 +2076,16 @@ export class DirectoryApi extends BaseAPI {
     }
 }
 
+export const CalibrateDirectoryStatsCalibrateEnum = {
+    NUMBER_1: 1
+} as const;
+export type CalibrateDirectoryStatsCalibrateEnum = typeof CalibrateDirectoryStatsCalibrateEnum[keyof typeof CalibrateDirectoryStatsCalibrateEnum];
+export const CalibrateDirectoryStatsStatsTypeEnum = {
+    Normal: 'normal',
+    Recycle: 'recycle',
+    History: 'history'
+} as const;
+export type CalibrateDirectoryStatsStatsTypeEnum = typeof CalibrateDirectoryStatsStatsTypeEnum[keyof typeof CalibrateDirectoryStatsStatsTypeEnum];
 export const CopyDirectoryConflictResolutionStrategyEnum = {
     Ask: 'ask',
     Rename: 'rename'
@@ -1756,6 +2106,16 @@ export const DeleteDirectoryPermanentEnum = {
     NUMBER_1: 1
 } as const;
 export type DeleteDirectoryPermanentEnum = typeof DeleteDirectoryPermanentEnum[keyof typeof DeleteDirectoryPermanentEnum];
+export const GetDirectoryStatsStatsEnum = {
+    NUMBER_1: 1
+} as const;
+export type GetDirectoryStatsStatsEnum = typeof GetDirectoryStatsStatsEnum[keyof typeof GetDirectoryStatsStatsEnum];
+export const GetDirectoryStatsStatsTypeEnum = {
+    Normal: 'normal',
+    Recycle: 'recycle',
+    History: 'history'
+} as const;
+export type GetDirectoryStatsStatsTypeEnum = typeof GetDirectoryStatsStatsTypeEnum[keyof typeof GetDirectoryStatsStatsTypeEnum];
 export const InfoFileOrDirectoryInfoEnum = {
     NUMBER_1: 1
 } as const;

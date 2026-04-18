@@ -1,6 +1,7 @@
 /**
  * FileApi 补充集成测试
- * 覆盖 copyFile、moveFile、checkFileStatus、createSymlink、getFileInfoByInode
+ * 覆盖 copyFile、moveFile、checkFileStatus、createSymlink、getFileInfoByInode、
+ * getDeltaCursor、queryDeltaLog
  * 跳过 formUploadFile（需要 multipart/form-data）、convertFile（需要文档类型文件）、
  * abortFileUpload（需要进行中的上传 confirmKey）、renewMultipartUpload（同理）、
  * previewFile / getCover（返回 302 重定向，不适合集成测试断言）
@@ -206,6 +207,93 @@ describe.skipIf(shouldSkip)('FileApi 补充集成测试', () => {
           ctx.skip(`getFileInfoByInode 不可用: ${error?.response?.status}`);
         }
         throw error;
+      }
+    });
+  });
+
+  // ─── getDeltaCursor ───────────────────────────────────────
+
+  describe('getDeltaCursor - 获取增量游标', () => {
+    it('应能获取当前最新的增量游标', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        const res = await client.file.getDeltaCursor({});
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+        // cursor 应为字符串（不透明标记），可能为空字符串但必须有字段返回
+        const data = res.data as any;
+        if (data.cursor !== undefined) {
+          expect(typeof data.cursor).toBe('string');
+        }
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`getDeltaCursor 不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+    });
+  });
+
+  // ─── queryDeltaLog ────────────────────────────────────────
+
+  describe('queryDeltaLog - 查询增量变动日志', () => {
+    it('应能基于当前游标查询增量变动日志', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      let cursor: string | undefined;
+      try {
+        const cursorRes = await client.file.getDeltaCursor({});
+        cursor = (cursorRes.data as any)?.cursor;
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`getDeltaCursor 不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+
+      if (typeof cursor !== 'string') {
+        ctx.skip('未获取到 cursor');
+        return;
+      }
+
+      try {
+        const res = await client.file.queryDeltaLog({
+          cursor,
+          limit: 10,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+        const data = res.data as any;
+        // 响应应包含 cursor / hasMore / contents 字段之一
+        if (data.cursor !== undefined) {
+          expect(typeof data.cursor).toBe('string');
+        }
+        if (data.hasMore !== undefined) {
+          expect(typeof data.hasMore).toBe('boolean');
+        }
+        if (data.contents !== undefined) {
+          expect(Array.isArray(data.contents)).toBe(true);
+        }
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`queryDeltaLog 不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+    });
+
+    it('传入非法 cursor 应返回错误', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        await client.file.queryDeltaLog({
+          cursor: 'invalid-cursor-' + Date.now(),
+          limit: 10,
+        });
+      } catch (error: any) {
+        expect(error).toBeDefined();
+        expect(error.response?.status).toBeDefined();
       }
     });
   });

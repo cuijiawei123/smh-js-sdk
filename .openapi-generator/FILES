@@ -33,6 +33,7 @@ models/batch-move200-response-result-inner.ts
 models/batch-move200-response.ts
 models/batch-move202-response.ts
 models/batch-move207-response.ts
+models/calibrate-directory-stats200-response.ts
 models/check-file-deletion200-response.ts
 models/complete-file-upload-request.ts
 models/complete-file-upload200-response.ts
@@ -71,6 +72,8 @@ models/form-upload-file200-response.ts
 models/form-upload-file201-response.ts
 models/get-contents-view200-response-contents-inner.ts
 models/get-contents-view200-response.ts
+models/get-delta-cursor200-response.ts
+models/get-directory-stats200-response.ts
 models/get-file-count-in-space200-response.ts
 models/get-file-info-by-inode200-response.ts
 models/get-file-upload200-response-parts-inner.ts
@@ -124,6 +127,8 @@ models/prepare-m3u8-upload200-response.ts
 models/prepare-m3u8-upload201-response-playlist.ts
 models/prepare-m3u8-upload201-response-segments-value.ts
 models/prepare-m3u8-upload201-response.ts
+models/query-delta-log200-response-contents-inner.ts
+models/query-delta-log200-response.ts
 models/query-library-task-v2200-response-clear-library-history-result.ts
 models/query-library-task-v2200-response.ts
 models/query-library-task200-response-inner.ts
