@@ -30,6 +30,7 @@ const client = new SMHClient({
   retryDelay: 1000,   // 可选，指数退避
   timeout: 30000,     // 可选，ms
   // 推荐：token 过期自动续期
+  // ⚠️ 下方 '/api/refresh-smh-token' 仅为示例接口名，实际应替换为业务后端提供的签发接口
   onTokenRefresh: async () => {
     const { accessToken } = await fetch('/api/refresh-smh-token').then(r => r.json())
     return accessToken
