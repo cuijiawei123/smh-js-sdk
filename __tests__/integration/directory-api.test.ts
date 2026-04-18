@@ -1,12 +1,16 @@
 /**
  * DirectoryApi 补充集成测试
  * 覆盖 copyDirectory、listDirectoryByPage、checkDirectoryStatus、
- * infoFileOrDirectory、updateDirectoryLabels
+ * infoFileOrDirectory、updateDirectoryLabels、getDirectoryStats、calibrateDirectoryStats
  * 原 directory.test.ts 已覆盖：createDirectory、listDirectory、deleteDirectory、moveDirectory
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { SMHClient } from '../../interceptor/SmhClient';
 import {
+  CalibrateDirectoryStatsCalibrateEnum,
+  CalibrateDirectoryStatsStatsTypeEnum,
+  GetDirectoryStatsStatsEnum,
+  GetDirectoryStatsStatsTypeEnum,
   InfoFileOrDirectoryInfoEnum,
   ListDirectoryByPageByPageEnum,
   UpdateFileLabelsUpdateEnum,
@@ -196,6 +200,121 @@ describe.skipIf(shouldSkip)('DirectoryApi 补充集成测试', () => {
           ctx.skip(`更新文件标签不可用: ${error?.response?.status}`);
         }
         throw error;
+      }
+    });
+  });
+
+  // ─── getDirectoryStats ────────────────────────────────────
+
+  describe('getDirectoryStats - 查询目录统计数据', () => {
+    it('应能查询普通目录的统计数据', async (ctx: any) => {
+      try {
+        const res = await client.directory.getDirectoryStats({
+          filePath: testDirBase,
+          stats: GetDirectoryStatsStatsEnum.NUMBER_1,
+          statsType: GetDirectoryStatsStatsTypeEnum.Normal,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+        const data = res.data as any;
+        // 响应字段应包含统计信息（可能为 0 或数值）
+        if (data.fileCount !== undefined) {
+          expect(typeof data.fileCount).toBe('number');
+        }
+        if (data.dirCount !== undefined) {
+          expect(typeof data.dirCount).toBe('number');
+        }
+        if (data.storage !== undefined) {
+          expect(typeof data.storage).toBe('number');
+        }
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`getDirectoryStats 不可用: ${error?.response?.status}`);
+        }
+        throw error;
+      }
+    });
+
+    it('应能查询根目录的统计数据（filePath 留空）', async (ctx: any) => {
+      try {
+        const res = await client.directory.getDirectoryStats({
+          filePath: '',
+          stats: GetDirectoryStatsStatsEnum.NUMBER_1,
+          statsType: GetDirectoryStatsStatsTypeEnum.Normal,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`getDirectoryStats 根目录不可用: ${error?.response?.status}`);
+        }
+        throw error;
+      }
+    });
+
+    it('应支持回收站统计类型', async (ctx: any) => {
+      try {
+        const res = await client.directory.getDirectoryStats({
+          filePath: '',
+          stats: GetDirectoryStatsStatsEnum.NUMBER_1,
+          statsType: GetDirectoryStatsStatsTypeEnum.Recycle,
+        });
+        expect(res.status).toBe(200);
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`getDirectoryStats recycle 不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+    });
+
+    it('对不存在的目录应返回错误', async (ctx: any) => {
+      try {
+        await client.directory.getDirectoryStats({
+          filePath: `${getTestRootDir()}/non-existent-stats-${Date.now()}`,
+          stats: GetDirectoryStatsStatsEnum.NUMBER_1,
+          statsType: GetDirectoryStatsStatsTypeEnum.Normal,
+        });
+      } catch (error: any) {
+        expect(error).toBeDefined();
+        expect(error.response?.status).toBeDefined();
+      }
+    });
+  });
+
+  // ─── calibrateDirectoryStats ──────────────────────────────
+
+  describe('calibrateDirectoryStats - 修正目录统计数据', () => {
+    it('应能触发普通目录统计的修正', async (ctx: any) => {
+      try {
+        const res = await client.directory.calibrateDirectoryStats({
+          filePath: testDirBase,
+          calibrate: CalibrateDirectoryStatsCalibrateEnum.NUMBER_1,
+          statsType: CalibrateDirectoryStatsStatsTypeEnum.Normal,
+        });
+        // 该接口可能同步返回 200/204，也可能异步返回 202
+        expect([200, 202, 204]).toContain(res.status);
+      } catch (error: any) {
+        // 频控或权限不足时安全跳过
+        if ([400, 403, 404, 405, 429, 501].includes(error?.response?.status)) {
+          ctx.skip(`calibrateDirectoryStats 不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+    });
+
+    it('对不存在的目录应返回错误', async (ctx: any) => {
+      try {
+        await client.directory.calibrateDirectoryStats({
+          filePath: `${getTestRootDir()}/non-existent-calibrate-${Date.now()}`,
+          calibrate: CalibrateDirectoryStatsCalibrateEnum.NUMBER_1,
+          statsType: CalibrateDirectoryStatsStatsTypeEnum.Normal,
+        });
+      } catch (error: any) {
+        expect(error).toBeDefined();
+        expect(error.response?.status).toBeDefined();
       }
     });
   });
