@@ -60,13 +60,14 @@ describe('API OOP + ParamCreator 覆盖补充', () => {
         'lib-1',
         'space-1',
         'a/b.txt',
-        'token-1',
         'm1',
         9,
         2,
         50,
         ListHistoryOrderByEnum.CreationTime,
         ListHistoryOrderByTypeEnum.Asc,
+        'token-1',
+        'secret-1',
         { headers: { 'X-Custom': '2' } },
       );
 
@@ -77,6 +78,7 @@ describe('API OOP + ParamCreator 覆盖补充', () => {
       expect(req.url).toContain('order_by=creationTime');
       expect(req.url).toContain('order_by_type=asc');
       expect(req.url).toContain('access_token=token-1');
+      expect(req.url).toContain('library_secret=secret-1');
       expect(req.options.headers).toMatchObject({
         'X-From-BaseOptions': '1',
         'X-Custom': '2',
@@ -122,23 +124,25 @@ describe('API OOP + ParamCreator 覆盖补充', () => {
 
       const createReq = await creator.createQuota(
         'lib-1',
-        'token-1',
         { capacity: '1024', removeWhenExceed: false, removeAfterDays: 7, spaces: ['space-1'] } as any,
+        'token-1',
+        'secret-1',
         'user-1',
       );
       expect(createReq.url).toContain('access_token=token-1');
+      expect(createReq.url).toContain('library_secret=secret-1');
       expect(createReq.url).toContain('user_id=user-1');
 
-      const getReq = await creator.getQuota('lib-1', 'space-1', 'token-1', 'user-1');
+      const getReq = await creator.getQuota('lib-1', 'space-1', 'token-1', 'secret-1', 'user-1');
       expect(getReq.url).toContain('user_id=user-1');
 
-      const infoReq = await creator.getQuotaInfo('lib-1', 'q-1', 'token-1', 'user-1');
+      const infoReq = await creator.getQuotaInfo('lib-1', 'q-1', 'token-1', 'secret-1', 'user-1');
       expect(infoReq.url).toContain('user_id=user-1');
 
-      const updateReq = await creator.updateQuota('lib-1', 'space-1', 'token-1', { capacity: '2048' } as any, 'user-1');
+      const updateReq = await creator.updateQuota('lib-1', 'space-1', { capacity: '2048' } as any, 'token-1', 'secret-1', 'user-1');
       expect(updateReq.url).toContain('user_id=user-1');
 
-      const updateByIdReq = await creator.updateQuotaById('lib-1', 'q-1', 'token-1', { capacity: '2048' } as any, 'user-1');
+      const updateByIdReq = await creator.updateQuotaById('lib-1', 'q-1', { capacity: '2048' } as any, 'token-1', 'secret-1', 'user-1');
       expect(updateByIdReq.url).toContain('user_id=user-1');
     });
 
@@ -198,6 +202,7 @@ describe('API OOP + ParamCreator 覆盖补充', () => {
         RecycleListOrderByEnum.RemovalTime,
         RecycleListOrderByTypeEnum.Desc,
         'token-1',
+        'secret-1',
         'user-1',
       );
       expect(listReq.url).toContain('by-marker=1');
@@ -206,6 +211,7 @@ describe('API OOP + ParamCreator 覆盖补充', () => {
       expect(listReq.url).toContain('order_by=removalTime');
       expect(listReq.url).toContain('order_by_type=desc');
       expect(listReq.url).toContain('access_token=token-1');
+      expect(listReq.url).toContain('library_secret=secret-1');
       expect(listReq.url).toContain('user_id=user-1');
 
       const listByPageReq = await creator.recycleListByPage(
@@ -217,6 +223,7 @@ describe('API OOP + ParamCreator 覆盖补充', () => {
         RecycleListByPageOrderByEnum.Size,
         RecycleListByPageOrderByTypeEnum.Asc,
         'token-1',
+        'secret-1',
         'user-1',
       );
       expect(listByPageReq.url).toContain('by-page=1');
@@ -251,8 +258,9 @@ describe('API OOP + ParamCreator 覆盖补充', () => {
         'space-1',
         11,
         RecycleRestoreRestoreEnum.NUMBER_1,
-        'token-1',
         RecycleRestoreConflictResolutionStrategyEnum.Overwrite,
+        'token-1',
+        'secret-1',
         'user-1',
         RecycleRestoreRestorePathStrategyEnum.FallbackToRoot,
       );
@@ -264,8 +272,9 @@ describe('API OOP + ParamCreator 覆盖补充', () => {
         'lib-1',
         'space-1',
         1,
-        'token-1',
         [1, 2],
+        'token-1',
+        'secret-1',
         'user-1',
         RecycleRestoreBatchRestorePathStrategyEnum.FallbackToRoot,
       );
