@@ -2,6 +2,8 @@
 
 腾讯云智能媒资托管（Smart Media Hosting，SMH）浏览器端 JavaScript/TypeScript SDK，为开发者提供便捷的浏览器端接口来访问和管理腾讯云 SMH 服务，支持文件上传（含秒传、分片、断点续传）、下载、目录管理等完整功能。
 
+> 🤖 **使用 AI / Agent 接入本 SDK？** 请阅读 **[sdk-docs/AGENTS.md](./sdk-docs/AGENTS.md)**，这是为 Coding Agent（Codex / Claude / CodeBuddy 等）定制的精简手册，读完即可正确生成代码。
+
 ## 前提条件
 
 - 浏览器需支持 File API、ArrayBuffer、BigInt、WebAssembly
@@ -631,7 +633,32 @@ Demo 仓库地址：[smh-js-sdk-demo](https://git.woa.com/smh/smh-js-sdk-demo)
 
 ## 文档
 
-更多详细文档请参考：
+### SDK 文档
+
+- 🤖 **[AGENTS.md — AI / Agent 快速上手手册](./sdk-docs/AGENTS.md)**（推荐给 Coding Agent 阅读）
+- [快速开始](./sdk-docs/Started.md)
+
+#### API 模块
+
+- [DirectoryApi — 目录管理](./sdk-docs/DirectoryApi.md)
+- [FileApi — 文件管理（含增量同步 Delta）](./sdk-docs/FileApi.md)
+- [SpaceApi — 空间管理](./sdk-docs/SpaceApi.md)
+- [BatchApi — 批量操作](./sdk-docs/BatchApi.md)
+- [RecycledApi — 回收站管理](./sdk-docs/RecycledApi.md)
+- [HistoryApi — 历史版本管理](./sdk-docs/HistoryApi.md)
+- [SearchApi — 搜索](./sdk-docs/SearchApi.md)
+- [FavoriteApi — 收藏](./sdk-docs/FavoriteApi.md)
+- [RecentApi — 最近使用](./sdk-docs/RecentApi.md)
+- [TaskApi — 任务管理](./sdk-docs/TaskApi.md)
+- [QuotaApi — 配额管理](./sdk-docs/QuotaApi.md)
+- [UsageApi — 使用量统计](./sdk-docs/UsageApi.md)
+
+#### 上传 / 下载
+
+- [Uploader — 文件上传](./sdk-docs/Uploader.md)
+- [Downloader — 文件下载](./sdk-docs/Downloader.md)
+
+### 其他文档
 
 - [API 文档](https://cloud.tencent.com/document/product/1339)
 
