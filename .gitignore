@@ -6,3 +6,5 @@ dist
 coverage/
 _debug_upload.js
 *.log
+.openapi-generator
+.openapi-generator-ignore
