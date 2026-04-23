@@ -240,7 +240,7 @@ const url = URL.createObjectURL(blob);
 
 ### 搜索功能（SearchApi）
 
-- 搜索目录与文件
+- 搜索目录与文件（支持关键字、搜索范围 scope、文件类型、文件大小、修改时间等多种条件）
 - 继续获取搜索结果（分页）
 - 删除搜索任务
 
