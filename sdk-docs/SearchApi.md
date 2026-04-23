@@ -30,6 +30,7 @@ const res = await smh.search.searchFs({
     marker: 'FnMwV3NweXJOU2hTOTRpTnF0TW9EZVEeVUFhYUl5TGFSaTZtZUpDcEpUcEtxdzo3NjQ3NjU1',
     searchFsRequest: {
         keywords: ['报告文档', '工作文档'],
+        scope: '/documents',
         inExtnames: ['.pdf', '.doc', '.docx'],
         excludeExtnames: ['.xls', '.xlsx'],
         fileTypes: ['file', 'dir'],
@@ -63,6 +64,7 @@ const res = await smh.search.searchFs({
 | 字段 | 参数描述 | 类型 | 是否必填 |
 |------|----------|------|----------|
 | keywords | 搜索关键字，字符串数组，多个关键字之间为"或"的关系 | Array | 否 |
+| scope | 搜索范围，指定搜索的目录，如搜索根目录可指定为空字符串、"/"或不指定该字段 | String | 否 |
 | inExtnames | 搜索文件后缀，字符串数组 | Array | 否 |
 | excludeExtnames | 不包含的搜索文件后缀，字符串数组 | Array | 否 |
 | fileTypes | 文件类型，可选值：file、dir、symlink | Array | 否 |

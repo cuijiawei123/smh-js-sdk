@@ -20,6 +20,10 @@ export interface SearchFsRequest {
      */
     'keywords'?: Array<string>;
     /**
+     * 搜索范围，指定搜索的目录，可选参数，如搜索根目录可指定为空字符串、\"/\"或不指定该字段
+     */
+    'scope'?: string;
+    /**
      * 搜索文件后缀，可选参数，字符串数组，或的关系
      */
     'inExtnames'?: Array<string>;
