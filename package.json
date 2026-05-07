@@ -1,6 +1,6 @@
 {
   "name": "smh-js-sdk",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "腾讯云智能媒资托管服务 JavaScript/TypeScript SDK",
   "keywords": [
     "tencent",
@@ -14,9 +14,9 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://git.woa.com/smh/smh-js-sdk-v2.git"
+    "url": "https://cnb.cool/tencent/cloud/smh/smh-javascript-sdk.git"
   },
-  "homepage": "https://git.woa.com/smh/smh-js-sdk-v2#readme",
+  "homepage": "https://cnb.cool/tencent/cloud/smh/smh-javascript-sdk/-/blob/master/README.md",
   "engines": {
     "node": ">=16.0.0"
   },
