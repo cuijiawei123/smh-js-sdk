@@ -1,14 +1,18 @@
 /**
  * FileApi 补充集成测试
  * 覆盖 copyFile、moveFile、checkFileStatus、createSymlink、getFileInfoByInode、
- * getDeltaCursor、queryDeltaLog
+ * getDeltaCursor、queryDeltaLog、createVirtualFile
  * 跳过 formUploadFile（需要 multipart/form-data）、convertFile（需要文档类型文件）、
  * abortFileUpload（需要进行中的上传 confirmKey）、renewMultipartUpload（同理）、
  * previewFile / getCover（返回 302 重定向，不适合集成测试断言）
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { SMHClient } from '../../interceptor/SmhClient';
-import { InfoFileInfoEnum } from '../../apis/file-api';
+import {
+  InfoFileInfoEnum,
+  CreateVirtualFileVirtualFileEnum,
+  CreateVirtualFileConflictResolutionStrategyEnum,
+} from '../../apis/file-api';
 import {
   createMockFile,
   createTestClient,
@@ -295,6 +299,299 @@ describe.skipIf(shouldSkip)('FileApi 补充集成测试', () => {
         expect(error).toBeDefined();
         expect(error.response?.status).toBeDefined();
       }
+    });
+  });
+
+  // ─── createVirtualFile ──────────────────────────────────────
+
+  describe('createVirtualFile - 创建虚拟文件', () => {
+    const virtualFiles: string[] = [];
+
+    afterAll(async () => {
+      for (const fp of virtualFiles) {
+        try { await client.file.deleteFile({ filePath: fp }); } catch { /* ignore */ }
+      }
+    });
+
+    describe('基本创建', () => {
+      it('应能创建虚拟文件（最小参数）', async () => {
+        assertSetupReady(setupFailed);
+        const filePath = uniquePath('virtual-basic', '.vfile');
+        virtualFiles.push(filePath);
+
+        const res = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+        });
+        expect([200, 201]).toContain(res.status);
+        expect(res.data).toBeDefined();
+        expect(res.data.type).toBe('virtual');
+      });
+
+      it('应返回最终文件路径', async () => {
+        assertSetupReady(setupFailed);
+        const filePath = uniquePath('virtual-path-check', '.vfile');
+        virtualFiles.push(filePath);
+
+        const res = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+        });
+        expect([200, 201]).toContain(res.status);
+        expect(res.data.path).toBeDefined();
+        expect(Array.isArray(res.data.path)).toBe(true);
+      });
+    });
+
+    describe('请求体参数', () => {
+      it('应支持 contentType 参数', async () => {
+        assertSetupReady(setupFailed);
+        const filePath = uniquePath('virtual-content-type', '.vfile');
+        virtualFiles.push(filePath);
+
+        const res = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+          createVirtualFileRequest: {
+            contentType: 'application/pdf',
+          },
+        });
+        expect([200, 201]).toContain(res.status);
+        expect(res.data).toBeDefined();
+        expect(res.data.type).toBe('virtual');
+      });
+
+      it('应支持 metaData 参数', async () => {
+        assertSetupReady(setupFailed);
+        const filePath = uniquePath('virtual-metadata', '.vfile');
+        virtualFiles.push(filePath);
+
+        const res = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+          createVirtualFileRequest: {
+            metaData: {
+              source: 'sdk-test',
+              version: '1.0',
+            },
+          },
+        });
+        expect([200, 201]).toContain(res.status);
+        expect(res.data).toBeDefined();
+      });
+
+      it('应支持 labels 参数', async () => {
+        assertSetupReady(setupFailed);
+        const filePath = uniquePath('virtual-labels', '.vfile');
+        virtualFiles.push(filePath);
+
+        const res = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+          createVirtualFileRequest: {
+            labels: ['test-label', 'sdk'],
+          },
+        });
+        expect([200, 201]).toContain(res.status);
+        expect(res.data).toBeDefined();
+      });
+
+      it('应支持 category 参数', async () => {
+        assertSetupReady(setupFailed);
+        const filePath = uniquePath('virtual-category', '.vfile');
+        virtualFiles.push(filePath);
+
+        const res = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+          createVirtualFileRequest: {
+            category: 'test-category',
+          },
+        });
+        expect([200, 201]).toContain(res.status);
+        expect(res.data).toBeDefined();
+      });
+
+      it('应支持 size 参数', async () => {
+        assertSetupReady(setupFailed);
+        const filePath = uniquePath('virtual-size', '.vfile');
+        virtualFiles.push(filePath);
+
+        const res = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+          createVirtualFileRequest: {
+            size: '1024',
+          },
+        });
+        expect([200, 201]).toContain(res.status);
+        expect(res.data).toBeDefined();
+      });
+
+      it('应支持所有请求体参数组合', async () => {
+        assertSetupReady(setupFailed);
+        const filePath = uniquePath('virtual-all-params', '.vfile');
+        virtualFiles.push(filePath);
+
+        const res = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+          createVirtualFileRequest: {
+            contentType: 'application/json',
+            metaData: { key1: 'value1', key2: 'value2' },
+            labels: ['label-a', 'label-b'],
+            category: 'full-test',
+            size: '2048',
+          },
+        });
+        expect([200, 201]).toContain(res.status);
+        expect(res.data).toBeDefined();
+        expect(res.data.type).toBe('virtual');
+      });
+    });
+
+    describe('冲突处理策略', () => {
+      it('conflictResolutionStrategy=rename 应自动重命名', async () => {
+        assertSetupReady(setupFailed);
+        const filePath = uniquePath('virtual-conflict-rename', '.vfile');
+        virtualFiles.push(filePath);
+
+        // Create the first file
+        const res1 = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+        });
+        expect([200, 201]).toContain(res1.status);
+
+        // Create again with rename strategy
+        const res2 = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+          conflictResolutionStrategy: CreateVirtualFileConflictResolutionStrategyEnum.Rename,
+        });
+        expect([200, 201]).toContain(res2.status);
+        expect(res2.data).toBeDefined();
+        if (res2.data.path) {
+          virtualFiles.push(res2.data.path.join('/'));
+        }
+      });
+
+      it('conflictResolutionStrategy=ask 应返回 409 冲突', async () => {
+        assertSetupReady(setupFailed);
+        const filePath = uniquePath('virtual-conflict-ask', '.vfile');
+        virtualFiles.push(filePath);
+
+        // Create the first file
+        const res1 = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+        });
+        expect([200, 201]).toContain(res1.status);
+
+        // Create again with ask strategy - should conflict
+        try {
+          await client.file.createVirtualFile({
+            filePath,
+            virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+            conflictResolutionStrategy: CreateVirtualFileConflictResolutionStrategyEnum.Ask,
+          });
+        } catch (error: any) {
+          expect(error.response?.status).toBe(409);
+        }
+      });
+
+      it('conflictResolutionStrategy=overwrite 应覆盖已有文件', async () => {
+        assertSetupReady(setupFailed);
+        const filePath = uniquePath('virtual-conflict-overwrite', '.vfile');
+        virtualFiles.push(filePath);
+
+        // Create the first file
+        const res1 = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+          createVirtualFileRequest: {
+            contentType: 'text/plain',
+          },
+        });
+        expect([200, 201]).toContain(res1.status);
+
+        // Overwrite with new content type
+        const res2 = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+          conflictResolutionStrategy: CreateVirtualFileConflictResolutionStrategyEnum.Overwrite,
+          createVirtualFileRequest: {
+            contentType: 'application/json',
+          },
+        });
+        expect([200, 201]).toContain(res2.status);
+        expect(res2.data).toBeDefined();
+      });
+    });
+
+    describe('多级目录路径', () => {
+      it('应支持在多级目录下创建虚拟文件', async () => {
+        assertSetupReady(setupFailed);
+        const nestedDir = `${getTestRootDir()}/nested/sub`;
+        try {
+          await client.directory.createDirectory({ filePath: nestedDir });
+        } catch { /* ignore - may already exist */ }
+
+        const filePath = `${nestedDir}/virtual_nested_${Date.now()}.vfile`;
+        virtualFiles.push(filePath);
+
+        const res = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+          createVirtualFileRequest: {
+            contentType: 'application/octet-stream',
+          },
+        });
+        expect([200, 201]).toContain(res.status);
+        expect(res.data).toBeDefined();
+        expect(res.data.path).toBeDefined();
+      });
+    });
+
+    describe('创建后验证', () => {
+      it('创建虚拟文件后应能通过 infoFile 查询到', async () => {
+        assertSetupReady(setupFailed);
+        const filePath = uniquePath('virtual-verify-info', '.vfile');
+        virtualFiles.push(filePath);
+
+        const createRes = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+          createVirtualFileRequest: {
+            contentType: 'text/plain',
+            size: '512',
+          },
+        });
+        expect([200, 201]).toContain(createRes.status);
+
+        await sleep(500);
+
+        const infoRes = await client.file.infoFile({
+          filePath,
+          info: 1 as any,
+        });
+        expect(infoRes.status).toBe(200);
+        expect(infoRes.data).toBeDefined();
+      });
+
+      it('创建虚拟文件后应能删除', async () => {
+        assertSetupReady(setupFailed);
+        const filePath = uniquePath('virtual-verify-delete', '.vfile');
+
+        const createRes = await client.file.createVirtualFile({
+          filePath,
+          virtualFile: CreateVirtualFileVirtualFileEnum.NUMBER_1,
+        });
+        expect([200, 201]).toContain(createRes.status);
+
+        const deleteRes = await client.file.deleteFile({ filePath });
+        expect([200, 204]).toContain(deleteRes.status);
+      });
     });
   });
 });

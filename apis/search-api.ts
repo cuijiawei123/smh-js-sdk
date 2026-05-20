@@ -22,17 +22,89 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { SearchAI200Response } from '../models';
+// @ts-ignore
+import type { SearchAIRequest } from '../models';
+// @ts-ignore
 import type { SearchFs200Response } from '../models';
 // @ts-ignore
 import type { SearchFsRequest } from '../models';
+// @ts-ignore
+import type { SearchFsStats200Response } from '../models';
+// @ts-ignore
+import type { SearchFsStatsRequest } from '../models';
 /**
  * SearchApi - axios parameter creator
  */
 export const SearchApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
+         * 本接口使用一段自然语言关键字，在已开通白名单的媒体库/空间内，对文档/图片做多模态语义检索。 本文档涵盖 type=text 文搜文档（按自然语言语义检索文档类文件，含命中片段与页码）和 type=pic 文搜图（按自然语言语义做跨模态图片检索）两种子模式。  如需精准的文件名/正文关键字检索，请参考搜索目录与文件-基本检索（MI）。  接口说明： - 该功能需开通白名单后使用；未开通时返回 HTTP 4xx； - 本接口不支持翻页（无 marker / nextMarker）； - limit 从 URL query 读取（不是请求体），默认 10，type=text 上限 30，type=pic 上限 100；超出上限、负数或非整数均返回 HTTP 4xx；limit=0 直接返回空列表；如 limit 字段写在请求体里会被忽略； - keywords 是 string（单一语义字符串，与搜索目录与文件-基本检索（MI）的 string[] 不同），服务端会先做空白与特殊字符清洗，清洗后 rune 长度上限 60； - 请求体大小上限 4 MB（超出返回 HTTP 4xx）； - 接口 QPS 上限与具体白名单套餐挂钩（以实际开通配额为准）； - 本接口不支持 creators / minFileSize / maxFileSize / scope 四个字段，字段写了也无效； - type=text 的文档索引可用性硬限制：支持格式 ∈ {pdf, png, jpg, jpeg, docx, doc, pptx, txt, md}；非图片类文档原始文件大小 ≤ 100 MB；图片类（jpg/jpeg/png）原始文件大小 ≤ 10 MB；单份文档最大 300 页；返回最大结果数量 ≤ 30； - type=pic 的图片索引可用性硬限制：图像最长边 ≤ 7680 px；图像最短边 ≥ 32 px；原始文件大小 ≤ 10 MB；格式 ∈ {jpeg, jpg, png, bmp, webp}（仅支持静态图）； - 服务端内部配置不一致时可能返回 HTTP 500（由服务方保障，调用方重试或联系运维即可）。 
+         * @summary 搜索文件 - 混合检索（MI）
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {SearchAIRequest} searchAIRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {number} [limit] 本次返回的最大结果数量，从 URL query 读取（写在请求体里会被忽略），默认 10；type&#x3D;text 取值范围 [0, 30]，type&#x3D;pic 取值范围 [0, 100]；传 0 时直接返回空 contents
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchAI: async (libraryId: string, spaceId: string, searchAIRequest: SearchAIRequest, accessToken?: string, librarySecret?: string, userId?: string, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'libraryId' is not null or undefined
+            assertParamExists('searchAI', 'libraryId', libraryId)
+            // verify required parameter 'spaceId' is not null or undefined
+            assertParamExists('searchAI', 'spaceId', spaceId)
+            // verify required parameter 'searchAIRequest' is not null or undefined
+            assertParamExists('searchAI', 'searchAIRequest', searchAIRequest)
+            const localVarPath = `/api/v1/search/{LibraryId}/{SpaceId}/search-ai`
+                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
+                .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (accessToken !== undefined) {
+                localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(searchAIRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 用于搜索目录与文件。 使用本接口搜索时，如果在返回时有部分或全部搜索结果，则返回已搜索出的结果的第一页（每页 20 个），如果暂未搜索到结果则返回空数组，因此该接口实际返回的 contents 数量可能为 0 到 20 之间不等，且是否还有更多搜索结果，不应参考 contents 的数量，而应参考 nextMarker 字段； 当需要获取后续页时，传入marker参数进行翻页； 本接口QPS使用上限为10，此接口不可用于业务的高频操作页面，比如空间首页列表的查询等，如有更大QPS的需求请提工单联系智能媒资托管团队； 
-         * @summary 搜索目录与文件
+         * @summary 搜索目录与文件 - 基本检索（MI）
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
@@ -40,12 +112,13 @@ export const SearchApiAxiosParamCreator = function (configuration?: Configuratio
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [marker] 用于顺序列出分页的标识，可选参数，建议将marker放入请求体中传入
          * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，可选参数，取值范围[1,100]
-         * @param {SearchFsWithFavoriteStatusEnum} [withFavoriteStatus] 0 或 1，是否返回收藏状态，可选，默认不返回
+         * @param {SearchFsWithFavoriteStatusEnum} [withFavoriteStatus] 0 或 1，是否返回收藏状态，可选，默认不返回；仅 type&#x3D;filename 生效，type&#x3D;filecontent 下即使传入 1 也不会返回 isFavorite
+         * @param {SearchFsWithInodeEnum} [withInode] 0 或 1，是否返回每条结果的 inode 字段，可选参数，默认不返回
          * @param {SearchFsRequest} [searchFsRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchFs: async (libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, marker?: string, limit?: number, withFavoriteStatus?: SearchFsWithFavoriteStatusEnum, searchFsRequest?: SearchFsRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        searchFs: async (libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, marker?: string, limit?: number, withFavoriteStatus?: SearchFsWithFavoriteStatusEnum, withInode?: SearchFsWithInodeEnum, searchFsRequest?: SearchFsRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('searchFs', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -88,6 +161,10 @@ export const SearchApiAxiosParamCreator = function (configuration?: Configuratio
                 localVarQueryParameter['with_favorite_status'] = withFavoriteStatus;
             }
 
+            if (withInode !== undefined) {
+                localVarQueryParameter['with_inode'] = withInode;
+            }
+
 
     
             localVarHeaderParameter['Content-Type'] = 'application/json';
@@ -96,6 +173,65 @@ export const SearchApiAxiosParamCreator = function (configuration?: Configuratio
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(searchFsRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 用于对目录与文件进行聚合统计，支持按指定字段分组并对分组结果进行求和、计数等子统计操作。典型场景如：按文件后缀分组统计文件大小总和、按文件分类统计文件数量等。 本接口基于搜索条件对文件进行聚合统计，不返回文件列表，仅返回统计结果； 支持与搜索接口相同的筛选条件，可在筛选范围内进行统计； 单次请求最多支持 5 个聚合统计项； 每个聚合统计项支持嵌套一层子聚合（如 group by extName + sum(size)）； 分组聚合（group）默认最多返回 2000 个分组； 本接口 QPS 使用上限为 10； 
+         * @summary 搜索目录与文件统计
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {SearchFsStatsRequest} searchFsStatsRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchFsStats: async (libraryId: string, spaceId: string, searchFsStatsRequest: SearchFsStatsRequest, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'libraryId' is not null or undefined
+            assertParamExists('searchFsStats', 'libraryId', libraryId)
+            // verify required parameter 'spaceId' is not null or undefined
+            assertParamExists('searchFsStats', 'spaceId', spaceId)
+            // verify required parameter 'searchFsStatsRequest' is not null or undefined
+            assertParamExists('searchFsStats', 'searchFsStatsRequest', searchFsStatsRequest)
+            const localVarPath = `/api/v1/search/{LibraryId}/{SpaceId}/search-fs-stats`
+                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
+                .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (accessToken !== undefined) {
+                localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(searchFsStatsRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -112,8 +248,27 @@ export const SearchApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = SearchApiAxiosParamCreator(configuration)
     return {
         /**
+         * 本接口使用一段自然语言关键字，在已开通白名单的媒体库/空间内，对文档/图片做多模态语义检索。 本文档涵盖 type=text 文搜文档（按自然语言语义检索文档类文件，含命中片段与页码）和 type=pic 文搜图（按自然语言语义做跨模态图片检索）两种子模式。  如需精准的文件名/正文关键字检索，请参考搜索目录与文件-基本检索（MI）。  接口说明： - 该功能需开通白名单后使用；未开通时返回 HTTP 4xx； - 本接口不支持翻页（无 marker / nextMarker）； - limit 从 URL query 读取（不是请求体），默认 10，type=text 上限 30，type=pic 上限 100；超出上限、负数或非整数均返回 HTTP 4xx；limit=0 直接返回空列表；如 limit 字段写在请求体里会被忽略； - keywords 是 string（单一语义字符串，与搜索目录与文件-基本检索（MI）的 string[] 不同），服务端会先做空白与特殊字符清洗，清洗后 rune 长度上限 60； - 请求体大小上限 4 MB（超出返回 HTTP 4xx）； - 接口 QPS 上限与具体白名单套餐挂钩（以实际开通配额为准）； - 本接口不支持 creators / minFileSize / maxFileSize / scope 四个字段，字段写了也无效； - type=text 的文档索引可用性硬限制：支持格式 ∈ {pdf, png, jpg, jpeg, docx, doc, pptx, txt, md}；非图片类文档原始文件大小 ≤ 100 MB；图片类（jpg/jpeg/png）原始文件大小 ≤ 10 MB；单份文档最大 300 页；返回最大结果数量 ≤ 30； - type=pic 的图片索引可用性硬限制：图像最长边 ≤ 7680 px；图像最短边 ≥ 32 px；原始文件大小 ≤ 10 MB；格式 ∈ {jpeg, jpg, png, bmp, webp}（仅支持静态图）； - 服务端内部配置不一致时可能返回 HTTP 500（由服务方保障，调用方重试或联系运维即可）。 
+         * @summary 搜索文件 - 混合检索（MI）
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {SearchAIRequest} searchAIRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {number} [limit] 本次返回的最大结果数量，从 URL query 读取（写在请求体里会被忽略），默认 10；type&#x3D;text 取值范围 [0, 30]，type&#x3D;pic 取值范围 [0, 100]；传 0 时直接返回空 contents
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchAI(libraryId: string, spaceId: string, searchAIRequest: SearchAIRequest, accessToken?: string, librarySecret?: string, userId?: string, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchAI200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchAI(libraryId, spaceId, searchAIRequest, accessToken, librarySecret, userId, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SearchApi.searchAI']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 用于搜索目录与文件。 使用本接口搜索时，如果在返回时有部分或全部搜索结果，则返回已搜索出的结果的第一页（每页 20 个），如果暂未搜索到结果则返回空数组，因此该接口实际返回的 contents 数量可能为 0 到 20 之间不等，且是否还有更多搜索结果，不应参考 contents 的数量，而应参考 nextMarker 字段； 当需要获取后续页时，传入marker参数进行翻页； 本接口QPS使用上限为10，此接口不可用于业务的高频操作页面，比如空间首页列表的查询等，如有更大QPS的需求请提工单联系智能媒资托管团队； 
-         * @summary 搜索目录与文件
+         * @summary 搜索目录与文件 - 基本检索（MI）
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
@@ -121,15 +276,34 @@ export const SearchApiFp = function(configuration?: Configuration) {
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [marker] 用于顺序列出分页的标识，可选参数，建议将marker放入请求体中传入
          * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，可选参数，取值范围[1,100]
-         * @param {SearchFsWithFavoriteStatusEnum} [withFavoriteStatus] 0 或 1，是否返回收藏状态，可选，默认不返回
+         * @param {SearchFsWithFavoriteStatusEnum} [withFavoriteStatus] 0 或 1，是否返回收藏状态，可选，默认不返回；仅 type&#x3D;filename 生效，type&#x3D;filecontent 下即使传入 1 也不会返回 isFavorite
+         * @param {SearchFsWithInodeEnum} [withInode] 0 或 1，是否返回每条结果的 inode 字段，可选参数，默认不返回
          * @param {SearchFsRequest} [searchFsRequest] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async searchFs(libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, marker?: string, limit?: number, withFavoriteStatus?: SearchFsWithFavoriteStatusEnum, searchFsRequest?: SearchFsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchFs200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.searchFs(libraryId, spaceId, accessToken, librarySecret, userId, marker, limit, withFavoriteStatus, searchFsRequest, options);
+        async searchFs(libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, marker?: string, limit?: number, withFavoriteStatus?: SearchFsWithFavoriteStatusEnum, withInode?: SearchFsWithInodeEnum, searchFsRequest?: SearchFsRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchFs200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchFs(libraryId, spaceId, accessToken, librarySecret, userId, marker, limit, withFavoriteStatus, withInode, searchFsRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SearchApi.searchFs']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 用于对目录与文件进行聚合统计，支持按指定字段分组并对分组结果进行求和、计数等子统计操作。典型场景如：按文件后缀分组统计文件大小总和、按文件分类统计文件数量等。 本接口基于搜索条件对文件进行聚合统计，不返回文件列表，仅返回统计结果； 支持与搜索接口相同的筛选条件，可在筛选范围内进行统计； 单次请求最多支持 5 个聚合统计项； 每个聚合统计项支持嵌套一层子聚合（如 group by extName + sum(size)）； 分组聚合（group）默认最多返回 2000 个分组； 本接口 QPS 使用上限为 10； 
+         * @summary 搜索目录与文件统计
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {SearchFsStatsRequest} searchFsStatsRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchFsStats(libraryId: string, spaceId: string, searchFsStatsRequest: SearchFsStatsRequest, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchFsStats200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchFsStats(libraryId, spaceId, searchFsStatsRequest, accessToken, librarySecret, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SearchApi.searchFsStats']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -142,17 +316,74 @@ export const SearchApiFactory = function (configuration?: Configuration, basePat
     const localVarFp = SearchApiFp(configuration)
     return {
         /**
+         * 本接口使用一段自然语言关键字，在已开通白名单的媒体库/空间内，对文档/图片做多模态语义检索。 本文档涵盖 type=text 文搜文档（按自然语言语义检索文档类文件，含命中片段与页码）和 type=pic 文搜图（按自然语言语义做跨模态图片检索）两种子模式。  如需精准的文件名/正文关键字检索，请参考搜索目录与文件-基本检索（MI）。  接口说明： - 该功能需开通白名单后使用；未开通时返回 HTTP 4xx； - 本接口不支持翻页（无 marker / nextMarker）； - limit 从 URL query 读取（不是请求体），默认 10，type=text 上限 30，type=pic 上限 100；超出上限、负数或非整数均返回 HTTP 4xx；limit=0 直接返回空列表；如 limit 字段写在请求体里会被忽略； - keywords 是 string（单一语义字符串，与搜索目录与文件-基本检索（MI）的 string[] 不同），服务端会先做空白与特殊字符清洗，清洗后 rune 长度上限 60； - 请求体大小上限 4 MB（超出返回 HTTP 4xx）； - 接口 QPS 上限与具体白名单套餐挂钩（以实际开通配额为准）； - 本接口不支持 creators / minFileSize / maxFileSize / scope 四个字段，字段写了也无效； - type=text 的文档索引可用性硬限制：支持格式 ∈ {pdf, png, jpg, jpeg, docx, doc, pptx, txt, md}；非图片类文档原始文件大小 ≤ 100 MB；图片类（jpg/jpeg/png）原始文件大小 ≤ 10 MB；单份文档最大 300 页；返回最大结果数量 ≤ 30； - type=pic 的图片索引可用性硬限制：图像最长边 ≤ 7680 px；图像最短边 ≥ 32 px；原始文件大小 ≤ 10 MB；格式 ∈ {jpeg, jpg, png, bmp, webp}（仅支持静态图）； - 服务端内部配置不一致时可能返回 HTTP 500（由服务方保障，调用方重试或联系运维即可）。 
+         * @summary 搜索文件 - 混合检索（MI）
+         * @param {SearchApiSearchAIRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchAI(requestParameters: SearchApiSearchAIRequest, options?: RawAxiosRequestConfig): AxiosPromise<SearchAI200Response> {
+            return localVarFp.searchAI(requestParameters.libraryId, requestParameters.spaceId, requestParameters.searchAIRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.limit, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 用于搜索目录与文件。 使用本接口搜索时，如果在返回时有部分或全部搜索结果，则返回已搜索出的结果的第一页（每页 20 个），如果暂未搜索到结果则返回空数组，因此该接口实际返回的 contents 数量可能为 0 到 20 之间不等，且是否还有更多搜索结果，不应参考 contents 的数量，而应参考 nextMarker 字段； 当需要获取后续页时，传入marker参数进行翻页； 本接口QPS使用上限为10，此接口不可用于业务的高频操作页面，比如空间首页列表的查询等，如有更大QPS的需求请提工单联系智能媒资托管团队； 
-         * @summary 搜索目录与文件
+         * @summary 搜索目录与文件 - 基本检索（MI）
          * @param {SearchApiSearchFsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         searchFs(requestParameters: SearchApiSearchFsRequest, options?: RawAxiosRequestConfig): AxiosPromise<SearchFs200Response> {
-            return localVarFp.searchFs(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.marker, requestParameters.limit, requestParameters.withFavoriteStatus, requestParameters.searchFsRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.searchFs(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.marker, requestParameters.limit, requestParameters.withFavoriteStatus, requestParameters.withInode, requestParameters.searchFsRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 用于对目录与文件进行聚合统计，支持按指定字段分组并对分组结果进行求和、计数等子统计操作。典型场景如：按文件后缀分组统计文件大小总和、按文件分类统计文件数量等。 本接口基于搜索条件对文件进行聚合统计，不返回文件列表，仅返回统计结果； 支持与搜索接口相同的筛选条件，可在筛选范围内进行统计； 单次请求最多支持 5 个聚合统计项； 每个聚合统计项支持嵌套一层子聚合（如 group by extName + sum(size)）； 分组聚合（group）默认最多返回 2000 个分组； 本接口 QPS 使用上限为 10； 
+         * @summary 搜索目录与文件统计
+         * @param {SearchApiSearchFsStatsRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchFsStats(requestParameters: SearchApiSearchFsStatsRequest, options?: RawAxiosRequestConfig): AxiosPromise<SearchFsStats200Response> {
+            return localVarFp.searchFsStats(requestParameters.libraryId, requestParameters.spaceId, requestParameters.searchFsStatsRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for searchAI operation in SearchApi.
+ */
+export interface SearchApiSearchAIRequest {
+    /**
+     * 媒体库 ID，必选参数
+     */
+    readonly libraryId: string
+
+    /**
+     * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+     */
+    readonly spaceId: string
+
+    readonly searchAIRequest: SearchAIRequest
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
+     * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+     */
+    readonly userId?: string
+
+    /**
+     * 本次返回的最大结果数量，从 URL query 读取（写在请求体里会被忽略），默认 10；type&#x3D;text 取值范围 [0, 30]，type&#x3D;pic 取值范围 [0, 100]；传 0 时直接返回空 contents
+     */
+    readonly limit?: number
+}
 
 /**
  * Request parameters for searchFs operation in SearchApi.
@@ -194,11 +425,48 @@ export interface SearchApiSearchFsRequest {
     readonly limit?: number
 
     /**
-     * 0 或 1，是否返回收藏状态，可选，默认不返回
+     * 0 或 1，是否返回收藏状态，可选，默认不返回；仅 type&#x3D;filename 生效，type&#x3D;filecontent 下即使传入 1 也不会返回 isFavorite
      */
     readonly withFavoriteStatus?: SearchFsWithFavoriteStatusEnum
 
+    /**
+     * 0 或 1，是否返回每条结果的 inode 字段，可选参数，默认不返回
+     */
+    readonly withInode?: SearchFsWithInodeEnum
+
     readonly searchFsRequest?: SearchFsRequest
+}
+
+/**
+ * Request parameters for searchFsStats operation in SearchApi.
+ */
+export interface SearchApiSearchFsStatsRequest {
+    /**
+     * 媒体库 ID，必选参数
+     */
+    readonly libraryId: string
+
+    /**
+     * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+     */
+    readonly spaceId: string
+
+    readonly searchFsStatsRequest: SearchFsStatsRequest
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
+     * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+     */
+    readonly userId?: string
 }
 
 /**
@@ -206,14 +474,36 @@ export interface SearchApiSearchFsRequest {
  */
 export class SearchApi extends BaseAPI {
     /**
+     * 本接口使用一段自然语言关键字，在已开通白名单的媒体库/空间内，对文档/图片做多模态语义检索。 本文档涵盖 type=text 文搜文档（按自然语言语义检索文档类文件，含命中片段与页码）和 type=pic 文搜图（按自然语言语义做跨模态图片检索）两种子模式。  如需精准的文件名/正文关键字检索，请参考搜索目录与文件-基本检索（MI）。  接口说明： - 该功能需开通白名单后使用；未开通时返回 HTTP 4xx； - 本接口不支持翻页（无 marker / nextMarker）； - limit 从 URL query 读取（不是请求体），默认 10，type=text 上限 30，type=pic 上限 100；超出上限、负数或非整数均返回 HTTP 4xx；limit=0 直接返回空列表；如 limit 字段写在请求体里会被忽略； - keywords 是 string（单一语义字符串，与搜索目录与文件-基本检索（MI）的 string[] 不同），服务端会先做空白与特殊字符清洗，清洗后 rune 长度上限 60； - 请求体大小上限 4 MB（超出返回 HTTP 4xx）； - 接口 QPS 上限与具体白名单套餐挂钩（以实际开通配额为准）； - 本接口不支持 creators / minFileSize / maxFileSize / scope 四个字段，字段写了也无效； - type=text 的文档索引可用性硬限制：支持格式 ∈ {pdf, png, jpg, jpeg, docx, doc, pptx, txt, md}；非图片类文档原始文件大小 ≤ 100 MB；图片类（jpg/jpeg/png）原始文件大小 ≤ 10 MB；单份文档最大 300 页；返回最大结果数量 ≤ 30； - type=pic 的图片索引可用性硬限制：图像最长边 ≤ 7680 px；图像最短边 ≥ 32 px；原始文件大小 ≤ 10 MB；格式 ∈ {jpeg, jpg, png, bmp, webp}（仅支持静态图）； - 服务端内部配置不一致时可能返回 HTTP 500（由服务方保障，调用方重试或联系运维即可）。 
+     * @summary 搜索文件 - 混合检索（MI）
+     * @param {SearchApiSearchAIRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public searchAI(requestParameters: SearchApiSearchAIRequest, options?: RawAxiosRequestConfig) {
+        return SearchApiFp(this.configuration).searchAI(requestParameters.libraryId, requestParameters.spaceId, requestParameters.searchAIRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.limit, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 用于搜索目录与文件。 使用本接口搜索时，如果在返回时有部分或全部搜索结果，则返回已搜索出的结果的第一页（每页 20 个），如果暂未搜索到结果则返回空数组，因此该接口实际返回的 contents 数量可能为 0 到 20 之间不等，且是否还有更多搜索结果，不应参考 contents 的数量，而应参考 nextMarker 字段； 当需要获取后续页时，传入marker参数进行翻页； 本接口QPS使用上限为10，此接口不可用于业务的高频操作页面，比如空间首页列表的查询等，如有更大QPS的需求请提工单联系智能媒资托管团队； 
-     * @summary 搜索目录与文件
+     * @summary 搜索目录与文件 - 基本检索（MI）
      * @param {SearchApiSearchFsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     public searchFs(requestParameters: SearchApiSearchFsRequest, options?: RawAxiosRequestConfig) {
-        return SearchApiFp(this.configuration).searchFs(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.marker, requestParameters.limit, requestParameters.withFavoriteStatus, requestParameters.searchFsRequest, options).then((request) => request(this.axios, this.basePath));
+        return SearchApiFp(this.configuration).searchFs(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.marker, requestParameters.limit, requestParameters.withFavoriteStatus, requestParameters.withInode, requestParameters.searchFsRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 用于对目录与文件进行聚合统计，支持按指定字段分组并对分组结果进行求和、计数等子统计操作。典型场景如：按文件后缀分组统计文件大小总和、按文件分类统计文件数量等。 本接口基于搜索条件对文件进行聚合统计，不返回文件列表，仅返回统计结果； 支持与搜索接口相同的筛选条件，可在筛选范围内进行统计； 单次请求最多支持 5 个聚合统计项； 每个聚合统计项支持嵌套一层子聚合（如 group by extName + sum(size)）； 分组聚合（group）默认最多返回 2000 个分组； 本接口 QPS 使用上限为 10； 
+     * @summary 搜索目录与文件统计
+     * @param {SearchApiSearchFsStatsRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public searchFsStats(requestParameters: SearchApiSearchFsStatsRequest, options?: RawAxiosRequestConfig) {
+        return SearchApiFp(this.configuration).searchFsStats(requestParameters.libraryId, requestParameters.spaceId, requestParameters.searchFsStatsRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -222,3 +512,8 @@ export const SearchFsWithFavoriteStatusEnum = {
     NUMBER_1: 1
 } as const;
 export type SearchFsWithFavoriteStatusEnum = typeof SearchFsWithFavoriteStatusEnum[keyof typeof SearchFsWithFavoriteStatusEnum];
+export const SearchFsWithInodeEnum = {
+    NUMBER_0: 0,
+    NUMBER_1: 1
+} as const;
+export type SearchFsWithInodeEnum = typeof SearchFsWithInodeEnum[keyof typeof SearchFsWithInodeEnum];

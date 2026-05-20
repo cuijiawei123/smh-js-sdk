@@ -43,5 +43,9 @@ export interface UpdateSpaceExtensionRequest {
      * 是否检测敏感内容，不指定默认为 false
      */
     'recognizeSensitiveContent'?: boolean;
+    /**
+     * 空间标识，用于区分个人空间和团队空间，可选参数；传入字符串值时，更新该字段；传入 null 时，清除已设置的 spaceTag；不传该字段时，保持原值不变
+     */
+    'spaceTag'?: string | null;
 }
 

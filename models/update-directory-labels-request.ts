@@ -16,8 +16,24 @@
 
 export interface UpdateDirectoryLabelsRequest {
     /**
-     * 文件标签列表，比如大象
+     * 文件标签列表，比如大象，可选参数
      */
     'labels'?: Array<string>;
+    /**
+     * 自定义元数据键值对，可选参数，key 为小写字符串
+     */
+    'metaData'?: { [key: string]: string; };
+    /**
+     * 元数据更新策略，可选参数。merge（默认）：JSON Merge Patch 语义，只更新传入的字段，未传入的字段保持不变，将某个 key 的值设为 null 可以删除该 key；replace：全量替换，用请求中的 metaData 完全替换已有的 MetaData，未在请求中出现的 key 会被删除，仅替换 MetaData 部分，Labels 不受影响
+     */
+    'metaDataDirective'?: UpdateDirectoryLabelsRequestMetaDataDirectiveEnum;
 }
+
+export const UpdateDirectoryLabelsRequestMetaDataDirectiveEnum = {
+    Merge: 'merge',
+    Replace: 'replace'
+} as const;
+
+export type UpdateDirectoryLabelsRequestMetaDataDirectiveEnum = typeof UpdateDirectoryLabelsRequestMetaDataDirectiveEnum[keyof typeof UpdateDirectoryLabelsRequestMetaDataDirectiveEnum];
+
 

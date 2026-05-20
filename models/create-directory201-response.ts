@@ -23,5 +23,25 @@ export interface CreateDirectory201Response {
      * 最后一级文件目录ID
      */
     'inode'?: string;
+    /**
+     * 目录创建时间
+     */
+    'creationTime'?: string;
+    /**
+     * 创建时传入的自定义元数据（key 带 x-smh-meta- 前缀），未设置时不返回该字段
+     */
+    'metaData'?: { [key: string]: string; };
+    /**
+     * 创建时传入的标签列表，未设置时不返回该字段
+     */
+    'labels'?: Array<string>;
+    /**
+     * 创建时传入的本地创建时间，未设置时不返回该字段
+     */
+    'localCreationTime'?: string;
+    /**
+     * 创建时传入的本地修改时间，未设置时不返回该字段
+     */
+    'localModificationTime'?: string;
 }
 

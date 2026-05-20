@@ -32,7 +32,7 @@ export interface ListDirectory200ResponseContentsInner {
      */
     'versionId'?: number | null;
     /**
-     * 条目类型
+     * 条目类型：dir-目录或相簿，file-文件，image-图片，video-视频，symlink-符号链接，virtual-虚拟文件（不对应实际的 COS 对象存储，仅保存元数据信息）
      */
     'type'?: ListDirectory200ResponseContentsInnerTypeEnum;
     /**
@@ -114,7 +114,8 @@ export const ListDirectory200ResponseContentsInnerTypeEnum = {
     File: 'file',
     Image: 'image',
     Video: 'video',
-    Symlink: 'symlink'
+    Symlink: 'symlink',
+    Virtual: 'virtual'
 } as const;
 
 export type ListDirectory200ResponseContentsInnerTypeEnum = typeof ListDirectory200ResponseContentsInnerTypeEnum[keyof typeof ListDirectory200ResponseContentsInnerTypeEnum];

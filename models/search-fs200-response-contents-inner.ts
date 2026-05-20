@@ -13,6 +13,9 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { SearchFs200ResponseContentsInnerContentHighlight } from './search-fs200-response-contents-inner-content-highlight';
 
 export interface SearchFs200ResponseContentsInner {
     /**
@@ -20,51 +23,51 @@ export interface SearchFs200ResponseContentsInner {
      */
     'type'?: SearchFs200ResponseContentsInnerTypeEnum;
     /**
-     * 文件目录ID
+     * 文件或目录 ID（查询时需带 with_inode=1 才会返回）
      */
     'inode'?: string;
     /**
-     * 目录或相簿名或文件名
+     * 目录名或文件名
      */
     'name'?: string;
     /**
-     * ISO 8601格式的日期与时间字符串，表示目录或相簿的创建时间或文件的上传时间
+     * ISO 8601格式的日期与时间字符串，表示目录/相簿的创建时间或文件的上传时间
      */
     'creationTime'?: string;
     /**
-     * 文件最近一次被覆盖的时间，或者目录内最近一次增删子目录或文件的时间
+     * 文件最近一次被覆盖的时间，或目录内最近一次增删子目录/文件的时间
      */
     'modificationTime'?: string;
     /**
-     * 媒体类型
+     * 媒体类型，仅 file 类型返回
      */
     'contentType'?: string;
     /**
-     * 版本号
+     * 版本号，仅 file 类型返回
      */
     'versionId'?: number;
     /**
-     * 文件大小，为了避免数字精度问题，这里为字符串格式
+     * 文件大小，字符串格式避免数字精度问题，仅 file 类型返回
      */
     'size'?: string;
     /**
-     * 是否被收藏，当 WithFavoriteStatus = 1 时返回
+     * 是否被当前用户收藏，仅当请求带 with_favorite_status=1 时返回；仅 type=filename 生效，type=filecontent 不返回此字段
      */
     'isFavorite'?: boolean;
     /**
-     * 文件 ETag
+     * 文件 ETag，仅 file 类型返回
      */
     'eTag'?: string;
     /**
-     * 文件的 CRC64-ECMA182 校验值，为了避免数字精度问题，这里为字符串格式
+     * 文件的 CRC64-ECMA182 校验值，字符串格式，仅 file 类型返回
      */
     'crc64'?: string;
     /**
-     * 文件元数据信息
+     * 文件元数据信息，仅 file 类型返回
      */
     'metaData'?: { [key: string]: string; };
     /**
-     * 创建/更新者 用户 ID
+     * 创建/更新者用户 ID
      */
     'userId'?: string;
     /**
@@ -80,11 +83,15 @@ export interface SearchFs200ResponseContentsInner {
      */
     'previewAsIcon'?: boolean;
     /**
-     * 简易文件标签，字符串数组
+     * 文件类别，如 doc/image/video/archive 等
+     */
+    'fileType'?: string;
+    /**
+     * 简易文件标签数组
      */
     'labels'?: Array<string>;
     /**
-     * 自定义文件分类，比如image、video、doc等
+     * 自定义文件分类，比如 image、video、doc 等
      */
     'category'?: string;
     /**
@@ -95,6 +102,19 @@ export interface SearchFs200ResponseContentsInner {
      * 文件对应的本地修改时间
      */
     'localModificationTime'?: string;
+    /**
+     * 命中的正文片段，仅 type=filecontent 返回
+     */
+    'text'?: string;
+    /**
+     * 命中片段所在文档页码（整数），仅 type=filecontent 返回；PDF/DOCX/PPTX 等有分页的文档才有意义，纯文本类文档为 0
+     */
+    'textPage'?: number;
+    /**
+     * 服务端计算的匹配得分（分数越高越相关），仅 type=filecontent 返回
+     */
+    'searchScore'?: number;
+    'contentHighlight'?: SearchFs200ResponseContentsInnerContentHighlight;
 }
 
 export const SearchFs200ResponseContentsInnerTypeEnum = {

@@ -459,10 +459,13 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [marker] 用于顺序列出分页的标识。
          * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制。
+         * @param {ListSpaceOrderedEnum} [ordered] 是否启用全局有序列出（按 spaceId 升序），取值为 1 表示启用，0 或不传表示不启用；启用后 prefix 与 start_name 才会生效。
+         * @param {string} [prefix] 按 spaceId 前缀过滤，仅返回 spaceId 以该前缀开头的租户空间；仅在 ordered&#x3D;1 时生效。
+         * @param {string} [startName] 分页起始游标（不包含），仅返回 spaceId &gt; start_name 的租户空间；仅在 ordered&#x3D;1 时生效；当与 marker 同时传入时 marker 优先，start_name 会被忽略。
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listSpace: async (libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, marker?: string, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listSpace: async (libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, marker?: string, limit?: number, ordered?: ListSpaceOrderedEnum, prefix?: string, startName?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('listSpace', 'libraryId', libraryId)
             const localVarPath = `/api/v1/space/{LibraryId}/list`
@@ -496,6 +499,18 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
 
             if (limit !== undefined) {
                 localVarQueryParameter['limit'] = limit;
+            }
+
+            if (ordered !== undefined) {
+                localVarQueryParameter['ordered'] = ordered;
+            }
+
+            if (prefix !== undefined) {
+                localVarQueryParameter['prefix'] = prefix;
+            }
+
+            if (startName !== undefined) {
+                localVarQueryParameter['start_name'] = startName;
             }
 
 
@@ -763,11 +778,14 @@ export const SpaceApiFp = function(configuration?: Configuration) {
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [marker] 用于顺序列出分页的标识。
          * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制。
+         * @param {ListSpaceOrderedEnum} [ordered] 是否启用全局有序列出（按 spaceId 升序），取值为 1 表示启用，0 或不传表示不启用；启用后 prefix 与 start_name 才会生效。
+         * @param {string} [prefix] 按 spaceId 前缀过滤，仅返回 spaceId 以该前缀开头的租户空间；仅在 ordered&#x3D;1 时生效。
+         * @param {string} [startName] 分页起始游标（不包含），仅返回 spaceId &gt; start_name 的租户空间；仅在 ordered&#x3D;1 时生效；当与 marker 同时传入时 marker 优先，start_name 会被忽略。
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listSpace(libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, marker?: string, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListSpace200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listSpace(libraryId, accessToken, librarySecret, userId, marker, limit, options);
+        async listSpace(libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, marker?: string, limit?: number, ordered?: ListSpaceOrderedEnum, prefix?: string, startName?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListSpace200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listSpace(libraryId, accessToken, librarySecret, userId, marker, limit, ordered, prefix, startName, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SpaceApi.listSpace']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -894,7 +912,7 @@ export const SpaceApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         listSpace(requestParameters: SpaceApiListSpaceRequest, options?: RawAxiosRequestConfig): AxiosPromise<ListSpace200Response> {
-            return localVarFp.listSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.marker, requestParameters.limit, options).then((request) => request(axios, basePath));
+            return localVarFp.listSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.marker, requestParameters.limit, requestParameters.ordered, requestParameters.prefix, requestParameters.startName, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于设置租户空间的下载限速，要求权限：admin或space_admin
@@ -1192,6 +1210,21 @@ export interface SpaceApiListSpaceRequest {
      * 用于顺序列出分页时本地列出的项目数限制。
      */
     readonly limit?: number
+
+    /**
+     * 是否启用全局有序列出（按 spaceId 升序），取值为 1 表示启用，0 或不传表示不启用；启用后 prefix 与 start_name 才会生效。
+     */
+    readonly ordered?: ListSpaceOrderedEnum
+
+    /**
+     * 按 spaceId 前缀过滤，仅返回 spaceId 以该前缀开头的租户空间；仅在 ordered&#x3D;1 时生效。
+     */
+    readonly prefix?: string
+
+    /**
+     * 分页起始游标（不包含），仅返回 spaceId &gt; start_name 的租户空间；仅在 ordered&#x3D;1 时生效；当与 marker 同时传入时 marker 优先，start_name 会被忽略。
+     */
+    readonly startName?: string
 }
 
 /**
@@ -1345,7 +1378,7 @@ export class SpaceApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public listSpace(requestParameters: SpaceApiListSpaceRequest, options?: RawAxiosRequestConfig) {
-        return SpaceApiFp(this.configuration).listSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.marker, requestParameters.limit, options).then((request) => request(this.axios, this.basePath));
+        return SpaceApiFp(this.configuration).listSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.marker, requestParameters.limit, requestParameters.ordered, requestParameters.prefix, requestParameters.startName, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1396,3 +1429,8 @@ export const GetContentsViewOrderByTypeEnum = {
     Desc: 'desc'
 } as const;
 export type GetContentsViewOrderByTypeEnum = typeof GetContentsViewOrderByTypeEnum[keyof typeof GetContentsViewOrderByTypeEnum];
+export const ListSpaceOrderedEnum = {
+    NUMBER_0: 0,
+    NUMBER_1: 1
+} as const;
+export type ListSpaceOrderedEnum = typeof ListSpaceOrderedEnum[keyof typeof ListSpaceOrderedEnum];

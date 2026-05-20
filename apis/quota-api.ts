@@ -200,6 +200,59 @@ export const QuotaApiAxiosParamCreator = function (configuration?: Configuration
             };
         },
         /**
+         * 用于获取指定空间的配额信息
+         * @summary 获取租户空间配额
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSpaceQuota: async (libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'libraryId' is not null or undefined
+            assertParamExists('getSpaceQuota', 'libraryId', libraryId)
+            // verify required parameter 'spaceId' is not null or undefined
+            assertParamExists('getSpaceQuota', 'spaceId', spaceId)
+            const localVarPath = `/api/v1/space-quota/{LibraryId}/{SpaceId}`
+                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
+                .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (accessToken !== undefined) {
+                localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 用于修改配额
          * @summary 修改配额
          * @param {string} libraryId 媒体库 ID，必选参数
@@ -378,6 +431,23 @@ export const QuotaApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 用于获取指定空间的配额信息
+         * @summary 获取租户空间配额
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getSpaceQuota(libraryId: string, spaceId: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetQuota200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSpaceQuota(libraryId, spaceId, accessToken, librarySecret, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['QuotaApi.getSpaceQuota']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 用于修改配额
          * @summary 修改配额
          * @param {string} libraryId 媒体库 ID，必选参数
@@ -451,6 +521,16 @@ export const QuotaApiFactory = function (configuration?: Configuration, basePath
          */
         getQuotaInfo(requestParameters: QuotaApiGetQuotaInfoRequest, options?: RawAxiosRequestConfig): AxiosPromise<GetQuotaInfo200Response> {
             return localVarFp.getQuotaInfo(requestParameters.libraryId, requestParameters.quotaId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 用于获取指定空间的配额信息
+         * @summary 获取租户空间配额
+         * @param {QuotaApiGetSpaceQuotaRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSpaceQuota(requestParameters: QuotaApiGetSpaceQuotaRequest, options?: RawAxiosRequestConfig): AxiosPromise<GetQuota200Response> {
+            return localVarFp.getSpaceQuota(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于修改配额
@@ -545,6 +625,36 @@ export interface QuotaApiGetQuotaInfoRequest {
      * 配额 ID，必选参数
      */
     readonly quotaId: string
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
+     * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+     */
+    readonly userId?: string
+}
+
+/**
+ * Request parameters for getSpaceQuota operation in QuotaApi.
+ */
+export interface QuotaApiGetSpaceQuotaRequest {
+    /**
+     * 媒体库 ID，必选参数
+     */
+    readonly libraryId: string
+
+    /**
+     * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+     */
+    readonly spaceId: string
 
     /**
      * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
@@ -661,6 +771,17 @@ export class QuotaApi extends BaseAPI {
      */
     public getQuotaInfo(requestParameters: QuotaApiGetQuotaInfoRequest, options?: RawAxiosRequestConfig) {
         return QuotaApiFp(this.configuration).getQuotaInfo(requestParameters.libraryId, requestParameters.quotaId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 用于获取指定空间的配额信息
+     * @summary 获取租户空间配额
+     * @param {QuotaApiGetSpaceQuotaRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getSpaceQuota(requestParameters: QuotaApiGetSpaceQuotaRequest, options?: RawAxiosRequestConfig) {
+        return QuotaApiFp(this.configuration).getSpaceQuota(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

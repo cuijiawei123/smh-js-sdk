@@ -13,18 +13,19 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { SearchFs200ResponseContentsInner } from './search-fs200-response-contents-inner';
 
-export interface SearchFs200Response {
+export interface SearchFsStats200ResponseAggregationsInnerGroupsInnerSubAggregationsInner {
     /**
-     * 用于获取后续页的分页标识，为空时表示已经翻页完毕
+     * 子聚合字段名
      */
-    'nextMarker'?: string;
+    'field'?: string;
     /**
-     * 本页搜索结果数组，可能为空数组
+     * 子聚合操作名
      */
-    'contents'?: Array<SearchFs200ResponseContentsInner>;
+    'operation'?: string;
+    /**
+     * 子聚合计算结果
+     */
+    'value'?: number;
 }
 

@@ -13,18 +13,14 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { SearchFs200ResponseContentsInner } from './search-fs200-response-contents-inner';
 
-export interface SearchFs200Response {
+/**
+ * 服务端侧的正文高亮片段，仅 type=filecontent 返回
+ */
+export interface SearchFs200ResponseContentsInnerContentHighlight {
     /**
-     * 用于获取后续页的分页标识，为空时表示已经翻页完毕
+     * 高亮片段数组，关键词用 <em> 标签包裹
      */
-    'nextMarker'?: string;
-    /**
-     * 本页搜索结果数组，可能为空数组
-     */
-    'contents'?: Array<SearchFs200ResponseContentsInner>;
+    'fragments'?: Array<string>;
 }
 
