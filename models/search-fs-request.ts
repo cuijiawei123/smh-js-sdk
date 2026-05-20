@@ -16,27 +16,31 @@
 
 export interface SearchFsRequest {
     /**
-     * 搜索关键字，可选参数，字符串数组，或的关系
+     * 搜索子模式，取值 filename（基础检索，按文件名命中）或 filecontent（全文关键字检索，按文件正文内容命中）；默认 filename
+     */
+    'type'?: SearchFsRequestTypeEnum;
+    /**
+     * 搜索关键字，可选参数，字符串数组（元素间为\"或\"关系），数组长度上限 100；type=filename 下按文件名命中，不做停用词过滤；type=filecontent 下按文件正文内容全文检索，服务端会自动过滤停用词
      */
     'keywords'?: Array<string>;
     /**
-     * 搜索范围，指定搜索的目录，可选参数，如搜索根目录可指定为空字符串、\"/\"或不指定该字段
+     * 搜索范围，指定搜索的目录，可选参数，如搜索根目录可指定为空字符串、\"/\"或不指定该字段；type=filecontent 下路径匹配能力有限，建议不填
      */
     'scope'?: string;
     /**
-     * 搜索文件后缀，可选参数，字符串数组，或的关系
+     * 包含的搜索文件后缀，可选参数，字符串数组，或的关系，数组长度上限 20，单元素 rune 长度上限 10
      */
     'inExtnames'?: Array<string>;
     /**
-     * 不包含的搜索文件后缀，可选参数，字符串数组，与的关系
+     * 不包含的搜索文件后缀，可选参数，字符串数组，与的关系，数组长度上限 20，单元素 rune 长度上限 10
      */
     'excludeExtnames'?: Array<string>;
     /**
-     * 文件类型，可选参数，字符串数组，file：文件，dir：目录，symlink：符号链接，virtual：虚拟文件，或的关系
+     * 文件类型，可选参数，字符串数组，取值 all/dir/file/symlink，或的关系
      */
     'fileTypes'?: Array<SearchFsRequestFileTypesEnum>;
     /**
-     * 搜索文件大小范围，整数，单位 Byte，可选参数
+     * 搜索文件大小范围，整数，单位 Byte，可选参数；若 minFileSize > maxFileSize 返回 HTTP 4xx
      */
     'minFileSize'?: number;
     /**
@@ -44,27 +48,27 @@ export interface SearchFsRequest {
      */
     'maxFileSize'?: number;
     /**
-     * 搜索更新时间范围，时间戳字符串，与时区无关，可选参数
+     * 搜索更新时间范围，RFC3339 格式字符串，可选参数；若起始时间晚于结束时间返回 HTTP 4xx
      */
     'modificationTimeStart'?: string;
     /**
-     * 搜索更新时间范围，时间戳字符串，与时区无关，可选参数
+     * 搜索更新时间范围，RFC3339 格式字符串，可选参数
      */
     'modificationTimeEnd'?: string;
     /**
-     * 排序字段，可选参数，name：按名称排序，modificationTime：按修改时间排序，size：按文件大小排序，creationTime：按创建时间排序，localCreationTime：按照文件对应的本地创建时间排序，localModificationTime：按照文件对应的本地修改时间排序
+     * 排序字段，可选参数；当前版本暂不支持按字段排序，字段传入不会报错但实际无效
      */
     'orderBy'?: SearchFsRequestOrderByEnum;
     /**
-     * 排序方式，升序为 asc，降序为 desc，可选参数
+     * 排序方式，升序为 asc，降序为 desc，可选参数；当前版本暂不支持，字段传入不会报错但实际无效
      */
     'orderByType'?: SearchFsRequestOrderByTypeEnum;
     /**
-     * 简易文件标签，字符串数组，或的关系
+     * 简易文件标签，可选参数，字符串数组，或的关系，数组长度上限 20，单元素 rune 长度上限 32
      */
     'labels'?: Array<string>;
     /**
-     * 文件自定义分类信息，字符串数组，或的关系
+     * 文件自定义分类，可选参数，字符串数组，或的关系，数组长度上限 20，取值必须属于该媒体库已声明的类目集合
      */
     'categories'?: Array<string>;
     /**
@@ -73,11 +77,17 @@ export interface SearchFsRequest {
     'marker'?: string;
 }
 
+export const SearchFsRequestTypeEnum = {
+    Filename: 'filename',
+    Filecontent: 'filecontent'
+} as const;
+
+export type SearchFsRequestTypeEnum = typeof SearchFsRequestTypeEnum[keyof typeof SearchFsRequestTypeEnum];
 export const SearchFsRequestFileTypesEnum = {
-    File: 'file',
+    All: 'all',
     Dir: 'dir',
-    Symlink: 'symlink',
-    Virtual: 'virtual'
+    File: 'file',
+    Symlink: 'symlink'
 } as const;
 
 export type SearchFsRequestFileTypesEnum = typeof SearchFsRequestFileTypesEnum[keyof typeof SearchFsRequestFileTypesEnum];

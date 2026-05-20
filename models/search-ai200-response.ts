@@ -15,16 +15,12 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { SearchFs200ResponseContentsInner } from './search-fs200-response-contents-inner';
+import type { SearchAI200ResponseContentsInner } from './search-ai200-response-contents-inner';
 
-export interface SearchFs200Response {
+export interface SearchAI200Response {
     /**
-     * 用于获取后续页的分页标识，为空时表示已经翻页完毕
+     * 命中结果数组，数组长度 ≤ 本次请求的 limit
      */
-    'nextMarker'?: string;
-    /**
-     * 本页搜索结果数组，可能为空数组
-     */
-    'contents'?: Array<SearchFs200ResponseContentsInner>;
+    'contents'?: Array<SearchAI200ResponseContentsInner>;
 }
 
