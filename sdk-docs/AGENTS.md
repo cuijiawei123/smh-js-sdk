@@ -370,4 +370,12 @@ export async function listAll(client: SMHClient, dir: string) {
 
 ---
 
+## 9. 可运行示例
+
+仓库根目录的 [`demo/`](../demo/) 下提供了端到端可运行的浏览器示例，Agent 在生成代码时可以参考其调用方式与最佳实践：
+
+- [`demo/queue`](../demo/queue/) — Vite + React 的上传队列 Demo：演示 `createUploadTask`、并发调度、暂停/恢复、断点续传、状态 + 进度订阅等完整用法。架构梳理见 [demo/queue/ARCHITECTURE.md](../demo/queue/ARCHITECTURE.md)。
+
+---
+
 **本手册结束。Agent 在此之后生成的任何 SMH 相关代码都应完整符合第 6 节自检清单。**
