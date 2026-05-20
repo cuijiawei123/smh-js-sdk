@@ -13,8 +13,11 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { SearchFsStatsRequestAggregationsInner } from './search-fs-stats-request-aggregations-inner';
 
-export interface SearchFsRequest {
+export interface SearchFsStatsRequest {
     /**
      * 搜索关键字，可选参数，字符串数组，或的关系
      */
@@ -32,9 +35,9 @@ export interface SearchFsRequest {
      */
     'excludeExtnames'?: Array<string>;
     /**
-     * 文件类型，可选参数，字符串数组，file：文件，dir：目录，symlink：符号链接，virtual：虚拟文件，或的关系
+     * 文件类型，可选参数，字符串数组，file：文件，dir：目录，symlink：符号链接，或的关系
      */
-    'fileTypes'?: Array<SearchFsRequestFileTypesEnum>;
+    'fileTypes'?: Array<SearchFsStatsRequestFileTypesEnum>;
     /**
      * 搜索文件大小范围，整数，单位 Byte，可选参数
      */
@@ -52,14 +55,6 @@ export interface SearchFsRequest {
      */
     'modificationTimeEnd'?: string;
     /**
-     * 排序字段，可选参数，name：按名称排序，modificationTime：按修改时间排序，size：按文件大小排序，creationTime：按创建时间排序，localCreationTime：按照文件对应的本地创建时间排序，localModificationTime：按照文件对应的本地修改时间排序
-     */
-    'orderBy'?: SearchFsRequestOrderByEnum;
-    /**
-     * 排序方式，升序为 asc，降序为 desc，可选参数
-     */
-    'orderByType'?: SearchFsRequestOrderByTypeEnum;
-    /**
      * 简易文件标签，字符串数组，或的关系
      */
     'labels'?: Array<string>;
@@ -68,34 +63,17 @@ export interface SearchFsRequest {
      */
     'categories'?: Array<string>;
     /**
-     * 用于顺序列出分页的标识，可选参数
+     * 聚合统计数组，必选参数，最多 5 个聚合项。 支持的聚合字段：   - extName：文件后缀，支持 group, count, distinct   - category：文件分类，支持 group, count, distinct   - size：文件大小（Byte），支持 count, distinct, sum, min, max, average   - contentType：媒体类型，支持 group, count, distinct   - userId：创建/更新者用户 ID，支持 group, count, distinct   - name：文件名，支持 count, distinct   - fileType：文件类型（内部数值），支持 group, count, distinct 支持的聚合操作：   - group：分组聚合，按字段值分组   - count：计数，统计匹配的文档数   - distinct：去重计数，统计字段的不同值数量   - sum：求和（仅适用于数值类型字段，如 size）   - min：最小值（仅适用于数值类型字段）   - max：最大值（仅适用于数值类型字段）   - average：平均值（仅适用于数值类型字段） 
      */
-    'marker'?: string;
+    'aggregations': Array<SearchFsStatsRequestAggregationsInner>;
 }
 
-export const SearchFsRequestFileTypesEnum = {
+export const SearchFsStatsRequestFileTypesEnum = {
     File: 'file',
     Dir: 'dir',
-    Symlink: 'symlink',
-    Virtual: 'virtual'
+    Symlink: 'symlink'
 } as const;
 
-export type SearchFsRequestFileTypesEnum = typeof SearchFsRequestFileTypesEnum[keyof typeof SearchFsRequestFileTypesEnum];
-export const SearchFsRequestOrderByEnum = {
-    Name: 'name',
-    ModificationTime: 'modificationTime',
-    Size: 'size',
-    CreationTime: 'creationTime',
-    LocalCreationTime: 'localCreationTime',
-    LocalModificationTime: 'localModificationTime'
-} as const;
-
-export type SearchFsRequestOrderByEnum = typeof SearchFsRequestOrderByEnum[keyof typeof SearchFsRequestOrderByEnum];
-export const SearchFsRequestOrderByTypeEnum = {
-    Asc: 'asc',
-    Desc: 'desc'
-} as const;
-
-export type SearchFsRequestOrderByTypeEnum = typeof SearchFsRequestOrderByTypeEnum[keyof typeof SearchFsRequestOrderByTypeEnum];
+export type SearchFsStatsRequestFileTypesEnum = typeof SearchFsStatsRequestFileTypesEnum[keyof typeof SearchFsStatsRequestFileTypesEnum];
 
 

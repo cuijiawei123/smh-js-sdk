@@ -16,7 +16,7 @@
 
 export interface QueryDeltaLog200ResponseContentsInner {
     /**
-     * 事件类型，可能的取值： - FILE.CREATE: 文件/目录/软链接创建（包括上传完成、秒传、目录创建、软链接创建） - FILE.MODIFY: 文件内容修改（包括文件内容更新、覆盖上传） - FILE.DELETE: 文件彻底删除（非回收站删除） - FILE.COPY: 文件/目录复制 - FILE.MOVE: 文件/目录移动（含重命名） - FILE.TRASH: 文件/目录放入回收站 - FILE.RESTORE: 文件/目录从回收站恢复 - FILE.CREATE_OVERWRITE: 创建文件时覆盖已有文件 - FILE.MOVE_OVERWRITE: 移动文件时覆盖已有文件 - FILE.COPY_OVERWRITE: 拷贝文件时覆盖已有文件 - FILE.RESTORE_OVERWRITE: 从回收站恢复时覆盖已有文件 - TASK.FILE.DELETE: 系统任务触发的文件彻底删除 - TASK.FILE.TRASH: 系统任务触发的放入回收站操作 - TASK.FILE.RESTORE: 系统任务触发的从回收站恢复操作 - RECYCLE.DELETE: 从回收站彻底删除 - RECYCLE.MODIFY: 回收站项目信息更新 - HISTORY.CREATE: 历史版本创建 - HISTORY.DELETE: 历史版本删除 - HISTORY.LATEST: 设为最新版本（回滚到指定历史版本） - HISTORY.MODIFY: 历史版本更新 
+     * 事件类型，可能的取值： - FILE.CREATE: 文件/目录/软链接/虚拟文件创建（包括上传完成、秒传、目录创建、软链接创建、虚拟文件创建） - FILE.MODIFY: 文件内容修改（包括文件内容更新、覆盖上传） - FILE.DELETE: 文件彻底删除（非回收站删除） - FILE.COPY: 文件/目录复制 - FILE.MOVE: 文件/目录移动（含重命名） - FILE.TRASH: 文件/目录放入回收站 - FILE.RESTORE: 文件/目录从回收站恢复 - FILE.CREATE_OVERWRITE: 创建文件时覆盖已有文件 - FILE.MOVE_OVERWRITE: 移动文件时覆盖已有文件 - FILE.COPY_OVERWRITE: 拷贝文件时覆盖已有文件 - FILE.RESTORE_OVERWRITE: 从回收站恢复时覆盖已有文件 - TASK.FILE.DELETE: 系统任务触发的文件彻底删除 - TASK.FILE.TRASH: 系统任务触发的放入回收站操作 - TASK.FILE.RESTORE: 系统任务触发的从回收站恢复操作 - RECYCLE.DELETE: 从回收站彻底删除 - RECYCLE.MODIFY: 回收站项目信息更新 - HISTORY.CREATE: 历史版本创建 - HISTORY.DELETE: 历史版本删除 - HISTORY.LATEST: 设为最新版本（回滚到指定历史版本） - HISTORY.MODIFY: 历史版本更新 
      */
     'eventType'?: QueryDeltaLog200ResponseContentsInnerEventTypeEnum;
     /**
@@ -36,7 +36,7 @@ export interface QueryDeltaLog200ResponseContentsInner {
      */
     'name'?: string;
     /**
-     * 节点类型：file-文件，dir-目录，symlink-符号链接
+     * 节点类型：file-文件，dir-目录，symlink-符号链接，virtual-虚拟文件
      */
     'type'?: QueryDeltaLog200ResponseContentsInnerTypeEnum;
     /**
@@ -100,7 +100,7 @@ export interface QueryDeltaLog200ResponseContentsInner {
      */
     'linkTo'?: string;
     /**
-     * 额外信息，不同事件类型携带不同的扩展信息： - FILE.CREATE 事件：isRapidUpload（布尔值，是否为秒传创建）；软链接创建时包含 targetInode（字符串，软链接指向的目标 inode） - FILE.MODIFY 事件：oldSize（整数，修改前文件大小）、newSize（整数，修改后文件大小）、oldEtag（字符串，修改前文件 ETag） - FILE.COPY 事件：sourceInode（字符串，复制源文件/目录的 inode） - FILE.MOVE 事件：fromParentInode（字符串，移动前的父目录 inode）、toParentInode（字符串，移动后的父目录 inode）；跨空间移动时还包含 fromLibraryId 和 fromSpaceId - FILE.*_OVERWRITE 事件：保留原事件类型的 extraInfo 字段，额外包含被覆盖文件信息：owInode、owSize、owEtag、owCRC64、owContentType、owRevisionVersion - HISTORY.CREATE 事件：versionId（字符串，历史版本标识） - HISTORY.LATEST 事件：owInode、owSize、owEtag、owCRC64、owContentType、owRevisionVersion（被覆盖文件信息） - 其他事件：null 或空对象 
+     * 额外信息，不同事件类型携带不同的扩展信息： - FILE.CREATE 事件：isRapidUpload（布尔值，是否为秒传创建）；软链接创建时包含 targetInode（字符串，软链接指向的目标 inode）；虚拟文件创建可通过 type 字段（值为 virtual）区分 - FILE.MODIFY 事件：oldSize（整数，修改前文件大小）、newSize（整数，修改后文件大小）、oldEtag（字符串，修改前文件 ETag） - FILE.COPY 事件：sourceInode（字符串，复制源文件/目录的 inode） - FILE.MOVE 事件：fromParentInode（字符串，移动前的父目录 inode）、toParentInode（字符串，移动后的父目录 inode）；跨空间移动时还包含 fromLibraryId 和 fromSpaceId - FILE.*_OVERWRITE 事件：保留原事件类型的 extraInfo 字段，额外包含被覆盖文件信息：owInode、owSize、owEtag、owCRC64、owContentType、owRevisionVersion - HISTORY.CREATE 事件：versionId（字符串，历史版本标识） - HISTORY.LATEST 事件：owInode、owSize、owEtag、owCRC64、owContentType、owRevisionVersion（被覆盖文件信息） - 其他事件：null 或空对象 
      */
     'extraInfo'?: { [key: string]: any; } | null;
 }
@@ -132,7 +132,8 @@ export type QueryDeltaLog200ResponseContentsInnerEventTypeEnum = typeof QueryDel
 export const QueryDeltaLog200ResponseContentsInnerTypeEnum = {
     File: 'file',
     Dir: 'dir',
-    Symlink: 'symlink'
+    Symlink: 'symlink',
+    Virtual: 'virtual'
 } as const;
 
 export type QueryDeltaLog200ResponseContentsInnerTypeEnum = typeof QueryDeltaLog200ResponseContentsInnerTypeEnum[keyof typeof QueryDeltaLog200ResponseContentsInnerTypeEnum];

@@ -4,7 +4,7 @@
  * 浏览器环境适配版本
  */
 
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { FileApi } from '../apis/file-api';
 import { Configuration } from '../configuration';
 import { formatSize, formatTime } from '../utils/Formatter';
@@ -59,7 +59,8 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
   
   constructor(
     options: UploadOptions,
-    configuration: Configuration
+    configuration: Configuration,
+    axiosInstance?: AxiosInstance
   ) {
     const file: IFile = {
       name: options.file.name,
@@ -80,7 +81,9 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     super(file, { verbose: options.verbose });
     
     this.options = options;
-    this.fileApi = new FileApi(configuration);
+    // 透传 axiosInstance，确保 FileApi 复用 SMHClient 配置好的 axios 实例
+    // （包含 Client-Version 等默认请求头、重试拦截器等）
+    this.fileApi = new FileApi(configuration, undefined, axiosInstance);
     
     const partFileSize = options.partFileSize || 32;
     const MIN_PART_FILE_SIZE = 1;

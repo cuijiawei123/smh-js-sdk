@@ -439,7 +439,7 @@ export class SMHClient {
             accessToken: options.accessToken || this.defaultAccessToken || '',
         };
 
-        return new Uploader(mergedOptions, this.configuration);
+        return new Uploader(mergedOptions, this.configuration, this.axiosInstance);
     }
 
     /**
@@ -462,7 +462,7 @@ export class SMHClient {
             type: undefined,
         };
 
-        return new Downloader(remoteFile, mergedOptions, this.configuration);
+        return new Downloader(remoteFile, mergedOptions, this.configuration, this.axiosInstance);
     }
 
     /**
@@ -486,7 +486,7 @@ export class SMHClient {
             accessToken: options.accessToken || this.defaultAccessToken || '',
         };
 
-        return Downloader.downloadByUrl(mergedOptions, this.configuration);
+        return Downloader.downloadByUrl(mergedOptions, this.configuration, this.axiosInstance);
     }
 
     /**

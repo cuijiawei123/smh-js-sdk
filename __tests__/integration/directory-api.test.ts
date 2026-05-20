@@ -58,6 +58,135 @@ describe.skipIf(shouldSkip)('DirectoryApi 补充集成测试', () => {
     try { await client.directory.deleteDirectory({ filePath: testDirBase }); } catch { /* ignore */ }
   });
 
+  // ─── createDirectory with createDirectoryRequest ───────────
+
+  describe('createDirectory - createDirectoryRequest 请求体', () => {
+    const metaDirPath = `${testDirBase}/meta-dir-${Date.now()}`;
+
+    afterAll(async () => {
+      try { await client.directory.deleteDirectory({ filePath: metaDirPath }); } catch { /* ignore */ }
+    });
+
+    it('应支持通过 createDirectoryRequest 设置元数据', async (ctx: any) => {
+      try {
+        const res = await client.directory.createDirectory({
+          filePath: metaDirPath,
+          conflictResolutionStrategy: 'rename' as any,
+          withInode: 1 as any,
+          createDirectoryRequest: {
+            metaData: {
+              'department': 'engineering',
+              'project': 'sdk-test',
+            },
+          },
+        });
+        expect(res.status).toBe(201);
+        expect(res.data).toBeDefined();
+        expect(res.data.path).toBeDefined();
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`createDirectory with metaData 不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+    });
+
+    it('应支持通过 createDirectoryRequest 设置标签', async (ctx: any) => {
+      const labelDirPath = `${testDirBase}/label-dir-${Date.now()}`;
+      createdDirs.push(labelDirPath);
+      try {
+        const res = await client.directory.createDirectory({
+          filePath: labelDirPath,
+          conflictResolutionStrategy: 'rename' as any,
+          createDirectoryRequest: {
+            labels: ['sdk-test', 'integration', '重要'],
+          },
+        });
+        expect(res.status).toBe(201);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`createDirectory with labels 不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+    });
+
+    it('应支持通过 createDirectoryRequest 设置本地时间', async (ctx: any) => {
+      const timeDirPath = `${testDirBase}/time-dir-${Date.now()}`;
+      createdDirs.push(timeDirPath);
+      try {
+        const res = await client.directory.createDirectory({
+          filePath: timeDirPath,
+          conflictResolutionStrategy: 'rename' as any,
+          createDirectoryRequest: {
+            localCreationTime: '2024-06-01T10:00:00+08:00',
+            localModificationTime: '2024-06-01T12:00:00+08:00',
+          },
+        });
+        expect(res.status).toBe(201);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`createDirectory with localTime 不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+    });
+
+    it('应支持通过 createDirectoryRequest 同时设置所有字段', async (ctx: any) => {
+      const fullDirPath = `${testDirBase}/full-dir-${Date.now()}`;
+      createdDirs.push(fullDirPath);
+      try {
+        const res = await client.directory.createDirectory({
+          filePath: fullDirPath,
+          conflictResolutionStrategy: 'rename' as any,
+          withInode: 1 as any,
+          createDirectoryRequest: {
+            metaData: {
+              'source': 'sdk-integration-test',
+              'version': '2.0',
+            },
+            labels: ['全量测试', 'e2e'],
+            localCreationTime: '2024-06-15T08:30:00+08:00',
+            localModificationTime: '2024-06-15T09:00:00+08:00',
+          },
+        });
+        expect(res.status).toBe(201);
+        expect(res.data).toBeDefined();
+        expect(res.data.path).toBeDefined();
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`createDirectory with full request 不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+    });
+
+    it('不传 createDirectoryRequest 时应正常创建目录', async (ctx: any) => {
+      const simpleDirPath = `${testDirBase}/simple-dir-${Date.now()}`;
+      createdDirs.push(simpleDirPath);
+      try {
+        const res = await client.directory.createDirectory({
+          filePath: simpleDirPath,
+          conflictResolutionStrategy: 'rename' as any,
+        });
+        expect(res.status).toBe(201);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`createDirectory without request body 不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+    });
+  });
+
   // ─── copyDirectory ────────────────────────────────────────
 
   describe('copyDirectory - 复制目录', () => {

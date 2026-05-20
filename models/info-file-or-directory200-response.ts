@@ -28,7 +28,7 @@ export interface InfoFileOrDirectory200Response {
      */
     'name'?: string;
     /**
-     * 条目类型
+     * 条目类型：dir-目录或相簿，file-文件（仅文件类型媒体库），image-图片（仅媒体类型媒体库），video-视频（仅媒体类型媒体库），symlink-符号链接，virtual-虚拟文件
      */
     'type'?: InfoFileOrDirectory200ResponseTypeEnum;
     /**
@@ -110,7 +110,8 @@ export const InfoFileOrDirectory200ResponseTypeEnum = {
     File: 'file',
     Image: 'image',
     Video: 'video',
-    Symlink: 'symlink'
+    Symlink: 'symlink',
+    Virtual: 'virtual'
 } as const;
 
 export type InfoFileOrDirectory200ResponseTypeEnum = typeof InfoFileOrDirectory200ResponseTypeEnum[keyof typeof InfoFileOrDirectory200ResponseTypeEnum];

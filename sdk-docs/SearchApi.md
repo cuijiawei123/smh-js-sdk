@@ -114,3 +114,191 @@ const res = await smh.search.searchFs({
 | category | 自定义文件分类 | String |
 
 ---
+
+## 搜索聚合统计
+
+### 功能说明
+
+searchFsStats 实现搜索目录与文件的聚合统计功能，支持按关键字、文件类型、文件大小等条件筛选后，对搜索结果进行分组（group）、计数（count）、去重计数（distinct）、求和（sum）、最小值（min）、最大值（max）、平均值（average）等聚合操作。
+
+### 使用示例
+
+```typescript
+// 按文件后缀分组统计
+const res = await smh.search.searchFsStats({
+    searchFsStatsRequest: {
+        keywords: ['报告文档'],
+        aggregations: [
+            { field: 'extName', operation: 'group' },
+        ],
+    },
+});
+
+// 多聚合项组合
+const res2 = await smh.search.searchFsStats({
+    searchFsStatsRequest: {
+        keywords: ['项目文档'],
+        aggregations: [
+            { field: 'extName', operation: 'group' },
+            { field: 'size', operation: 'sum' },
+            { field: 'size', operation: 'count' },
+        ],
+    },
+});
+
+// 子聚合（嵌套聚合）
+const res3 = await smh.search.searchFsStats({
+    searchFsStatsRequest: {
+        keywords: ['工作文档'],
+        aggregations: [
+            {
+                field: 'extName',
+                operation: 'group',
+                subAggregations: [
+                    { field: 'size', operation: 'sum' },
+                    { field: 'size', operation: 'count' },
+                ],
+            },
+        ],
+    },
+});
+```
+
+### 参数说明
+
+| 参数名 | 参数描述 | 类型 | 是否必填 |
+|--------|----------|------|----------|
+| libraryId | 媒体库 ID | String | 是 |
+| spaceId | 空间 ID | String | 是 |
+| accessToken | 访问令牌 | String | 否 |
+| userId | 用户身份识别 | String | 否 |
+| librarySecret | 访问媒体库密钥 | String | 否 |
+| searchFsStatsRequest | 搜索聚合统计请求对象 | Object | 是 |
+
+**searchFsStatsRequest 对象说明**
+
+| 字段 | 参数描述 | 类型 | 是否必填 |
+|------|----------|------|----------|
+| keywords | 搜索关键字，字符串数组，多个关键字之间为"或"的关系 | Array | 否 |
+| scope | 搜索范围，指定搜索的目录 | String | 否 |
+| inExtnames | 搜索文件后缀，字符串数组 | Array | 否 |
+| excludeExtnames | 不包含的搜索文件后缀，字符串数组 | Array | 否 |
+| fileTypes | 文件类型，可选值：file、dir、symlink | Array | 否 |
+| minFileSize | 搜索文件大小范围（最小值），单位：字节 | Number | 否 |
+| maxFileSize | 搜索文件大小范围（最大值），单位：字节 | Number | 否 |
+| modificationTimeStart | 搜索更新时间范围（开始时间），时间戳字符串 | String | 否 |
+| modificationTimeEnd | 搜索更新时间范围（结束时间），时间戳字符串 | String | 否 |
+| labels | 简易文件标签，字符串数组 | Array | 否 |
+| categories | 文件自定义分类信息，字符串数组 | Array | 否 |
+| aggregations | 聚合统计数组，最多 5 个聚合项 | Array | 是 |
+
+**aggregations 数组元素说明**
+
+| 字段 | 参数描述 | 类型 | 是否必填 |
+|------|----------|------|----------|
+| field | 聚合字段名 | String | 是 |
+| operation | 聚合操作 | String | 是 |
+| subAggregations | 子聚合数组，仅当 operation 为 group 时有效，最多 3 个子聚合项 | Array | 否 |
+
+**支持的聚合字段（field）**
+
+| 字段值 | 说明 | 支持的操作 |
+|--------|------|-----------|
+| extName | 文件后缀 | group, count, distinct |
+| category | 文件分类 | group, count, distinct |
+| size | 文件大小（Byte） | count, distinct, sum, min, max, average |
+| contentType | 媒体类型 | group, count, distinct |
+| userId | 创建/更新者用户 ID | group, count, distinct |
+| name | 文件名 | count, distinct |
+| fileType | 文件类型（内部数值） | group, count, distinct |
+
+**支持的聚合操作（operation）**
+
+| 操作值 | 说明 |
+|--------|------|
+| group | 分组聚合，按字段值分组 |
+| count | 计数，统计匹配的文档数 |
+| distinct | 去重计数，统计字段的不同值数量 |
+| sum | 求和（仅适用于数值类型字段，如 size） |
+| min | 最小值（仅适用于数值类型字段） |
+| max | 最大值（仅适用于数值类型字段） |
+| average | 平均值（仅适用于数值类型字段） |
+
+**subAggregations 数组元素说明**
+
+| 字段 | 参数描述 | 类型 | 是否必填 |
+|------|----------|------|----------|
+| field | 子聚合字段名，支持的字段同 aggregations | String | 是 |
+| operation | 子聚合操作，不支持 group（即不支持多层嵌套分组） | String | 是 |
+
+### 返回值说明
+
+**HTTP 状态码：200**
+
+搜索聚合统计成功，返回聚合结果。
+
+**响应示例**
+
+```json
+{
+  "isTruncated": false,
+  "aggregations": [
+    {
+      "field": "extName",
+      "operation": "group",
+      "groups": [
+        {
+          "value": ".pdf",
+          "count": 15,
+          "subAggregations": [
+            { "field": "size", "operation": "sum", "value": 52428800 }
+          ]
+        },
+        {
+          "value": ".doc",
+          "count": 8
+        }
+      ]
+    },
+    {
+      "field": "size",
+      "operation": "sum",
+      "value": 73400320
+    }
+  ]
+}
+```
+
+**响应字段说明**
+
+| 字段 | 说明 | 类型 |
+|------|------|------|
+| isTruncated | 返回的分组数据是否被截断，当实际分组数量超过最大限制（默认2000）时返回 true | Boolean |
+| aggregations | 聚合统计结果数组，与请求中的 aggregations 一一对应 | Array |
+
+**aggregations 数组元素说明**
+
+| 字段 | 说明 | 类型 |
+|------|------|------|
+| field | 聚合字段名 | String |
+| operation | 聚合操作名 | String |
+| value | 当 operation 为 sum、min、max、average、count、distinct 时返回，表示聚合计算结果 | Number |
+| groups | 当 operation 为 group 时返回，分组结果数组 | Array |
+
+**groups 数组元素说明**
+
+| 字段 | 说明 | 类型 |
+|------|------|------|
+| value | 分组的键值（如后缀名 ".pdf"、分类名 "image" 等） | String |
+| count | 该分组下的文档数量 | Number |
+| subAggregations | 子聚合结果，当请求中指定了子聚合时返回 | Array |
+
+**subAggregations 数组元素说明（响应）**
+
+| 字段 | 说明 | 类型 |
+|------|------|------|
+| field | 子聚合字段名 | String |
+| operation | 子聚合操作名 | String |
+| value | 子聚合计算结果 | Number |
+
+---

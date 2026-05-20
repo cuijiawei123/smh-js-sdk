@@ -39,5 +39,9 @@ export interface GetSpaceExtension200Response {
      * 是否检测敏感内容，不指定默认为 false
      */
     'recognizeSensitiveContent'?: boolean;
+    /**
+     * 空间标识，用于区分个人空间和团队空间，仅当空间设置过该字段时返回
+     */
+    'spaceTag'?: string;
 }
 

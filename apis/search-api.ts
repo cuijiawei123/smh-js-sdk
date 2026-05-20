@@ -25,6 +25,10 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 import type { SearchFs200Response } from '../models';
 // @ts-ignore
 import type { SearchFsRequest } from '../models';
+// @ts-ignore
+import type { SearchFsStats200Response } from '../models';
+// @ts-ignore
+import type { SearchFsStatsRequest } from '../models';
 /**
  * SearchApi - axios parameter creator
  */
@@ -102,6 +106,65 @@ export const SearchApiAxiosParamCreator = function (configuration?: Configuratio
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 用于对目录与文件进行聚合统计，支持按指定字段分组并对分组结果进行求和、计数等子统计操作。典型场景如：按文件后缀分组统计文件大小总和、按文件分类统计文件数量等。 本接口基于搜索条件对文件进行聚合统计，不返回文件列表，仅返回统计结果； 支持与搜索接口相同的筛选条件，可在筛选范围内进行统计； 单次请求最多支持 5 个聚合统计项； 每个聚合统计项支持嵌套一层子聚合（如 group by extName + sum(size)）； 分组聚合（group）默认最多返回 2000 个分组； 本接口 QPS 使用上限为 10； 
+         * @summary 搜索目录与文件统计
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {SearchFsStatsRequest} searchFsStatsRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchFsStats: async (libraryId: string, spaceId: string, searchFsStatsRequest: SearchFsStatsRequest, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'libraryId' is not null or undefined
+            assertParamExists('searchFsStats', 'libraryId', libraryId)
+            // verify required parameter 'spaceId' is not null or undefined
+            assertParamExists('searchFsStats', 'spaceId', spaceId)
+            // verify required parameter 'searchFsStatsRequest' is not null or undefined
+            assertParamExists('searchFsStats', 'searchFsStatsRequest', searchFsStatsRequest)
+            const localVarPath = `/api/v1/search/{LibraryId}/{SpaceId}/search-fs-stats`
+                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
+                .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (accessToken !== undefined) {
+                localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(searchFsStatsRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -132,6 +195,24 @@ export const SearchApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['SearchApi.searchFs']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * 用于对目录与文件进行聚合统计，支持按指定字段分组并对分组结果进行求和、计数等子统计操作。典型场景如：按文件后缀分组统计文件大小总和、按文件分类统计文件数量等。 本接口基于搜索条件对文件进行聚合统计，不返回文件列表，仅返回统计结果； 支持与搜索接口相同的筛选条件，可在筛选范围内进行统计； 单次请求最多支持 5 个聚合统计项； 每个聚合统计项支持嵌套一层子聚合（如 group by extName + sum(size)）； 分组聚合（group）默认最多返回 2000 个分组； 本接口 QPS 使用上限为 10； 
+         * @summary 搜索目录与文件统计
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {SearchFsStatsRequest} searchFsStatsRequest 
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async searchFsStats(libraryId: string, spaceId: string, searchFsStatsRequest: SearchFsStatsRequest, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SearchFsStats200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.searchFsStats(libraryId, spaceId, searchFsStatsRequest, accessToken, librarySecret, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['SearchApi.searchFsStats']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -150,6 +231,16 @@ export const SearchApiFactory = function (configuration?: Configuration, basePat
          */
         searchFs(requestParameters: SearchApiSearchFsRequest, options?: RawAxiosRequestConfig): AxiosPromise<SearchFs200Response> {
             return localVarFp.searchFs(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.marker, requestParameters.limit, requestParameters.withFavoriteStatus, requestParameters.searchFsRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 用于对目录与文件进行聚合统计，支持按指定字段分组并对分组结果进行求和、计数等子统计操作。典型场景如：按文件后缀分组统计文件大小总和、按文件分类统计文件数量等。 本接口基于搜索条件对文件进行聚合统计，不返回文件列表，仅返回统计结果； 支持与搜索接口相同的筛选条件，可在筛选范围内进行统计； 单次请求最多支持 5 个聚合统计项； 每个聚合统计项支持嵌套一层子聚合（如 group by extName + sum(size)）； 分组聚合（group）默认最多返回 2000 个分组； 本接口 QPS 使用上限为 10； 
+         * @summary 搜索目录与文件统计
+         * @param {SearchApiSearchFsStatsRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        searchFsStats(requestParameters: SearchApiSearchFsStatsRequest, options?: RawAxiosRequestConfig): AxiosPromise<SearchFsStats200Response> {
+            return localVarFp.searchFsStats(requestParameters.libraryId, requestParameters.spaceId, requestParameters.searchFsStatsRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -202,6 +293,38 @@ export interface SearchApiSearchFsRequest {
 }
 
 /**
+ * Request parameters for searchFsStats operation in SearchApi.
+ */
+export interface SearchApiSearchFsStatsRequest {
+    /**
+     * 媒体库 ID，必选参数
+     */
+    readonly libraryId: string
+
+    /**
+     * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+     */
+    readonly spaceId: string
+
+    readonly searchFsStatsRequest: SearchFsStatsRequest
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
+     * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+     */
+    readonly userId?: string
+}
+
+/**
  * SearchApi - object-oriented interface
  */
 export class SearchApi extends BaseAPI {
@@ -214,6 +337,17 @@ export class SearchApi extends BaseAPI {
      */
     public searchFs(requestParameters: SearchApiSearchFsRequest, options?: RawAxiosRequestConfig) {
         return SearchApiFp(this.configuration).searchFs(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.marker, requestParameters.limit, requestParameters.withFavoriteStatus, requestParameters.searchFsRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 用于对目录与文件进行聚合统计，支持按指定字段分组并对分组结果进行求和、计数等子统计操作。典型场景如：按文件后缀分组统计文件大小总和、按文件分类统计文件数量等。 本接口基于搜索条件对文件进行聚合统计，不返回文件列表，仅返回统计结果； 支持与搜索接口相同的筛选条件，可在筛选范围内进行统计； 单次请求最多支持 5 个聚合统计项； 每个聚合统计项支持嵌套一层子聚合（如 group by extName + sum(size)）； 分组聚合（group）默认最多返回 2000 个分组； 本接口 QPS 使用上限为 10； 
+     * @summary 搜索目录与文件统计
+     * @param {SearchApiSearchFsStatsRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public searchFsStats(requestParameters: SearchApiSearchFsStatsRequest, options?: RawAxiosRequestConfig) {
+        return SearchApiFp(this.configuration).searchFsStats(requestParameters.libraryId, requestParameters.spaceId, requestParameters.searchFsStatsRequest, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

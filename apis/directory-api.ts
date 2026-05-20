@@ -32,6 +32,8 @@ import type { CopyDirectoryRequest } from '../models';
 // @ts-ignore
 import type { CreateDirectory201Response } from '../models';
 // @ts-ignore
+import type { CreateDirectoryRequest } from '../models';
+// @ts-ignore
 import type { DeleteFile200Response } from '../models';
 // @ts-ignore
 import type { GetDirectoryStats200Response } from '../models';
@@ -254,7 +256,7 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
             };
         },
         /**
-         * 用于创建目录或相簿。 - 媒体类型媒体库可以进一步设置是否为分相簿媒体库，当设置为不分相簿时，则不允许创建目录或相簿，当设置为分相簿时，仅允许创建1层目录或相簿；文件类型媒体库不限制目录层数； - 自动创建中间所需的各级父目录； - 即使 ConflictResolutionStrategy 为 rename，如果路径中的某一父级实际为文件，则依然会返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码。 
+         * 用于创建目录或相簿。 要求权限： admin、space_admin 或 create_directory。 - 媒体类型媒体库可以进一步设置是否为分相簿媒体库，当设置为不分相簿时，则不允许创建目录或相簿，当设置为分相簿时，仅允许创建1层目录或相簿；文件类型媒体库不限制目录层数； - 自动创建中间所需的各级父目录； - 即使 ConflictResolutionStrategy 为 rename，如果路径中的某一父级实际为文件，则依然会返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码。 
          * @summary 创建目录或相簿
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
@@ -264,10 +266,11 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {CreateDirectoryWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
+         * @param {CreateDirectoryRequest} [createDirectoryRequest] 可选的请求体，用于指定目录的元数据信息。如果不需要设置元数据，请求体可以为空。
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createDirectory: async (libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: CreateDirectoryConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, withInode?: CreateDirectoryWithInodeEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        createDirectory: async (libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: CreateDirectoryConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, withInode?: CreateDirectoryWithInodeEnum, createDirectoryRequest?: CreateDirectoryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('createDirectory', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -311,9 +314,12 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
 
 
     
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createDirectoryRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -819,8 +825,8 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
             };
         },
         /**
-         * 用于更新目录自定义标签。需要 admin 权限或 spaceAdmin 权限
-         * @summary 更新目录自定义标签
+         * 用于更新目录自定义标签或自定义元数据。需要 admin 权限或 spaceAdmin 权限
+         * @summary 更新目录自定义标签或自定义元数据
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
@@ -882,8 +888,8 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
             };
         },
         /**
-         * 用于更新文件的标签（Labels）或分类（Category）。 需要 admin 权限或 spaceAdmin 权限。 
-         * @summary 更新文件标签或分类
+         * 用于更新文件的标签（Labels）、分类（Category）或自定义元数据（MetaData）。 需要 admin 权限或 spaceAdmin 权限。 
+         * @summary 更新文件标签、分类或自定义元数据
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
@@ -1015,7 +1021,7 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 用于创建目录或相簿。 - 媒体类型媒体库可以进一步设置是否为分相簿媒体库，当设置为不分相簿时，则不允许创建目录或相簿，当设置为分相簿时，仅允许创建1层目录或相簿；文件类型媒体库不限制目录层数； - 自动创建中间所需的各级父目录； - 即使 ConflictResolutionStrategy 为 rename，如果路径中的某一父级实际为文件，则依然会返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码。 
+         * 用于创建目录或相簿。 要求权限： admin、space_admin 或 create_directory。 - 媒体类型媒体库可以进一步设置是否为分相簿媒体库，当设置为不分相簿时，则不允许创建目录或相簿，当设置为分相簿时，仅允许创建1层目录或相簿；文件类型媒体库不限制目录层数； - 自动创建中间所需的各级父目录； - 即使 ConflictResolutionStrategy 为 rename，如果路径中的某一父级实际为文件，则依然会返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码。 
          * @summary 创建目录或相簿
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
@@ -1025,11 +1031,12 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {CreateDirectoryWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
+         * @param {CreateDirectoryRequest} [createDirectoryRequest] 可选的请求体，用于指定目录的元数据信息。如果不需要设置元数据，请求体可以为空。
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createDirectory(libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: CreateDirectoryConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, withInode?: CreateDirectoryWithInodeEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateDirectory201Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createDirectory(libraryId, spaceId, filePath, conflictResolutionStrategy, accessToken, librarySecret, userId, withInode, options);
+        async createDirectory(libraryId: string, spaceId: string, filePath: string, conflictResolutionStrategy?: CreateDirectoryConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, withInode?: CreateDirectoryWithInodeEnum, createDirectoryRequest?: CreateDirectoryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateDirectory201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createDirectory(libraryId, spaceId, filePath, conflictResolutionStrategy, accessToken, librarySecret, userId, withInode, createDirectoryRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.createDirectory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1172,8 +1179,8 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 用于更新目录自定义标签。需要 admin 权限或 spaceAdmin 权限
-         * @summary 更新目录自定义标签
+         * 用于更新目录自定义标签或自定义元数据。需要 admin 权限或 spaceAdmin 权限
+         * @summary 更新目录自定义标签或自定义元数据
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
@@ -1191,8 +1198,8 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 用于更新文件的标签（Labels）或分类（Category）。 需要 admin 权限或 spaceAdmin 权限。 
-         * @summary 更新文件标签或分类
+         * 用于更新文件的标签（Labels）、分类（Category）或自定义元数据（MetaData）。 需要 admin 权限或 spaceAdmin 权限。 
+         * @summary 更新文件标签、分类或自定义元数据
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
@@ -1249,14 +1256,14 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
             return localVarFp.copyDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.copyDirectoryRequest, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
-         * 用于创建目录或相簿。 - 媒体类型媒体库可以进一步设置是否为分相簿媒体库，当设置为不分相簿时，则不允许创建目录或相簿，当设置为分相簿时，仅允许创建1层目录或相簿；文件类型媒体库不限制目录层数； - 自动创建中间所需的各级父目录； - 即使 ConflictResolutionStrategy 为 rename，如果路径中的某一父级实际为文件，则依然会返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码。 
+         * 用于创建目录或相簿。 要求权限： admin、space_admin 或 create_directory。 - 媒体类型媒体库可以进一步设置是否为分相簿媒体库，当设置为不分相簿时，则不允许创建目录或相簿，当设置为分相簿时，仅允许创建1层目录或相簿；文件类型媒体库不限制目录层数； - 自动创建中间所需的各级父目录； - 即使 ConflictResolutionStrategy 为 rename，如果路径中的某一父级实际为文件，则依然会返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码。 
          * @summary 创建目录或相簿
          * @param {DirectoryApiCreateDirectoryRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
         createDirectory(requestParameters: DirectoryApiCreateDirectoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<CreateDirectory201Response> {
-            return localVarFp.createDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withInode, options).then((request) => request(axios, basePath));
+            return localVarFp.createDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withInode, requestParameters.createDirectoryRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于删除目录或相簿。如果媒体库启用回收站功能，则该接口不会永久删除目录或相簿，而是将目录或相簿以及其下的文件移入回收站，可通过相关接口永久删除或恢复回收站内的目录或相簿，或直接清空回收站；
@@ -1319,8 +1326,8 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
             return localVarFp.moveDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.moveDirectoryRequest, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
-         * 用于更新目录自定义标签。需要 admin 权限或 spaceAdmin 权限
-         * @summary 更新目录自定义标签
+         * 用于更新目录自定义标签或自定义元数据。需要 admin 权限或 spaceAdmin 权限
+         * @summary 更新目录自定义标签或自定义元数据
          * @param {DirectoryApiUpdateDirectoryLabelsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1329,8 +1336,8 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
             return localVarFp.updateDirectoryLabels(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.update, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.updateDirectoryLabelsRequest, options).then((request) => request(axios, basePath));
         },
         /**
-         * 用于更新文件的标签（Labels）或分类（Category）。 需要 admin 权限或 spaceAdmin 权限。 
-         * @summary 更新文件标签或分类
+         * 用于更新文件的标签（Labels）、分类（Category）或自定义元数据（MetaData）。 需要 admin 权限或 spaceAdmin 权限。 
+         * @summary 更新文件标签、分类或自定义元数据
          * @param {DirectoryApiUpdateFileLabelsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1511,6 +1518,11 @@ export interface DirectoryApiCreateDirectoryRequest {
      * 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
      */
     readonly withInode?: CreateDirectoryWithInodeEnum
+
+    /**
+     * 可选的请求体，用于指定目录的元数据信息。如果不需要设置元数据，请求体可以为空。
+     */
+    readonly createDirectoryRequest?: CreateDirectoryRequest
 }
 
 /**
@@ -1977,14 +1989,14 @@ export class DirectoryApi extends BaseAPI {
     }
 
     /**
-     * 用于创建目录或相簿。 - 媒体类型媒体库可以进一步设置是否为分相簿媒体库，当设置为不分相簿时，则不允许创建目录或相簿，当设置为分相簿时，仅允许创建1层目录或相簿；文件类型媒体库不限制目录层数； - 自动创建中间所需的各级父目录； - 即使 ConflictResolutionStrategy 为 rename，如果路径中的某一父级实际为文件，则依然会返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码。 
+     * 用于创建目录或相簿。 要求权限： admin、space_admin 或 create_directory。 - 媒体类型媒体库可以进一步设置是否为分相簿媒体库，当设置为不分相簿时，则不允许创建目录或相簿，当设置为分相簿时，仅允许创建1层目录或相簿；文件类型媒体库不限制目录层数； - 自动创建中间所需的各级父目录； - 即使 ConflictResolutionStrategy 为 rename，如果路径中的某一父级实际为文件，则依然会返回 HTTP 409 Conflict 及 SameNameDirectoryOrFileExists 错误码。 
      * @summary 创建目录或相簿
      * @param {DirectoryApiCreateDirectoryRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
     public createDirectory(requestParameters: DirectoryApiCreateDirectoryRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).createDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withInode, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).createDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withInode, requestParameters.createDirectoryRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2054,8 +2066,8 @@ export class DirectoryApi extends BaseAPI {
     }
 
     /**
-     * 用于更新目录自定义标签。需要 admin 权限或 spaceAdmin 权限
-     * @summary 更新目录自定义标签
+     * 用于更新目录自定义标签或自定义元数据。需要 admin 权限或 spaceAdmin 权限
+     * @summary 更新目录自定义标签或自定义元数据
      * @param {DirectoryApiUpdateDirectoryLabelsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -2065,8 +2077,8 @@ export class DirectoryApi extends BaseAPI {
     }
 
     /**
-     * 用于更新文件的标签（Labels）或分类（Category）。 需要 admin 权限或 spaceAdmin 权限。 
-     * @summary 更新文件标签或分类
+     * 用于更新文件的标签（Labels）、分类（Category）或自定义元数据（MetaData）。 需要 admin 权限或 spaceAdmin 权限。 
+     * @summary 更新文件标签、分类或自定义元数据
      * @param {DirectoryApiUpdateFileLabelsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

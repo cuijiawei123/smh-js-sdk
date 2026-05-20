@@ -413,5 +413,101 @@ describe.skipIf(shouldSkip)('FileApi 额外补充集成测试', () => {
         skipOnUnavailable(ctx, error, 'infoFile contentDisposition');
       }
     });
+
+    it('应支持 withShortLink 参数（返回短链）', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        const res = await client.file.infoFile({
+          filePath: sharedFilePath,
+          info: InfoFileInfoEnum.NUMBER_1,
+          withShortLink: 1 as any,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        skipOnUnavailable(ctx, error, 'infoFile withShortLink');
+      }
+    });
+
+    it('应支持 period 参数（指定链接有效期）', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        const res = await client.file.infoFile({
+          filePath: sharedFilePath,
+          info: InfoFileInfoEnum.NUMBER_1,
+          period: 300,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        skipOnUnavailable(ctx, error, 'infoFile period');
+      }
+    });
+
+    it('应支持 withShortLink + period 组合参数', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        const res = await client.file.infoFile({
+          filePath: sharedFilePath,
+          info: InfoFileInfoEnum.NUMBER_1,
+          withShortLink: 1 as any,
+          period: 600,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        skipOnUnavailable(ctx, error, 'infoFile withShortLink+period');
+      }
+    });
+
+    it('应支持 withContentCas 参数', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        const res = await client.file.infoFile({
+          filePath: sharedFilePath,
+          info: InfoFileInfoEnum.NUMBER_1,
+          withContentCas: 1 as any,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        skipOnUnavailable(ctx, error, 'infoFile withContentCas');
+      }
+    });
+
+    it('应支持 internalDomain 参数', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        const res = await client.file.infoFile({
+          filePath: sharedFilePath,
+          info: InfoFileInfoEnum.NUMBER_1,
+          internalDomain: 1 as any,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        // internalDomain may not be available in all environments
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`infoFile internalDomain 不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+    });
+
+    it('应支持 withFavoriteStatus 参数', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        const res = await client.file.infoFile({
+          filePath: sharedFilePath,
+          info: InfoFileInfoEnum.NUMBER_1,
+          withFavoriteStatus: 1 as any,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        skipOnUnavailable(ctx, error, 'infoFile withFavoriteStatus');
+      }
+    });
   });
 });

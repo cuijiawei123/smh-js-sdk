@@ -84,6 +84,7 @@ listSpace 实现列出租户空间列表信息。支持分页查询。
 ### 使用示例
 
 ```typescript
+// 基本分页查询
 const res = await smh.space.listSpace({
     marker: 'next-page-marker',
     limit: 50
@@ -92,6 +93,13 @@ const res = await smh.space.listSpace({
 if (res.status === 200) {
     console.log('空间列表', res.data);
 }
+
+// 启用全局有序列出，按 spaceId 前缀过滤
+const res2 = await smh.space.listSpace({
+    ordered: 1,
+    prefix: 'team_',
+    limit: 20,
+});
 ```
 
 ### 参数说明
@@ -100,6 +108,9 @@ if (res.status === 200) {
 |--------|----------|------|----------|
 | marker | 用于顺序列出分页的标识 | String | 否 |
 | limit | 用于顺序列出分页时本地列出的项目数限制 | Number | 否 |
+| ordered | 是否启用全局有序列出（按 spaceId 升序），取值为 1 表示启用，0 或不传表示不启用；启用后 prefix 与 startName 才会生效 | Number | 否 |
+| prefix | 按 spaceId 前缀过滤，仅返回 spaceId 以该前缀开头的租户空间；仅在 ordered=1 时生效 | String | 否 |
+| startName | 分页起始游标（不包含），仅返回 spaceId > startName 的租户空间；仅在 ordered=1 时生效；当与 marker 同时传入时 marker 优先，startName 会被忽略 | String | 否 |
 
 ### 返回值说明
 

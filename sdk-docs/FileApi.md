@@ -38,6 +38,16 @@ const res = await smh.file.infoFile({
 if (res.status === 200) {
     console.log('文件信息获取成功', res.data);
 }
+
+// 获取短链形式的下载链接，并指定有效期
+const res2 = await smh.file.infoFile({
+    spaceId: 'your-space-id',
+    filePath: 'test.xlsx',
+    info: 1,
+    withShortLink: 1,
+    period: 3600,
+    withFavoriteStatus: 1,
+});
 ```
 
 ### 参数说明
@@ -53,6 +63,12 @@ if (res.status === 200) {
 | userId | 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份 | String | 否 |
 | trafficLimit | 单链接下载限速，范围 100KB/s-100MB/s，单位 B | Number | 否 |
 | preCheck | 是否只用于校验文件是否可预览和下载，设置该参数后返回结果中不包含 cosUrl | Number | 否 |
+| contentCas | 文件内容的 Cas 标识，可选参数 | String | 否 |
+| withContentCas | 0 或 1，是否返回文件内容的 Cas 标识，可选，默认不返回 | Number | 否 |
+| internalDomain | 0 或 1，是否使用内网域名生成文件访问/上传链接，可选参数，默认不使用；设置为 1 时返回的 URL 将使用内网域名，适用于同地域内网访问场景 | Number | 否 |
+| withShortLink | 0 或 1，可选参数，默认为 0。设置为 1 时，返回的 cosUrl（及 availableCosUrls 中的地址）将被替换为短链形式 | Number | 否 |
+| period | 整数（单位：秒），可选参数。用于指定返回的下载/预览链接（或短链）的有效期，取值范围 [60, 7200]，默认为 2 小时（7200 秒） | Number | 否 |
+| withFavoriteStatus | 0 或 1，可选参数，默认为 0。设置为 1 时，返回结果中将包含当前用户对该文件的收藏状态 | Number | 否 |
 
 ### 返回值说明
 
@@ -1310,5 +1326,86 @@ do {
 - `HISTORY.CREATE`：`versionId`（字符串，历史版本标识）。
 - `HISTORY.LATEST`：`owInode`、`owSize`、`owEtag`、`owCRC64`、`owContentType`、`owRevisionVersion`（被覆盖文件信息）。
 - 其他事件：`null` 或空对象。
+
+---
+
+## 创建虚拟文件
+
+### 功能说明
+
+createVirtualFile 实现创建虚拟文件功能，用于在指定路径创建一个不包含实际内容的虚拟文件记录。可通过请求体设置虚拟文件的媒体类型、元数据、标签、分类和大小等属性。
+
+### 使用示例
+
+```typescript
+// 创建一个最简单的虚拟文件
+const res = await smh.file.createVirtualFile({
+    filePath: 'documents/reference.vfile',
+    virtualFile: 1,
+});
+
+// 创建带有完整属性的虚拟文件
+const res2 = await smh.file.createVirtualFile({
+    filePath: 'documents/external-resource.vfile',
+    virtualFile: 1,
+    conflictResolutionStrategy: 'rename',
+    createVirtualFileRequest: {
+        contentType: 'application/pdf',
+        metaData: {
+            'source': 'external-system',
+            'external-url': 'https://example.com/resource.pdf',
+        },
+        labels: ['外部资源', '参考文档'],
+        category: 'reference',
+        size: '1048576',
+    },
+});
+```
+
+### 参数说明
+
+| 参数名 | 参数描述 | 类型 | 是否必填 |
+|--------|----------|------|----------|
+| libraryId | 媒体库 ID | String | 是 |
+| spaceId | 空间 ID | String | 是 |
+| filePath | 文件路径，使用斜杠(/)分隔多级目录 | String | 是 |
+| virtualFile | 固定标识，表示创建虚拟文件，固定值为 1 | Number | 是 |
+| conflictResolutionStrategy | 文件名冲突时的处理方式：ask（返回 409）、rename（自动重命名，默认）、overwrite（覆盖） | String | 否 |
+| accessToken | 访问令牌 | String | 否 |
+| librarySecret | 访问媒体库密钥 | String | 否 |
+| userId | 用户身份识别 | String | 否 |
+| createVirtualFileRequest | 虚拟文件请求体 | Object | 否 |
+
+**createVirtualFileRequest 对象说明**
+
+| 字段 | 参数描述 | 类型 | 是否必填 |
+|------|----------|------|----------|
+| contentType | 虚拟文件的媒体类型，用于标识虚拟文件所代表的资源类型 | String | 否 |
+| metaData | 自定义元数据键值对，key 为小写字符串 | Object | 否 |
+| labels | 文件标签列表 | Array | 否 |
+| category | 文件自定义分类，最大长度 16 字节 | String | 否 |
+| size | 虚拟文件的大小（单位：字节），默认为 "0"；该值将用于存储配额计算 | String | 否 |
+
+### 返回值说明
+
+**HTTP 状态码：200 / 201**
+
+创建成功，返回虚拟文件信息。
+
+**响应示例**
+
+```json
+{
+  "path": ["documents", "reference.vfile"],
+  "type": "virtual"
+}
+```
+
+**响应字段说明**
+
+| 字段 | 说明 | 类型 |
+|------|------|------|
+| path | 最终的虚拟文件路径，字符串数组。数组中的最后一个元素代表最终的文件名，其他元素代表每一级目录名。因为可能存在同名文件自动重命名，所以最终路径可能不等同于创建时指定的目标路径；如果为 null 则表示目标路径的某级父级目录已被删除 | Array \| null |
+| type | 固定为 "virtual" | String |
 
 ---

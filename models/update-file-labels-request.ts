@@ -16,20 +16,44 @@
 
 export interface UpdateFileLabelsRequest {
     /**
-     * 文件标签列表，比如大象
+     * 文件标签列表，比如大象，可选参数
      */
     'labels'?: Array<string>;
     /**
-     * 文件自定义的分类，string类型，最大长度16字节
+     * 文件自定义的分类，string类型，最大长度16字节，可选参数；用户可通过更新文件接口修改文件的分类，也可以根据文件后缀预定义文件的分类信息
      */
     'category'?: string;
     /**
-     * 文件对应的本地创建时间
+     * 自定义元数据键值对，可选参数，key 为小写字符串
+     */
+    'metaData'?: { [key: string]: string; };
+    /**
+     * 元数据更新策略，可选参数。merge（默认）：JSON Merge Patch 语义，只更新传入的字段，未传入的字段保持不变，将某个 key 的值设为 null 可以删除该 key；replace：全量替换，用请求中的 metaData 完全替换已有的 MetaData，未在请求中出现的 key 会被删除，仅替换 MetaData 部分，InternalInfo 和 Labels 不受影响
+     */
+    'metaDataDirective'?: UpdateFileLabelsRequestMetaDataDirectiveEnum;
+    /**
+     * 文件对应的本地创建时间，时间戳字符串，可选参数
      */
     'localCreationTime'?: string;
     /**
-     * 文件对应的本地修改时间
+     * 文件对应的本地修改时间，时间戳字符串，可选参数
      */
     'localModificationTime'?: string;
+    /**
+     * 更新文件的媒体类型，可选参数，所有文件类型均支持
+     */
+    'contentType'?: string;
+    /**
+     * 更新虚拟文件的大小（单位：字节），可选参数，更新后会重新计算存储配额；仅虚拟文件生效，普通文件忽略此字段
+     */
+    'size'?: string;
 }
+
+export const UpdateFileLabelsRequestMetaDataDirectiveEnum = {
+    Merge: 'merge',
+    Replace: 'replace'
+} as const;
+
+export type UpdateFileLabelsRequestMetaDataDirectiveEnum = typeof UpdateFileLabelsRequestMetaDataDirectiveEnum[keyof typeof UpdateFileLabelsRequestMetaDataDirectiveEnum];
+
 

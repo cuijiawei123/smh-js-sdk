@@ -6,6 +6,7 @@
 
 import { FileApi, FileApiInfoFileRequest } from '../apis/file-api';
 import { Configuration } from '../configuration';
+import type { AxiosInstance } from 'axios';
 import { formatSize, formatTime } from '../utils/Formatter';
 import { parallelLimit } from '../utils/index';
 import { 
@@ -52,9 +53,10 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
    */
   static async downloadByUrl(
     options: UrlDownloadOptions,
-    configuration: Configuration
+    configuration: Configuration,
+    axiosInstance?: AxiosInstance
   ): Promise<void> {
-    const fileApi = new FileApi(configuration);
+    const fileApi = new FileApi(configuration, undefined, axiosInstance);
 
     const res = await fileApi.infoFile({
       libraryId: options.libraryId,
@@ -121,7 +123,8 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
   constructor(
     file: IRemoteFile, 
     options: DownloadOptions, 
-    configuration: Configuration
+    configuration: Configuration,
+    axiosInstance?: AxiosInstance
   ) {
     if (!file || !file.path) {
       throw newError(
@@ -141,7 +144,8 @@ export class Downloader extends CommonLoader<DownloadCheckpoint> {
     super(iFile, { verbose: options.verbose });
 
     this.options = options;
-    this.fileApi = new FileApi(configuration);
+    // 透传 axiosInstance，使 FileApi 与 SMHClient 共用同一个带 Client-Version 的 axios 实例
+    this.fileApi = new FileApi(configuration, undefined, axiosInstance);
 
     this.MULTIPART_THRESHOLD = (options.partFileSize || 32) * 1024 * 1024;
     this.chunk_size = (options.chunkSize || 5) * 1024 * 1024;

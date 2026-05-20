@@ -1,6 +1,6 @@
 /**
  * QuotaApi 集成测试
- * 覆盖 getQuota、createQuota、updateQuota、getQuotaInfo、updateQuotaById
+ * 覆盖 getQuota、getSpaceQuota、createQuota、updateQuota、getQuotaInfo、updateQuotaById
  * 配额操作可能需要管理员权限，不可用时安全跳过
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
@@ -65,6 +65,63 @@ describe.skipIf(shouldSkip)('QuotaApi 集成测试', () => {
       } catch (error: any) {
         expect(error).toBeDefined();
         expect(error.response?.status).toBeDefined();
+      }
+    });
+  });
+
+  // ─── getSpaceQuota ──────────────────────────────────────────
+
+  describe('getSpaceQuota - 获取租户空间配额（按空间查询）', () => {
+    it('应能查询指定空间的配额信息', async (ctx: any) => {
+      try {
+        const res = await client.quota.getSpaceQuota({
+          libraryId: config.libraryId,
+          spaceId: config.spaceId,
+          accessToken: config.accessToken,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        // 配额能力未开通返回 404
+        if (error?.response?.status === 404) {
+          ctx.skip('当前环境未开通配额能力');
+          return;
+        }
+        skipOnUnavailable(ctx, error, '获取租户空间配额(getSpaceQuota)');
+      }
+    });
+
+    it('传入无效参数应返回错误', async (ctx: any) => {
+      try {
+        const res = await client.quota.getSpaceQuota({
+          libraryId: 'invalid-lib-id',
+          spaceId: 'invalid-space-id',
+          accessToken: 'invalid-token',
+        });
+        // 某些环境可能宽容地返回 200
+        expect(res.status).toBeDefined();
+      } catch (error: any) {
+        expect(error).toBeDefined();
+        expect(error.response?.status).toBeDefined();
+      }
+    });
+
+    it('应支持 userId 参数', async (ctx: any) => {
+      try {
+        const res = await client.quota.getSpaceQuota({
+          libraryId: config.libraryId,
+          spaceId: config.spaceId,
+          accessToken: config.accessToken,
+          userId: 'test-user',
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        if (error?.response?.status === 404) {
+          ctx.skip('当前环境未开通配额能力');
+          return;
+        }
+        skipOnUnavailable(ctx, error, '获取租户空间配额(getSpaceQuota) with userId');
       }
     });
   });

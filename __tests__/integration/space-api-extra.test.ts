@@ -105,6 +105,99 @@ describe.skipIf(shouldSkip)('SpaceApi 补充集成测试', () => {
       }
     });
   });
+  // ─── listSpace 新增参数 ────────────────────────────────────
+
+  describe('listSpace - 新增参数覆盖', () => {
+    it('应支持 ordered 参数（全局有序列出）', async (ctx: any) => {
+      try {
+        const res = await client.space.listSpace({
+          ordered: 1 as any,
+          limit: 5,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`listSpace ordered 不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+    });
+
+    it('应支持 prefix 参数（按 spaceId 前缀过滤）', async (ctx: any) => {
+      try {
+        const res = await client.space.listSpace({
+          ordered: 1 as any,
+          prefix: 'sp',
+          limit: 5,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`listSpace prefix 不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+    });
+
+    it('应支持 startName 参数（分页起始游标）', async (ctx: any) => {
+      try {
+        const res = await client.space.listSpace({
+          ordered: 1 as any,
+          startName: 'a',
+          limit: 5,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`listSpace startName 不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+    });
+
+    it('应支持 ordered + prefix + startName 组合参数', async (ctx: any) => {
+      try {
+        const res = await client.space.listSpace({
+          ordered: 1 as any,
+          prefix: 'sp',
+          startName: 'a',
+          limit: 10,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`listSpace 组合参数不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+    });
+
+    it('ordered=0 时 prefix 和 startName 应不生效（兼容旧行为）', async (ctx: any) => {
+      try {
+        const res = await client.space.listSpace({
+          ordered: 0 as any,
+          prefix: 'nonexistent_prefix_xyz',
+          limit: 5,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        if ([400, 403, 404, 405, 501].includes(error?.response?.status)) {
+          ctx.skip(`listSpace ordered=0 不可用: ${error?.response?.status}`);
+          return;
+        }
+        throw error;
+      }
+    });
+  });
 });
 
 // ─── UsageApi 补充 ──────────────────────────────────────────

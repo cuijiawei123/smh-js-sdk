@@ -44,7 +44,7 @@ export interface CreateSpaceRequest {
      */
     'recognizeSensitiveContent'?: boolean;
     /**
-     * 空间标识，用于区分个人空间和团队空间。
+     * 空间标识，用于区分个人空间和团队空间，可选参数。
      */
     'spaceTag'?: string;
 }
