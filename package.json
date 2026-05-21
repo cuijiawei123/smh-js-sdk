@@ -1,6 +1,6 @@
 {
   "name": "smh-js-sdk",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "腾讯云智能媒资托管服务 JavaScript/TypeScript SDK",
   "keywords": [
     "tencent",
