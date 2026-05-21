@@ -1258,11 +1258,12 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {InfoFileInternalDomainEnum} [internalDomain] 0 或 1，是否使用内网域名生成文件访问/上传链接，可选参数，默认不使用；当设置为 1 时，返回的 URL 将使用内网域名，适用于同地域内网访问场景以提升访问速度
          * @param {InfoFileWithShortLinkEnum} [withShortLink] 0 或 1，可选参数，默认为 0。设置为 1 时，返回的 cosUrl（及 availableCosUrls 中的地址）将被替换为短链形式
          * @param {number} [period] 整数（单位：秒），可选参数。用于指定返回的下载/预览链接（或短链）的有效期。取值范围为 [60, 7200]，其中最大值为 2 小时（7200 秒），默认为 2 小时
+         * @param {InfoFilePreviewEnum} [preview] 0 或 1，可选参数，默认为 0。设置为 1 时，返回在线预览链接；默认为下载链接
          * @param {InfoFileWithFavoriteStatusEnum} [withFavoriteStatus] 0 或 1，可选参数，默认为 0。设置为 1 时，返回结果中将包含当前用户对该文件的收藏状态
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        infoFile: async (libraryId: string, spaceId: string, filePath: string, info: InfoFileInfoEnum, historyId?: string, contentDisposition?: InfoFileContentDispositionEnum, purpose?: InfoFilePurposeEnum, accessToken?: string, librarySecret?: string, userId?: string, trafficLimit?: number, preCheck?: InfoFilePreCheckEnum, contentCas?: string, withContentCas?: InfoFileWithContentCasEnum, internalDomain?: InfoFileInternalDomainEnum, withShortLink?: InfoFileWithShortLinkEnum, period?: number, withFavoriteStatus?: InfoFileWithFavoriteStatusEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        infoFile: async (libraryId: string, spaceId: string, filePath: string, info: InfoFileInfoEnum, historyId?: string, contentDisposition?: InfoFileContentDispositionEnum, purpose?: InfoFilePurposeEnum, accessToken?: string, librarySecret?: string, userId?: string, trafficLimit?: number, preCheck?: InfoFilePreCheckEnum, contentCas?: string, withContentCas?: InfoFileWithContentCasEnum, internalDomain?: InfoFileInternalDomainEnum, withShortLink?: InfoFileWithShortLinkEnum, period?: number, preview?: InfoFilePreviewEnum, withFavoriteStatus?: InfoFileWithFavoriteStatusEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('infoFile', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -1340,6 +1341,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (period !== undefined) {
                 localVarQueryParameter['period'] = period;
+            }
+
+            if (preview !== undefined) {
+                localVarQueryParameter['preview'] = preview;
             }
 
             if (withFavoriteStatus !== undefined) {
@@ -2232,12 +2237,13 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {InfoFileInternalDomainEnum} [internalDomain] 0 或 1，是否使用内网域名生成文件访问/上传链接，可选参数，默认不使用；当设置为 1 时，返回的 URL 将使用内网域名，适用于同地域内网访问场景以提升访问速度
          * @param {InfoFileWithShortLinkEnum} [withShortLink] 0 或 1，可选参数，默认为 0。设置为 1 时，返回的 cosUrl（及 availableCosUrls 中的地址）将被替换为短链形式
          * @param {number} [period] 整数（单位：秒），可选参数。用于指定返回的下载/预览链接（或短链）的有效期。取值范围为 [60, 7200]，其中最大值为 2 小时（7200 秒），默认为 2 小时
+         * @param {InfoFilePreviewEnum} [preview] 0 或 1，可选参数，默认为 0。设置为 1 时，返回在线预览链接；默认为下载链接
          * @param {InfoFileWithFavoriteStatusEnum} [withFavoriteStatus] 0 或 1，可选参数，默认为 0。设置为 1 时，返回结果中将包含当前用户对该文件的收藏状态
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async infoFile(libraryId: string, spaceId: string, filePath: string, info: InfoFileInfoEnum, historyId?: string, contentDisposition?: InfoFileContentDispositionEnum, purpose?: InfoFilePurposeEnum, accessToken?: string, librarySecret?: string, userId?: string, trafficLimit?: number, preCheck?: InfoFilePreCheckEnum, contentCas?: string, withContentCas?: InfoFileWithContentCasEnum, internalDomain?: InfoFileInternalDomainEnum, withShortLink?: InfoFileWithShortLinkEnum, period?: number, withFavoriteStatus?: InfoFileWithFavoriteStatusEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<InfoFile200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.infoFile(libraryId, spaceId, filePath, info, historyId, contentDisposition, purpose, accessToken, librarySecret, userId, trafficLimit, preCheck, contentCas, withContentCas, internalDomain, withShortLink, period, withFavoriteStatus, options);
+        async infoFile(libraryId: string, spaceId: string, filePath: string, info: InfoFileInfoEnum, historyId?: string, contentDisposition?: InfoFileContentDispositionEnum, purpose?: InfoFilePurposeEnum, accessToken?: string, librarySecret?: string, userId?: string, trafficLimit?: number, preCheck?: InfoFilePreCheckEnum, contentCas?: string, withContentCas?: InfoFileWithContentCasEnum, internalDomain?: InfoFileInternalDomainEnum, withShortLink?: InfoFileWithShortLinkEnum, period?: number, preview?: InfoFilePreviewEnum, withFavoriteStatus?: InfoFileWithFavoriteStatusEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<InfoFile200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.infoFile(libraryId, spaceId, filePath, info, historyId, contentDisposition, purpose, accessToken, librarySecret, userId, trafficLimit, preCheck, contentCas, withContentCas, internalDomain, withShortLink, period, preview, withFavoriteStatus, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.infoFile']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -2557,7 +2563,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         infoFile(requestParameters: FileApiInfoFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<InfoFile200Response> {
-            return localVarFp.infoFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.historyId, requestParameters.contentDisposition, requestParameters.purpose, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.trafficLimit, requestParameters.preCheck, requestParameters.contentCas, requestParameters.withContentCas, requestParameters.internalDomain, requestParameters.withShortLink, requestParameters.period, requestParameters.withFavoriteStatus, options).then((request) => request(axios, basePath));
+            return localVarFp.infoFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.historyId, requestParameters.contentDisposition, requestParameters.purpose, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.trafficLimit, requestParameters.preCheck, requestParameters.contentCas, requestParameters.withContentCas, requestParameters.internalDomain, requestParameters.withShortLink, requestParameters.period, requestParameters.preview, requestParameters.withFavoriteStatus, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于重命名或移动文件。 要求权限： admin、space_admin 或 move_file/move_file_force。 该接口的源和目标均需要指定完整的文件路径，源与目标可以跨越目录，来实现将文件移动到任意其他目录下的功能，且支持同时修改文件名； 不会自动创建中间所需的各级父目录，所以必须保证路径的各级目录存在。 
@@ -3474,6 +3480,11 @@ export interface FileApiInfoFileRequest {
     readonly period?: number
 
     /**
+     * 0 或 1，可选参数，默认为 0。设置为 1 时，返回在线预览链接；默认为下载链接
+     */
+    readonly preview?: InfoFilePreviewEnum
+
+    /**
      * 0 或 1，可选参数，默认为 0。设置为 1 时，返回结果中将包含当前用户对该文件的收藏状态
      */
     readonly withFavoriteStatus?: InfoFileWithFavoriteStatusEnum
@@ -4018,7 +4029,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public infoFile(requestParameters: FileApiInfoFileRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).infoFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.historyId, requestParameters.contentDisposition, requestParameters.purpose, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.trafficLimit, requestParameters.preCheck, requestParameters.contentCas, requestParameters.withContentCas, requestParameters.internalDomain, requestParameters.withShortLink, requestParameters.period, requestParameters.withFavoriteStatus, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).infoFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.info, requestParameters.historyId, requestParameters.contentDisposition, requestParameters.purpose, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.trafficLimit, requestParameters.preCheck, requestParameters.contentCas, requestParameters.withContentCas, requestParameters.internalDomain, requestParameters.withShortLink, requestParameters.period, requestParameters.preview, requestParameters.withFavoriteStatus, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4246,6 +4257,11 @@ export const InfoFileWithShortLinkEnum = {
     NUMBER_1: 1
 } as const;
 export type InfoFileWithShortLinkEnum = typeof InfoFileWithShortLinkEnum[keyof typeof InfoFileWithShortLinkEnum];
+export const InfoFilePreviewEnum = {
+    NUMBER_0: 0,
+    NUMBER_1: 1
+} as const;
+export type InfoFilePreviewEnum = typeof InfoFilePreviewEnum[keyof typeof InfoFilePreviewEnum];
 export const InfoFileWithFavoriteStatusEnum = {
     NUMBER_0: 0,
     NUMBER_1: 1
