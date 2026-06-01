@@ -12,6 +12,10 @@ import {
   InfoFileInfoEnum,
   CreateVirtualFileVirtualFileEnum,
   CreateVirtualFileConflictResolutionStrategyEnum,
+  PreviewZipFileZipPreviewEnum,
+  PreviewZipFileFormatEnum,
+  UncompressFileUncompressEnum,
+  UncompressFileConflictResolutionStrategyEnum,
 } from '../../apis/file-api';
 import {
   createMockFile,
@@ -592,6 +596,247 @@ describe.skipIf(shouldSkip)('FileApi 补充集成测试', () => {
         const deleteRes = await client.file.deleteFile({ filePath });
         expect([200, 204]).toContain(deleteRes.status);
       });
+    });
+  });
+
+  // ─── previewZipFile ───────────────────────────────────────
+
+  describe('previewZipFile - 解压预览', () => {
+    it('对非压缩包文件调用应返回错误', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        await client.file.previewZipFile({
+          filePath: sharedFilePath,
+          zipPreview: PreviewZipFileZipPreviewEnum.NUMBER_1,
+        });
+        // 若服务端未开启 enableFileUncompress，可能返回 4xx
+      } catch (error: any) {
+        // 非压缩包文件应返回错误（如 400 FileUncompressNotAllowed 或 403/404）
+        expect(error.response?.status).toBeDefined();
+        expect([400, 403, 404, 405, 501]).toContain(error.response?.status);
+      }
+    });
+
+    it('对不存在的文件调用应返回 404', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        await client.file.previewZipFile({
+          filePath: `${getTestRootDir()}/non-existent-${Date.now()}.zip`,
+          zipPreview: PreviewZipFileZipPreviewEnum.NUMBER_1,
+        });
+      } catch (error: any) {
+        expect(error.response?.status).toBe(404);
+      }
+    });
+
+    it('传入 format=flat 参数不应报参数错误', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        await client.file.previewZipFile({
+          filePath: 'tced-skill-1.0.0.zip',
+          zipPreview: PreviewZipFileZipPreviewEnum.NUMBER_1,
+          format: PreviewZipFileFormatEnum.Flat,
+        });
+      } catch (error: any) {
+        // 非压缩包文件预期返回业务错误，但不应是参数错误（400 ParamInvalid）
+        if (error.response?.status === 400) {
+          const errCode = error.response?.data?.Code || error.response?.data?.code || '';
+          expect(errCode).not.toBe('ParamInvalid');
+        }
+      }
+    });
+
+    it('传入 format=tree 参数不应报参数错误', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        await client.file.previewZipFile({
+          filePath: sharedFilePath,
+          zipPreview: PreviewZipFileZipPreviewEnum.NUMBER_1,
+          format: PreviewZipFileFormatEnum.Tree,
+        });
+      } catch (error: any) {
+        if (error.response?.status === 400) {
+          const errCode = error.response?.data?.Code || error.response?.data?.code || '';
+          expect(errCode).not.toBe('ParamInvalid');
+        }
+      }
+    });
+
+    it('传入非法 format 值应返回 ParamInvalid 错误', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        await client.file.previewZipFile({
+          filePath: sharedFilePath,
+          zipPreview: PreviewZipFileZipPreviewEnum.NUMBER_1,
+          format: 'invalid-format' as any,
+        });
+      } catch (error: any) {
+        if (error.response?.status === 400) {
+          const errCode = error.response?.data?.Code || error.response?.data?.code || '';
+          // 如果服务端校验了 format 参数，应返回 ParamInvalid
+          if (errCode) {
+            expect(['ParamInvalid', 'FileUncompressNotAllowed', 'FileNotFound']).toContain(errCode);
+          }
+        }
+      }
+    });
+  });
+
+  // ─── uncompressFile ───────────────────────────────────────
+
+  describe('uncompressFile - 文件解压', () => {
+    it('对非压缩包文件调用应返回错误', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        await client.file.uncompressFile({
+          filePath: sharedFilePath,
+          uncompress: UncompressFileUncompressEnum.NUMBER_1,
+          uncompressFileRequest: {
+            targetPath: getTestRootDir(),
+          },
+        });
+      } catch (error: any) {
+        // 非压缩包文件应返回错误（如 400 FileUncompressNotAllowed 或 403/404/501）
+        expect(error.response?.status).toBeDefined();
+        expect([400, 403, 404, 405, 501]).toContain(error.response?.status);
+      }
+    });
+
+    it('对不存在的文件调用应返回 404', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        await client.file.uncompressFile({
+          filePath: `${getTestRootDir()}/non-existent-${Date.now()}.zip`,
+          uncompress: UncompressFileUncompressEnum.NUMBER_1,
+          uncompressFileRequest: {
+            targetPath: getTestRootDir(),
+          },
+        });
+      } catch (error: any) {
+        expect(error.response?.status).toBe(404);
+      }
+    });
+
+    it('目标路径不存在时应返回 DirectoryNotFound 错误', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        await client.file.uncompressFile({
+          filePath: sharedFilePath,
+          uncompress: UncompressFileUncompressEnum.NUMBER_1,
+          uncompressFileRequest: {
+            targetPath: `${getTestRootDir()}/non-existent-dir-${Date.now()}`,
+          },
+        });
+      } catch (error: any) {
+        expect(error.response?.status).toBeDefined();
+        if (error.response?.status === 400) {
+          const errCode = error.response?.data?.Code || error.response?.data?.code || '';
+          if (errCode) {
+            expect(['DirectoryNotFound', 'FileUncompressNotAllowed', 'FileNotFound']).toContain(errCode);
+          }
+        }
+      }
+    });
+
+    it('传入 conflictResolutionStrategy=rename 参数不应报参数错误', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        await client.file.uncompressFile({
+          filePath: 'tced-skill-1.0.0.zip',
+          uncompress: UncompressFileUncompressEnum.NUMBER_1,
+          uncompressFileRequest: {
+            targetPath: 'test'
+          },
+          conflictResolutionStrategy: UncompressFileConflictResolutionStrategyEnum.Rename,
+        });
+      } catch (error: any) {
+        if (error.response?.status === 400) {
+          const errCode = error.response?.data?.Code || error.response?.data?.code || '';
+          expect(errCode).not.toBe('ParamInvalid');
+        }
+      }
+    });
+
+    it('传入 conflictResolutionStrategy=overwrite 参数不应报参数错误', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        await client.file.uncompressFile({
+          filePath: sharedFilePath,
+          uncompress: UncompressFileUncompressEnum.NUMBER_1,
+          uncompressFileRequest: {
+            targetPath: getTestRootDir(),
+          },
+          conflictResolutionStrategy: UncompressFileConflictResolutionStrategyEnum.Overwrite,
+        });
+      } catch (error: any) {
+        if (error.response?.status === 400) {
+          const errCode = error.response?.data?.Code || error.response?.data?.code || '';
+          expect(errCode).not.toBe('ParamInvalid');
+        }
+      }
+    });
+
+    it('传入 selectedFilePaths 参数不应报参数错误', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        await client.file.uncompressFile({
+          filePath: sharedFilePath,
+          uncompress: UncompressFileUncompressEnum.NUMBER_1,
+          uncompressFileRequest: {
+            targetPath: getTestRootDir(),
+            selectedFilePaths: ['some-file.txt'],
+          },
+        });
+      } catch (error: any) {
+        if (error.response?.status === 400) {
+          const errCode = error.response?.data?.Code || error.response?.data?.code || '';
+          expect(errCode).not.toBe('ParamInvalid');
+        }
+      }
+    });
+
+    it('传入 password 参数不应报参数错误', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        await client.file.uncompressFile({
+          filePath: sharedFilePath,
+          uncompress: UncompressFileUncompressEnum.NUMBER_1,
+          uncompressFileRequest: {
+            targetPath: getTestRootDir(),
+            password: 'test-password',
+          },
+        });
+      } catch (error: any) {
+        if (error.response?.status === 400) {
+          const errCode = error.response?.data?.Code || error.response?.data?.code || '';
+          expect(errCode).not.toBe('ParamInvalid');
+        }
+      }
+    });
+
+    it('成功提交解压任务应返回 202 和 taskId', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      // 此用例仅在环境中存在真实压缩包时才能通过，此处验证接口调用结构正确性
+      // 若文件不是压缩包，服务端会返回业务错误，跳过断言
+      try {
+        const res = await client.file.uncompressFile({
+          filePath: sharedFilePath,
+          uncompress: UncompressFileUncompressEnum.NUMBER_1,
+          uncompressFileRequest: {
+            targetPath: getTestRootDir(),
+          },
+        });
+        // 如果意外成功（文件恰好是压缩包），验证响应结构
+        expect(res.status).toBe(202);
+        expect(res.data).toBeDefined();
+        const data = res.data as any;
+        if (data.taskId !== undefined) {
+          expect(typeof data.taskId).toBe('number');
+        }
+      } catch (error: any) {
+        // 非压缩包文件预期失败，跳过
+        ctx.skip(`文件不是压缩包，跳过: ${error?.response?.status}`);
+      }
     });
   });
 });

@@ -53,11 +53,12 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {string} [spaceId] 租户空间的空间 ID，名称不能以“-”开头或结尾，只支持英文小写字母和数字[a-z，0-9]、中划线“-”及其组合，长度为2到32个字符。
          * @param {CreateSpaceRequest} [createSpaceRequest] 租户空间的扩展属性
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createSpace: async (libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, createSpaceRequest?: CreateSpaceRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        createSpace: async (libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, spaceId?: string, createSpaceRequest?: CreateSpaceRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('createSpace', 'libraryId', libraryId)
             const localVarPath = `/api/v1/space/{LibraryId}`
@@ -83,6 +84,10 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
 
             if (userId !== undefined) {
                 localVarQueryParameter['user_id'] = userId;
+            }
+
+            if (spaceId !== undefined) {
+                localVarQueryParameter['space_id'] = spaceId;
             }
 
 
@@ -451,14 +456,14 @@ export const SpaceApiAxiosParamCreator = function (configuration?: Configuration
             };
         },
         /**
-         * 用于列出租户空间列表信息。如需列出所有租户空间，需要 admin 或 space_admin 权限，否则仅列出当前访问令牌所代表的用户所创建的租户空间。
+         * 用于列出租户空间列表信息。 - 要求权限：如需列出所有租户空间，需要 admin 权限，否则仅列出当前访问令牌所代表的用户所创建的租户空间； - 列出模式：   - 默认模式（不传 Ordered 或 Ordered 取值不为 1）与旧版本行为完全一致，保证向后兼容；   - 当 Ordered=1 时，启用\"全局有序列出\"模式，会按 spaceId 升序跨分片合并返回结果，并支持通过 Prefix/StartName 参数进行前缀过滤和起始游标过滤；   - 有序模式下返回的 nextMarker 编码格式与非有序模式不同，但对使用方透明：继续将其透传给下一次请求的 marker 参数即可完成翻页。 
          * @summary 列出租户空间
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-         * @param {string} [marker] 用于顺序列出分页的标识。
-         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制。
+         * @param {string} [marker] 用于顺序列出分页的标识，即上一次请求返回的 nextMarker 字段。
+         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，默认为 1000，不能超过 1000。
          * @param {ListSpaceOrderedEnum} [ordered] 是否启用全局有序列出（按 spaceId 升序），取值为 1 表示启用，0 或不传表示不启用；启用后 prefix 与 start_name 才会生效。
          * @param {string} [prefix] 按 spaceId 前缀过滤，仅返回 spaceId 以该前缀开头的租户空间；仅在 ordered&#x3D;1 时生效。
          * @param {string} [startName] 分页起始游标（不包含），仅返回 spaceId &gt; start_name 的租户空间；仅在 ordered&#x3D;1 时生效；当与 marker 同时传入时 marker 优先，start_name 会被忽略。
@@ -651,12 +656,13 @@ export const SpaceApiFp = function(configuration?: Configuration) {
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {string} [spaceId] 租户空间的空间 ID，名称不能以“-”开头或结尾，只支持英文小写字母和数字[a-z，0-9]、中划线“-”及其组合，长度为2到32个字符。
          * @param {CreateSpaceRequest} [createSpaceRequest] 租户空间的扩展属性
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createSpace(libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, createSpaceRequest?: CreateSpaceRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateSpace201Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createSpace(libraryId, accessToken, librarySecret, userId, createSpaceRequest, options);
+        async createSpace(libraryId: string, accessToken?: string, librarySecret?: string, userId?: string, spaceId?: string, createSpaceRequest?: CreateSpaceRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CreateSpace201Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createSpace(libraryId, accessToken, librarySecret, userId, spaceId, createSpaceRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SpaceApi.createSpace']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -770,14 +776,14 @@ export const SpaceApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 用于列出租户空间列表信息。如需列出所有租户空间，需要 admin 或 space_admin 权限，否则仅列出当前访问令牌所代表的用户所创建的租户空间。
+         * 用于列出租户空间列表信息。 - 要求权限：如需列出所有租户空间，需要 admin 权限，否则仅列出当前访问令牌所代表的用户所创建的租户空间； - 列出模式：   - 默认模式（不传 Ordered 或 Ordered 取值不为 1）与旧版本行为完全一致，保证向后兼容；   - 当 Ordered=1 时，启用\"全局有序列出\"模式，会按 spaceId 升序跨分片合并返回结果，并支持通过 Prefix/StartName 参数进行前缀过滤和起始游标过滤；   - 有序模式下返回的 nextMarker 编码格式与非有序模式不同，但对使用方透明：继续将其透传给下一次请求的 marker 参数即可完成翻页。 
          * @summary 列出租户空间
          * @param {string} libraryId 媒体库 ID，必选参数
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
-         * @param {string} [marker] 用于顺序列出分页的标识。
-         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制。
+         * @param {string} [marker] 用于顺序列出分页的标识，即上一次请求返回的 nextMarker 字段。
+         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，默认为 1000，不能超过 1000。
          * @param {ListSpaceOrderedEnum} [ordered] 是否启用全局有序列出（按 spaceId 升序），取值为 1 表示启用，0 或不传表示不启用；启用后 prefix 与 start_name 才会生效。
          * @param {string} [prefix] 按 spaceId 前缀过滤，仅返回 spaceId 以该前缀开头的租户空间；仅在 ordered&#x3D;1 时生效。
          * @param {string} [startName] 分页起始游标（不包含），仅返回 spaceId &gt; start_name 的租户空间；仅在 ordered&#x3D;1 时生效；当与 marker 同时传入时 marker 优先，start_name 会被忽略。
@@ -842,7 +848,7 @@ export const SpaceApiFactory = function (configuration?: Configuration, basePath
          * @throws {RequiredError}
          */
         createSpace(requestParameters: SpaceApiCreateSpaceRequest, options?: RawAxiosRequestConfig): AxiosPromise<CreateSpace201Response> {
-            return localVarFp.createSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.createSpaceRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.createSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.spaceId, requestParameters.createSpaceRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于删除租户空间。 要求权限：admin 或 delete_space 
@@ -905,7 +911,7 @@ export const SpaceApiFactory = function (configuration?: Configuration, basePath
             return localVarFp.getSpaceSize(requestParameters.libraryId, requestParameters.spaceId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
-         * 用于列出租户空间列表信息。如需列出所有租户空间，需要 admin 或 space_admin 权限，否则仅列出当前访问令牌所代表的用户所创建的租户空间。
+         * 用于列出租户空间列表信息。 - 要求权限：如需列出所有租户空间，需要 admin 权限，否则仅列出当前访问令牌所代表的用户所创建的租户空间； - 列出模式：   - 默认模式（不传 Ordered 或 Ordered 取值不为 1）与旧版本行为完全一致，保证向后兼容；   - 当 Ordered=1 时，启用\"全局有序列出\"模式，会按 spaceId 升序跨分片合并返回结果，并支持通过 Prefix/StartName 参数进行前缀过滤和起始游标过滤；   - 有序模式下返回的 nextMarker 编码格式与非有序模式不同，但对使用方透明：继续将其透传给下一次请求的 marker 参数即可完成翻页。 
          * @summary 列出租户空间
          * @param {SpaceApiListSpaceRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
@@ -960,6 +966,11 @@ export interface SpaceApiCreateSpaceRequest {
      * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
      */
     readonly userId?: string
+
+    /**
+     * 租户空间的空间 ID，名称不能以“-”开头或结尾，只支持英文小写字母和数字[a-z，0-9]、中划线“-”及其组合，长度为2到32个字符。
+     */
+    readonly spaceId?: string
 
     /**
      * 租户空间的扩展属性
@@ -1202,12 +1213,12 @@ export interface SpaceApiListSpaceRequest {
     readonly userId?: string
 
     /**
-     * 用于顺序列出分页的标识。
+     * 用于顺序列出分页的标识，即上一次请求返回的 nextMarker 字段。
      */
     readonly marker?: string
 
     /**
-     * 用于顺序列出分页时本地列出的项目数限制。
+     * 用于顺序列出分页时本地列出的项目数限制，默认为 1000，不能超过 1000。
      */
     readonly limit?: number
 
@@ -1301,7 +1312,7 @@ export class SpaceApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public createSpace(requestParameters: SpaceApiCreateSpaceRequest, options?: RawAxiosRequestConfig) {
-        return SpaceApiFp(this.configuration).createSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.createSpaceRequest, options).then((request) => request(this.axios, this.basePath));
+        return SpaceApiFp(this.configuration).createSpace(requestParameters.libraryId, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.spaceId, requestParameters.createSpaceRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -1371,7 +1382,7 @@ export class SpaceApi extends BaseAPI {
     }
 
     /**
-     * 用于列出租户空间列表信息。如需列出所有租户空间，需要 admin 或 space_admin 权限，否则仅列出当前访问令牌所代表的用户所创建的租户空间。
+     * 用于列出租户空间列表信息。 - 要求权限：如需列出所有租户空间，需要 admin 权限，否则仅列出当前访问令牌所代表的用户所创建的租户空间； - 列出模式：   - 默认模式（不传 Ordered 或 Ordered 取值不为 1）与旧版本行为完全一致，保证向后兼容；   - 当 Ordered=1 时，启用\"全局有序列出\"模式，会按 spaceId 升序跨分片合并返回结果，并支持通过 Prefix/StartName 参数进行前缀过滤和起始游标过滤；   - 有序模式下返回的 nextMarker 编码格式与非有序模式不同，但对使用方透明：继续将其透传给下一次请求的 marker 参数即可完成翻页。 
      * @summary 列出租户空间
      * @param {SpaceApiListSpaceRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.

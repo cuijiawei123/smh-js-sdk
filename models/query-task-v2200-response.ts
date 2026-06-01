@@ -31,6 +31,9 @@ import type { QueryTaskV2200ResponseCalibrateDirectoryStatsResult } from './quer
 // May contain unused imports in some cases
 // @ts-ignore
 import type { QueryTaskV2200ResponseConvertFileResult } from './query-task-v2200-response-convert-file-result';
+// May contain unused imports in some cases
+// @ts-ignore
+import type { QueryTaskV2200ResponseFileUncompressResult } from './query-task-v2200-response-file-uncompress-result';
 
 export interface QueryTaskV2200Response {
     /**
@@ -67,6 +70,7 @@ export interface QueryTaskV2200Response {
      * 视频转码任务结果（taskType 为 videoTranscode 时返回），结构待扩展
      */
     'videoTranscodeResult'?: object;
+    'fileUncompressResult'?: QueryTaskV2200ResponseFileUncompressResult;
 }
 
 export const QueryTaskV2200ResponseTaskTypeEnum = {
@@ -76,7 +80,8 @@ export const QueryTaskV2200ResponseTaskTypeEnum = {
     BatchRestoreRecycle: 'batchRestoreRecycle',
     ConvertFile: 'convertFile',
     CalibrateDirectoryStats: 'calibrateDirectoryStats',
-    VideoTranscode: 'videoTranscode'
+    VideoTranscode: 'videoTranscode',
+    FileUncompress: 'fileUncompress'
 } as const;
 
 export type QueryTaskV2200ResponseTaskTypeEnum = typeof QueryTaskV2200ResponseTaskTypeEnum[keyof typeof QueryTaskV2200ResponseTaskTypeEnum];

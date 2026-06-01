@@ -218,7 +218,6 @@ const res = await smh.search.searchAI({
 | libraryId | 媒体库 ID | String | 是 |
 | spaceId | 空间 ID | String | 是 |
 | accessToken | 访问令牌 | String | 否 |
-| librarySecret | 访问媒体库密钥 | String | 否 |
 | userId | 用户身份识别 | String | 否 |
 | limit | 本次返回的最大结果数量，默认 10；type=text 取值范围 [0, 30]，type=pic 取值范围 [0, 100] | Number | 否 |
 | searchAIRequest | 搜索请求对象 | Object | 是 |
@@ -317,7 +316,6 @@ const res3 = await smh.search.searchFsStats({
 | spaceId | 空间 ID | String | 是 |
 | accessToken | 访问令牌 | String | 否 |
 | userId | 用户身份识别 | String | 否 |
-| librarySecret | 访问媒体库密钥 | String | 否 |
 | searchFsStatsRequest | 搜索聚合统计请求对象 | Object | 是 |
 
 **searchFsStatsRequest 对象说明**

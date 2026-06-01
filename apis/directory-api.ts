@@ -333,13 +333,14 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
          * @param {DeleteDirectoryPermanentEnum} [permanent] 当媒体库开启回收站时，则该参数指定将文件移入回收站还是永久删除文件，1: 永久删除，0: 移入回收站，默认为 0
+         * @param {string} [directoryOnly] 当值为 1 或 true 时，只删除目录对象本身，不级联删除子文件和子目录
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteDirectory: async (libraryId: string, spaceId: string, filePath: string, permanent?: DeleteDirectoryPermanentEnum, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        deleteDirectory: async (libraryId: string, spaceId: string, filePath: string, permanent?: DeleteDirectoryPermanentEnum, directoryOnly?: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('deleteDirectory', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -363,6 +364,10 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
 
             if (permanent !== undefined) {
                 localVarQueryParameter['permanent'] = permanent;
+            }
+
+            if (directoryOnly !== undefined) {
+                localVarQueryParameter['directory_only'] = directoryOnly;
             }
 
             if (accessToken !== undefined) {
@@ -546,10 +551,12 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
          * @param {ListDirectoryByMarkerEnum} byMarker 固定传 1，表示使用 marker 方式分页
          * @param {string} [marker] 用于顺序列出分页的标识
-         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，不传默认值20，最大返回100
+         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，不传默认值20，最大返回1000
          * @param {ListDirectoryOrderByEnum} [orderBy] 排序字段
          * @param {ListDirectoryOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc
          * @param {ListDirectoryFilterEnum} [filter] 筛选方式，不传返回全部，onlyDir 只返回文件夹，onlyFile 只返回文件
+         * @param {string} [prefix] 按名称前缀过滤，筛选 name 以指定前缀开头的子目录和文件。 仅在 order_by 为 name 或未指定 order_by（默认按 name 排序）时支持该参数。 当 order_by 为其他字段（如 size、modificationTime 等）时，该参数不生效。 
+         * @param {string} [startName] 筛选 name 大于指定值的子目录和文件（大于，不包含等于），用于翻页游标。 仅在 order_by 为 name 或未指定 order_by（默认按 name 排序）时支持该参数。 当 order_by 为其他字段（如 size、modificationTime 等）时，该参数不生效。 
          * @param {ListDirectorySortTypeEnum} [sortType] 排序方式，不传则文件和文件夹单独排序，先返回文件夹，后返回文件。union 文件和文件夹拉通排序
          * @param {ListDirectoryWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
          * @param {ListDirectoryWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
@@ -560,7 +567,7 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listDirectory: async (libraryId: string, spaceId: string, filePath: string, byMarker: ListDirectoryByMarkerEnum, marker?: string, limit?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, librarySecret?: string, userId?: string, withContentCas?: ListDirectoryWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listDirectory: async (libraryId: string, spaceId: string, filePath: string, byMarker: ListDirectoryByMarkerEnum, marker?: string, limit?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, prefix?: string, startName?: string, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, librarySecret?: string, userId?: string, withContentCas?: ListDirectoryWithContentCasEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('listDirectory', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -606,6 +613,14 @@ export const DirectoryApiAxiosParamCreator = function (configuration?: Configura
 
             if (filter !== undefined) {
                 localVarQueryParameter['filter'] = filter;
+            }
+
+            if (prefix !== undefined) {
+                localVarQueryParameter['prefix'] = prefix;
+            }
+
+            if (startName !== undefined) {
+                localVarQueryParameter['start_name'] = startName;
             }
 
             if (sortType !== undefined) {
@@ -1048,14 +1063,15 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
          * @param {DeleteDirectoryPermanentEnum} [permanent] 当媒体库开启回收站时，则该参数指定将文件移入回收站还是永久删除文件，1: 永久删除，0: 移入回收站，默认为 0
+         * @param {string} [directoryOnly] 当值为 1 或 true 时，只删除目录对象本身，不级联删除子文件和子目录
          * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteDirectory(libraryId: string, spaceId: string, filePath: string, permanent?: DeleteDirectoryPermanentEnum, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void | DeleteFile200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteDirectory(libraryId, spaceId, filePath, permanent, accessToken, librarySecret, userId, options);
+        async deleteDirectory(libraryId: string, spaceId: string, filePath: string, permanent?: DeleteDirectoryPermanentEnum, directoryOnly?: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void | DeleteFile200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteDirectory(libraryId, spaceId, filePath, permanent, directoryOnly, accessToken, librarySecret, userId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.deleteDirectory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1110,10 +1126,12 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
          * @param {ListDirectoryByMarkerEnum} byMarker 固定传 1，表示使用 marker 方式分页
          * @param {string} [marker] 用于顺序列出分页的标识
-         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，不传默认值20，最大返回100
+         * @param {number} [limit] 用于顺序列出分页时本地列出的项目数限制，不传默认值20，最大返回1000
          * @param {ListDirectoryOrderByEnum} [orderBy] 排序字段
          * @param {ListDirectoryOrderByTypeEnum} [orderByType] 排序方式，升序为 asc，降序为 desc
          * @param {ListDirectoryFilterEnum} [filter] 筛选方式，不传返回全部，onlyDir 只返回文件夹，onlyFile 只返回文件
+         * @param {string} [prefix] 按名称前缀过滤，筛选 name 以指定前缀开头的子目录和文件。 仅在 order_by 为 name 或未指定 order_by（默认按 name 排序）时支持该参数。 当 order_by 为其他字段（如 size、modificationTime 等）时，该参数不生效。 
+         * @param {string} [startName] 筛选 name 大于指定值的子目录和文件（大于，不包含等于），用于翻页游标。 仅在 order_by 为 name 或未指定 order_by（默认按 name 排序）时支持该参数。 当 order_by 为其他字段（如 size、modificationTime 等）时，该参数不生效。 
          * @param {ListDirectorySortTypeEnum} [sortType] 排序方式，不传则文件和文件夹单独排序，先返回文件夹，后返回文件。union 文件和文件夹拉通排序
          * @param {ListDirectoryWithInodeEnum} [withInode] 是否返回 inode，即文件目录 ID，0 或 1，默认不返回
          * @param {ListDirectoryWithFavoriteStatusEnum} [withFavoriteStatus] 是否返回收藏状态，0 或 1，默认不返回
@@ -1124,8 +1142,8 @@ export const DirectoryApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listDirectory(libraryId: string, spaceId: string, filePath: string, byMarker: ListDirectoryByMarkerEnum, marker?: string, limit?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, librarySecret?: string, userId?: string, withContentCas?: ListDirectoryWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListDirectory200Response>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listDirectory(libraryId, spaceId, filePath, byMarker, marker, limit, orderBy, orderByType, filter, sortType, withInode, withFavoriteStatus, accessToken, librarySecret, userId, withContentCas, options);
+        async listDirectory(libraryId: string, spaceId: string, filePath: string, byMarker: ListDirectoryByMarkerEnum, marker?: string, limit?: number, orderBy?: ListDirectoryOrderByEnum, orderByType?: ListDirectoryOrderByTypeEnum, filter?: ListDirectoryFilterEnum, prefix?: string, startName?: string, sortType?: ListDirectorySortTypeEnum, withInode?: ListDirectoryWithInodeEnum, withFavoriteStatus?: ListDirectoryWithFavoriteStatusEnum, accessToken?: string, librarySecret?: string, userId?: string, withContentCas?: ListDirectoryWithContentCasEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListDirectory200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listDirectory(libraryId, spaceId, filePath, byMarker, marker, limit, orderBy, orderByType, filter, prefix, startName, sortType, withInode, withFavoriteStatus, accessToken, librarySecret, userId, withContentCas, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DirectoryApi.listDirectory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1273,7 +1291,7 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         deleteDirectory(requestParameters: DirectoryApiDeleteDirectoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<void | DeleteFile200Response> {
-            return localVarFp.deleteDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.permanent, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.deleteDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.permanent, requestParameters.directoryOnly, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于查询目录的统计数据，包括子目录数量、文件数量、包含的文件总大小。 - 可以查询普通目录的统计结果、回收站目录的统计结果、某个目录的历史版本的统计结果 - 文件写操作和查询目录统计结果之间存在秒级时延，以最新查询结果为准 
@@ -1303,7 +1321,7 @@ export const DirectoryApiFactory = function (configuration?: Configuration, base
          * @throws {RequiredError}
          */
         listDirectory(requestParameters: DirectoryApiListDirectoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<ListDirectory200Response> {
-            return localVarFp.listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
+            return localVarFp.listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.prefix, requestParameters.startName, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于列出目录或相簿内容。 目录内容的列出顺序为：首先按照字典序列出子目录，随后根据上传时间列出媒体库中的媒体资源，或根据文件名列出文件库中的文件资源。 page翻页的深度会有限制，强烈建议业务方改用marker翻页的形式。 
@@ -1550,6 +1568,11 @@ export interface DirectoryApiDeleteDirectoryRequest {
     readonly permanent?: DeleteDirectoryPermanentEnum
 
     /**
+     * 当值为 1 或 true 时，只删除目录对象本身，不级联删除子文件和子目录
+     */
+    readonly directoryOnly?: string
+
+    /**
      * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
      */
     readonly accessToken?: string
@@ -1695,7 +1718,7 @@ export interface DirectoryApiListDirectoryRequest {
     readonly marker?: string
 
     /**
-     * 用于顺序列出分页时本地列出的项目数限制，不传默认值20，最大返回100
+     * 用于顺序列出分页时本地列出的项目数限制，不传默认值20，最大返回1000
      */
     readonly limit?: number
 
@@ -1713,6 +1736,16 @@ export interface DirectoryApiListDirectoryRequest {
      * 筛选方式，不传返回全部，onlyDir 只返回文件夹，onlyFile 只返回文件
      */
     readonly filter?: ListDirectoryFilterEnum
+
+    /**
+     * 按名称前缀过滤，筛选 name 以指定前缀开头的子目录和文件。 仅在 order_by 为 name 或未指定 order_by（默认按 name 排序）时支持该参数。 当 order_by 为其他字段（如 size、modificationTime 等）时，该参数不生效。 
+     */
+    readonly prefix?: string
+
+    /**
+     * 筛选 name 大于指定值的子目录和文件（大于，不包含等于），用于翻页游标。 仅在 order_by 为 name 或未指定 order_by（默认按 name 排序）时支持该参数。 当 order_by 为其他字段（如 size、modificationTime 等）时，该参数不生效。 
+     */
+    readonly startName?: string
 
     /**
      * 排序方式，不传则文件和文件夹单独排序，先返回文件夹，后返回文件。union 文件和文件夹拉通排序
@@ -2007,7 +2040,7 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public deleteDirectory(requestParameters: DirectoryApiDeleteDirectoryRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).deleteDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.permanent, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).deleteDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.permanent, requestParameters.directoryOnly, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -2040,7 +2073,7 @@ export class DirectoryApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public listDirectory(requestParameters: DirectoryApiListDirectoryRequest, options?: RawAxiosRequestConfig) {
-        return DirectoryApiFp(this.configuration).listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
+        return DirectoryApiFp(this.configuration).listDirectory(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.byMarker, requestParameters.marker, requestParameters.limit, requestParameters.orderBy, requestParameters.orderByType, requestParameters.filter, requestParameters.prefix, requestParameters.startName, requestParameters.sortType, requestParameters.withInode, requestParameters.withFavoriteStatus, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.withContentCas, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

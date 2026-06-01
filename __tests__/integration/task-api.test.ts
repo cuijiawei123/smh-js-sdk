@@ -7,6 +7,7 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { SMHClient } from '../../interceptor/SmhClient';
 import {
   createTestClient,
+  getConfig,
   skipIfNoConfig,
 } from './helpers';
 
@@ -41,6 +42,25 @@ describe.skipIf(shouldSkip)('TaskApi 集成测试', () => {
         const res = await client.task.queryLibraryTask({
           taskIdList: '0',
         });
+        expect(res.status).toBe(200);
+        expect(res.data).toBeDefined();
+      } catch (error: any) {
+        // 不存在的任务可能返回 400/403/404
+        expect([400, 403, 404]).toContain(error.response?.status);
+      }
+    });
+  });
+
+  describe('queryTaskV2 - 查询空间任务（V2）', () => {
+    it('查询不存在的空间任务应返回空结果或错误', async () => {
+      const cfg = await getConfig();
+      try {
+        const res = await client.task.queryTaskV2({
+          libraryId: cfg.libraryId,
+          spaceId: cfg.spaceId,
+          taskId: '13945481',
+        });
+        // 接口可达，任务不存在时可能返回 200 空结果
         expect(res.status).toBe(200);
         expect(res.data).toBeDefined();
       } catch (error: any) {

@@ -1372,7 +1372,6 @@ const res2 = await smh.file.createVirtualFile({
 | virtualFile | 固定标识，表示创建虚拟文件，固定值为 1 | Number | 是 |
 | conflictResolutionStrategy | 文件名冲突时的处理方式：ask（返回 409）、rename（自动重命名，默认）、overwrite（覆盖） | String | 否 |
 | accessToken | 访问令牌 | String | 否 |
-| librarySecret | 访问媒体库密钥 | String | 否 |
 | userId | 用户身份识别 | String | 否 |
 | createVirtualFileRequest | 虚拟文件请求体 | Object | 否 |
 
@@ -1407,5 +1406,247 @@ const res2 = await smh.file.createVirtualFile({
 |------|------|------|
 | path | 最终的虚拟文件路径，字符串数组。数组中的最后一个元素代表最终的文件名，其他元素代表每一级目录名。因为可能存在同名文件自动重命名，所以最终路径可能不等同于创建时指定的目标路径；如果为 null 则表示目标路径的某级父级目录已被删除 | Array \| null |
 | type | 固定为 "virtual" | String |
+
+---
+
+## 解压预览
+
+### 功能说明
+
+previewZipFile 实现解压预览功能，在不解压文件的情况下预览压缩包内的内容，包含文件数量、名称、文件大小、修改时间等，接口为同步请求方式。
+
+**使用限制：**
+
+- 支持格式：zip、tar、gz、7zip、rar（不支持 apk，apk 仅支持解压不支持预览）；
+- 大小限制：zip/7zip 无大小限制，tar/gz/rar 需小于 128MB；
+- 文件数限制：压缩包内文件数最多 1000 个，超出部分截断（isTruncated 为 true）；
+- 需要在 library 级别开启 enableFileUncompress 功能；
+- FilePath 必须指向一个文件（非目录），否则返回 FileUncompressNotAllowed 错误。
+
+**要求权限：** 非 acl 鉴权：admin、space_admin；acl 鉴权：canDownload（当前文件夹可下载）。
+
+### 使用示例
+
+```typescript
+// 以扁平列表格式预览压缩包内容（默认）
+const res = await smh.file.previewZipFile({
+    spaceId: 'your-space-id',
+    filePath: 'archive.zip',
+    zipPreview: 1,
+    format: 'flat',
+    userId: 'xxx',
+});
+
+if (res.status === 200) {
+    console.log('压缩包文件数量:', res.data.fileNumber);
+    console.log('是否被截断:', res.data.isTruncated);
+    console.log('文件列表:', res.data.contents);
+}
+
+// 以树形结构格式预览压缩包内容
+const res2 = await smh.file.previewZipFile({
+    spaceId: 'your-space-id',
+    filePath: 'archive.zip',
+    zipPreview: 1,
+    format: 'tree',
+});
+```
+
+### 参数说明
+
+| 参数名 | 参数描述 | 类型 | 是否必填 |
+|--------|----------|------|----------|
+| libraryId | 媒体库 ID | String | 是 |
+| spaceId | 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数 | String | 是 |
+| filePath | 文件路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/archive.zip | String | 是 |
+| zipPreview | 解压预览标识，固定值为 1 | Number | 是 |
+| format | 返回格式，可选值：flat（默认，扁平列表）、tree（树形结构）；传入其他值返回 ParamInvalid 错误 | String | 否 |
+| password | 加密压缩包的密码，可选参数，默认无密码；对非加密压缩包传入密码会被忽略，不影响预览结果 | String | 否 |
+| accessToken | 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数 | String | 否 |
+
+### 返回值说明
+
+**HTTP 状态码：200**
+
+预览成功，返回压缩包内容信息。
+
+**响应示例（format=flat）**
+
+```json
+{
+  "fileNumber": 3,
+  "isTruncated": false,
+  "contents": [
+    {
+      "key": "archive/subdir/image.png",
+      "lastModified": "2024-01-15T08:30:00.000Z",
+      "uncompressedSize": 102400
+    },
+    {
+      "key": "archive/readme.txt",
+      "lastModified": "2024-01-14T10:00:00.000Z",
+      "uncompressedSize": 1024
+    }
+  ]
+}
+```
+
+**响应示例（format=tree）**
+
+```json
+{
+  "fileNumber": 2,
+  "isTruncated": false,
+  "contents": {
+    "level": 0,
+    "isDir": true,
+    "filename": "archive",
+    "prename": "",
+    "prefix": "",
+    "key": null,
+    "lastModified": null,
+    "uncompressedSize": null,
+    "children": [
+      {
+        "level": 1,
+        "isDir": false,
+        "filename": "readme.txt",
+        "prename": "archive",
+        "prefix": "/",
+        "key": "archive/readme.txt",
+        "lastModified": "2024-01-14T10:00:00.000Z",
+        "uncompressedSize": 1024,
+        "children": null
+      }
+    ]
+  }
+}
+```
+
+**响应字段说明**
+
+| 字段 | 说明 | 类型 |
+|------|------|------|
+| fileNumber | 压缩包中文件/文件夹数量 | Number |
+| isTruncated | 是否被截断，压缩包预览最多支持预览前 1000 个文件 | Boolean |
+| contents | 压缩包内的具体内容；format=flat 时为对象数组，format=tree 时为树形结构对象 | Array \| Object |
+
+**contents 数组元素字段说明（format=flat）**
+
+| 字段 | 说明 | 类型 |
+|------|------|------|
+| key | 文件或目录在压缩包内的完整路径（含目录前缀，如 testzip/zi-dir/zi-image.png），该路径可用于选择性解压的 selectedFilePaths 参数 | String |
+| lastModified | 文件最后修改时间（ISO 8601 格式） | String |
+| uncompressedSize | 文件解压后大小（字节），目录条目该字段可能为 0 或不存在 | Number |
+
+**contents 树形结构字段说明（format=tree）**
+
+| 字段 | 说明 | 类型 |
+|------|------|------|
+| level | 目录层级深度，根节点为 0 | Number |
+| isDir | 是否是文件夹 | Boolean |
+| filename | 文件或文件夹名（不含路径前缀） | String |
+| prename | 上一级目录名 | String |
+| prefix | 上一级目录前缀分隔符 | String |
+| key | 文件在压缩包内的完整路径（仅文件节点有值），该路径可用于选择性解压的 selectedFilePaths 参数 | String |
+| lastModified | 最后修改时间（ISO 8601 格式），仅文件节点有值 | String |
+| uncompressedSize | 文件解压后大小（字节），仅文件节点有值 | Number |
+| children | 子文件/文件夹信息数组，文件夹排在文件前面；文件节点该字段为 null | Array \| null |
+
+---
+
+## 文件解压
+
+### 功能说明
+
+uncompressFile 实现文件解压功能，将压缩包中的文件解压到 SMH 网盘的指定目录下，无需下载到本地。解压为异步任务，提交后返回 taskId，通过查询任务接口轮询进度。
+
+**使用限制：**
+
+- 支持格式：zip、tar、gz、7zip、rar、apk；
+- 需要在 library 级别开启 enableFileUncompress 功能；
+- 解压为异步任务，提交后返回 taskId，前端通过任务查询接口轮询状态；
+- 支持整包解压和选择性解压（通过 selectedFilePaths 参数指定需要解压的文件/文件夹）；
+- 支持跨空间解压（通过 targetSpaceId 参数指定目标空间，需 admin 权限）；
+- 支持加密压缩包解压（通过 password 参数传入密码）；
+- FilePath 必须指向一个文件（非目录），否则返回 FileUncompressNotAllowed 错误。
+
+**要求权限：** 非 acl 鉴权：需同时具备下载权限（admin、space_admin 或 read_only）和上传权限（admin、space_admin 或 upload_file）；acl 鉴权：源文件所在文件夹需具备 canDownload（可下载），目标文件夹需具备 canUpload（可上传）；跨空间解压：仅 admin 权限用户可进行跨空间解压。
+
+### 使用示例
+
+```typescript
+// 整包解压到指定目录
+const res = await smh.file.uncompressFile({
+    spaceId: 'your-space-id',
+    filePath: 'archive.zip',
+    uncompress: 1,
+    uncompressFileRequest: {
+        targetPath: 'extracted/',
+    },
+    userId: 'xxx',
+});
+
+if (res.status === 202) {
+    console.log('解压任务已提交，taskId:', res.data.taskId);
+    // 通过任务查询接口轮询任务状态
+}
+
+// 选择性解压（仅解压指定文件）
+const res2 = await smh.file.uncompressFile({
+    spaceId: 'your-space-id',
+    filePath: 'archive.zip',
+    uncompress: 1,
+    uncompressFileRequest: {
+        targetPath: 'extracted/',
+        selectedFilePaths: [
+            'archive/readme.txt',
+            'archive/subdir/',  // 目录路径需以 / 结尾
+        ],
+    },
+    conflictResolutionStrategy: 'rename',
+});
+```
+
+### 参数说明
+
+| 参数名 | 参数描述 | 类型 | 是否必填 |
+|--------|----------|------|----------|
+| libraryId | 媒体库 ID | String | 是 |
+| spaceId | 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数 | String | 是 |
+| filePath | 压缩包文件路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/archive.zip | String | 是 |
+| uncompress | 解压标识，固定值为 1 | Number | 是 |
+| uncompressFileRequest | 解压请求体 | Object | 是 |
+| conflictResolutionStrategy | 文件名冲突时的处理方式，可选参数，默认为 rename：rename（冲突时自动重命名文件）、overwrite（冲突时覆盖已有文件）、ask（冲突时该文件解压失败，记入 failedItems 明细） | String | 否 |
+| accessToken | 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数 | String | 否 |
+
+**uncompressFileRequest 对象说明**
+
+| 字段 | 参数描述 | 类型 | 是否必填 |
+|------|----------|------|----------|
+| targetPath | 解压目标目录路径，必选参数，不能为空；路径会经过归一化处理，不允许包含 ../ 等路径穿越字符；该目录必须在 SMH 中已存在，不存在时返回 DirectoryNotFound 错误 | String | 是 |
+| targetSpaceId | 解压目标空间 ID，可选参数；不传则默认解压到源文件所在空间，支持跨空间解压（需 admin 权限） | String | 否 |
+| selectedFilePaths | 指定需要解压的文件/文件夹路径列表（路径来自文件解压预览接口返回的 key 字段），可选参数；文件夹路径需以 / 结尾；不传或为空则整包解压；目录路径最多指定 1 个，文件路径最多指定 1000 个 | Array | 否 |
+| password | 加密压缩包的密码，可选参数，默认无密码 | String | 否 |
+
+### 返回值说明
+
+**HTTP 状态码：202**
+
+解压任务提交成功，返回异步任务 ID。
+
+**响应示例**
+
+```json
+{
+  "taskId": 12345
+}
+```
+
+**响应字段说明**
+
+| 字段 | 说明 | 类型 |
+|------|------|------|
+| taskId | 异步解压任务 ID，用于后续通过任务查询接口轮询任务状态 | Number |
 
 ---
