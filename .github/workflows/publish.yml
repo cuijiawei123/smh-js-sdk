@@ -26,5 +26,7 @@ jobs:
 
       - run: npm run build
 
-      - run: npm publish --access public
-        # 无需 NPM_TOKEN，OIDC 自动换取短期令牌并生成 provenance
+      - run: npm publish --access public --provenance=false
+        # 关闭 provenance：保留 repository.url 指向 CNB（真实主仓库），
+        # 避免 provenance 校验要求 repository 必须匹配 GitHub 镜像地址。
+        # OIDC 仍用于换取短期令牌发布，无需 NPM_TOKEN。
