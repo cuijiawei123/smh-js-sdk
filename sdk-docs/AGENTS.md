@@ -43,6 +43,7 @@
 | 异步任务轮询 | `client.task.queryTask` / `queryTaskV2` / `queryLibraryTask` | 不要固定 sleep 一次就结束 |
 | 空间容量、配额、用量 | `client.space` / `client.quota` / `client.usage` | 区分空间属性、配额和用量统计 |
 | 增量同步 | `client.file.getDeltaCursor` + `client.file.queryDeltaLog` | cursor 要持久化，过期后回退全量 |
+| 压缩包预览/解压 | 预览 `client.file.previewZipFile`（同步）；解压 `client.file.uncompressFile`（异步，返回 taskId 要轮询） | 预览不解压、解压不要当同步接口；都需开启 `enableFileUncompress` |
 | HLS/m3u8、转码、媒体信息 | `client.hls.*` 或 `client.file.convertFile` | 不要把普通文件下载当转码任务 |
 
 ---
@@ -350,6 +351,33 @@ await client.batch.batchDelete({
 - 批量、复制、转码、统计校准等接口可能返回 `taskId` 或 202，需要用 `client.task.queryTask` / `queryTaskV2` 轮询。
 - `queryTaskV2` / `queryLibraryTaskV2` 用于新版任务结果；若文档示例给出 V2，优先使用 V2。
 - 不确定请求体字段时，查对应 `sdk-docs/*Api.md` 或 `apis/*-api.ts` 的 `Request` 类型，不要猜字段名。
+
+### 7.1 压缩包预览与解压
+
+需在 library 级别开启 `enableFileUncompress`；`filePath` 必须指向压缩包文件。
+
+```typescript
+// 预览（同步）：列出包内文件，不解压。format 可选 'flat'(默认) / 'tree'
+const preview = await client.file.previewZipFile({
+  filePath: '/archive.zip',
+  zipPreview: 1,
+})
+// preview.data.contents 里的 key 可作为选择性解压的 selectedFilePaths
+
+// 解压（异步）：返回 taskId，必须轮询任务，结果在 fileUncompressResult
+const res = await client.file.uncompressFile({
+  filePath: '/archive.zip',
+  uncompress: 1,
+  uncompressFileRequest: { targetPath: '/extracted/' },  // 目标目录须已存在
+})
+const task = await client.task.queryTaskV2({ taskId: res.data.taskId })
+// task.data.status / task.data.fileUncompressResult
+```
+
+- `previewZipFile` 是**同步**接口，直接读 `res.data`；不要当异步任务轮询。
+- `uncompressFile` 是**异步**任务，必须用 `queryTaskV2` 轮询，解压结果看 `fileUncompressResult`；不要提交后就当完成。
+- 选择性解压用 `selectedFilePaths`（路径取自预览返回的 `key`，目录以 `/` 结尾）；`targetPath` 目录不存在会报 `DirectoryNotFound`。
+- 预览支持 zip/tar/gz/7zip/rar（apk 不支持预览）；解压额外支持 apk。
 
 ---
 
