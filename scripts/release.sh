@@ -79,7 +79,7 @@ publish_internal() {
     echo "  （登录信息参考司内 npm 镜像文档）"
     return 1
   fi
-  green "→ 发布内网包 $INTERNAL_NAME@$NEXT_VERSION → $INTERNAL_REGISTRY"
+  green "→ 发布内网包 ${INTERNAL_NAME}@${NEXT_VERSION} → $INTERNAL_REGISTRY"
   cp package.json .package.json.bak
   cp package-lock.json .package-lock.json.bak
   # 失败/退出时务必恢复原始文件，避免把改名后的状态留在工作区
@@ -87,11 +87,12 @@ publish_internal() {
 
   npm pkg set name="$INTERNAL_NAME"
   npm install --package-lock-only --legacy-peer-deps
-  if ! npm publish --registry="$INTERNAL_REGISTRY"; then
+  # 内网私服可能较慢：拉长 npm 客户端超时(300s)并启用重试，避免传输中途超时失败
+  if ! npm publish --registry="$INTERNAL_REGISTRY" --fetch-timeout=300000 --fetch-retries=3; then
     red "内网发布失败！"
     return 1
   fi
-  green "✓ 内网 $INTERNAL_NAME@$NEXT_VERSION 发布成功"
+  green "✓ 内网 ${INTERNAL_NAME}@${NEXT_VERSION} 发布成功"
   return 0
 }
 
