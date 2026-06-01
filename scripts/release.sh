@@ -99,7 +99,7 @@ publish_internal() {
 if [[ "$INTERNAL_ONLY" -eq 1 ]]; then
   blue "==================== 仅发内网 ===================="
   echo "  包名     : $INTERNAL_NAME"
-  echo "  当前版本 : $CURRENT_VERSION（不升级版本号）"
+  echo "  当前版本 : ${CURRENT_VERSION}（不升级版本号）"
   echo "  registry : $INTERNAL_REGISTRY"
   blue "================================================="
   read -r -p "确认仅发布内网 $INTERNAL_NAME@$CURRENT_VERSION 吗? [y/N] " ans
@@ -130,7 +130,7 @@ if [[ "$SKIP_INTERNAL" -eq 1 ]]; then
 else
   echo "  内网发布 : $INTERNAL_NAME → $INTERNAL_REGISTRY"
 fi
-echo "  外网发布 : $PUBLIC_NAME（推 tag → GitHub Actions 自动发）"
+echo "  外网发布 : ${PUBLIC_NAME}（推 tag → GitHub Actions 自动发）"
 echo "  推送到   : $REMOTE/$BRANCH"
 blue "================================================="
 echo "  发布后不可撤销！内网先发(同步)，成功后再推外网 tag。"
@@ -169,7 +169,7 @@ echo ""
 blue "外网自动进行（无需手动操作）："
 echo "  1. CNB 流水线 tag_push → git-sync 同步 tag 到 GitHub"
 echo "  2. GitHub Actions 'Publish to npm' 自动运行（OIDC 可信发布）"
-echo "  3. npm 上出现 $PUBLIC_NAME@$NEXT_VERSION（带 provenance 标记）"
+echo "  3. npm 上出现 ${PUBLIC_NAME}@${NEXT_VERSION}（带 provenance 标记）"
 echo ""
 echo "查看进度："
 echo "  - GitHub Actions : https://github.com/cuijiawei123/smh-js-sdk/actions"
