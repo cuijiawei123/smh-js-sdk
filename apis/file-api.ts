@@ -70,6 +70,8 @@ import type { MultipartUploadFile201Response } from '../models';
 // @ts-ignore
 import type { MultipartUploadFileRequest } from '../models';
 // @ts-ignore
+import type { PreviewZipFile200Response } from '../models';
+// @ts-ignore
 import type { QueryDeltaLog200Response } from '../models';
 // @ts-ignore
 import type { RenewMultipartUpload200Response } from '../models';
@@ -79,6 +81,10 @@ import type { SimpleUploadFile200Response } from '../models';
 import type { SimpleUploadFile201Response } from '../models';
 // @ts-ignore
 import type { SimpleUploadFileRequest } from '../models';
+// @ts-ignore
+import type { UncompressFile202Response } from '../models';
+// @ts-ignore
+import type { UncompressFileRequest } from '../models';
 /**
  * FileApi - axios parameter creator
  */
@@ -1630,6 +1636,80 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
             };
         },
         /**
+         * 在不解压文件的情况下预览压缩包内的内容，包含文件数量、名称、文件大小、修改时间等，接口为同步请求方式。 要求权限： 非 acl 鉴权：admin、space_admin； acl 鉴权：canDownload（当前文件夹可下载）。 支持格式：zip、tar、gz、7zip、rar（不支持 apk，apk 仅支持解压不支持预览）； 大小限制：zip/7zip 无大小限制，tar/gz/rar 需小于 128MB； 文件数限制：压缩包内文件数最多 1000 个，超出部分截断（isTruncated 为 true）； 需要在 library 级别开启 enableFileUncompress 功能； FilePath 必须指向一个文件（非目录），否则返回 FileUncompressNotAllowed 错误。 
+         * @summary 解压预览
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+         * @param {PreviewZipFileZipPreviewEnum} zipPreview 解压预览标识，固定值为 1
+         * @param {PreviewZipFileFormatEnum} [format] 返回格式，可选值：flat（默认，扁平列表）、tree（树形结构）；传入其他值返回 ParamInvalid 错误
+         * @param {string} [password] 加密压缩包的密码，可选参数，默认无密码；对非加密压缩包传入密码会被忽略，不影响预览结果
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        previewZipFile: async (libraryId: string, spaceId: string, filePath: string, zipPreview: PreviewZipFileZipPreviewEnum, format?: PreviewZipFileFormatEnum, password?: string, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'libraryId' is not null or undefined
+            assertParamExists('previewZipFile', 'libraryId', libraryId)
+            // verify required parameter 'spaceId' is not null or undefined
+            assertParamExists('previewZipFile', 'spaceId', spaceId)
+            // verify required parameter 'filePath' is not null or undefined
+            assertParamExists('previewZipFile', 'filePath', filePath)
+            // verify required parameter 'zipPreview' is not null or undefined
+            assertParamExists('previewZipFile', 'zipPreview', zipPreview)
+            const localVarPath = `/api/v1/file/{LibraryId}/{SpaceId}/{FilePath}#5`
+                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
+                .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
+                .replace(`{${"FilePath"}}`, encodeURIComponent(String(filePath)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (zipPreview !== undefined) {
+                localVarQueryParameter['zip-preview'] = zipPreview;
+            }
+
+            if (format !== undefined) {
+                localVarQueryParameter['format'] = format;
+            }
+
+            if (password !== undefined) {
+                localVarQueryParameter['password'] = password;
+            }
+
+            if (accessToken !== undefined) {
+                localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 用于根据增量游标（cursor）拉取文件系统的增量变更日志列表，返回从 cursor 位置之后发生的所有文件/目录变动事件。返回的新 cursor 可用于下次请求，实现连续的增量同步。  - 首次调用时传入通过获取增量游标接口获取的 cursor，后续传入上次返回的 cursor 进行连续拉取； - 当返回的 hasMore 为 true 时，应继续使用返回的 cursor 拉取后续数据，直到 hasMore 为 false； - 变更日志按数据库事务提交顺序有序返回，保证事件的全局一致性顺序。注意 eventTime 在并发场景下未必严格递增； - 变更日志记录了文件/目录的创建、修改、删除、移动、复制、放入回收站、从回收站恢复等事件； - cursor 的最大有效期为 180 天（可通过服务端配置调整），使用过期 cursor 时服务端会返回 HTTP 400 错误，错误码为 CursorExpired，此时应重新获取 cursor 并进行全量同步。 
          * @summary 查询增量变动日志
          * @param {string} libraryId 媒体库 ID，必选参数
@@ -1870,6 +1950,81 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(simpleUploadFileRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 将压缩包中的文件解压到 SMH 网盘的指定目录下，无需下载到本地。解压为异步任务，提交后返回 taskId，通过查询任务接口轮询进度。 要求权限： 非 acl 鉴权：需同时具备下载权限（admin、space_admin 或 read_only）和上传权限（admin、space_admin 或 upload_file）； acl 鉴权：源文件所在文件夹需具备 canDownload（可下载），目标文件夹需具备 canUpload（可上传）； 跨空间解压：仅 admin 权限用户可进行跨空间解压（即 targetSpaceId 与源文件所在 SpaceId 不同时）；非 admin 用户仅允许同空间解压。 支持格式：zip、tar、gz、7zip、rar、apk； 需要在 library 级别开启 enableFileUncompress 功能； 解压为异步任务，提交后返回 taskId，前端通过任务查询接口轮询状态； 支持整包解压和选择性解压（通过 selectedFilePaths 参数指定需要解压的文件/文件夹）； 支持跨空间解压（通过 targetSpaceId 参数指定目标空间）； 支持加密压缩包解压（通过 password 参数传入密码）； 支持文件名冲突处理策略（rename / overwrite / ask）； FilePath 必须指向一个文件（非目录），否则返回 FileUncompressNotAllowed 错误。 
+         * @summary 文件解压
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+         * @param {UncompressFileUncompressEnum} uncompress 解压标识，固定值为 1
+         * @param {UncompressFileRequest} uncompressFileRequest 
+         * @param {UncompressFileConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，可选参数，默认为 rename：rename: 冲突时自动重命名文件（如 file(1).ext）；overwrite: 冲突时覆盖已有文件（冲突目标为目录时返回错误）；ask: 冲突时该文件解压失败，记入 failedItems 明细（整体任务返回 207 部分成功）
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        uncompressFile: async (libraryId: string, spaceId: string, filePath: string, uncompress: UncompressFileUncompressEnum, uncompressFileRequest: UncompressFileRequest, conflictResolutionStrategy?: UncompressFileConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'libraryId' is not null or undefined
+            assertParamExists('uncompressFile', 'libraryId', libraryId)
+            // verify required parameter 'spaceId' is not null or undefined
+            assertParamExists('uncompressFile', 'spaceId', spaceId)
+            // verify required parameter 'filePath' is not null or undefined
+            assertParamExists('uncompressFile', 'filePath', filePath)
+            // verify required parameter 'uncompress' is not null or undefined
+            assertParamExists('uncompressFile', 'uncompress', uncompress)
+            // verify required parameter 'uncompressFileRequest' is not null or undefined
+            assertParamExists('uncompressFile', 'uncompressFileRequest', uncompressFileRequest)
+            const localVarPath = `/api/v1/file/{LibraryId}/{SpaceId}/{FilePath}#5`
+                .replace(`{${"LibraryId"}}`, encodeURIComponent(String(libraryId)))
+                .replace(`{${"SpaceId"}}`, encodeURIComponent(String(spaceId)))
+                .replace(`{${"FilePath"}}`, encodeURIComponent(String(filePath)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (uncompress !== undefined) {
+                localVarQueryParameter['uncompress'] = uncompress;
+            }
+
+            if (conflictResolutionStrategy !== undefined) {
+                localVarQueryParameter['conflict_resolution_strategy'] = conflictResolutionStrategy;
+            }
+
+            if (accessToken !== undefined) {
+                localVarQueryParameter['access_token'] = accessToken;
+            }
+
+            if (librarySecret !== undefined) {
+                localVarQueryParameter['library_secret'] = librarySecret;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(uncompressFileRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -2320,6 +2475,27 @@ export const FileApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 在不解压文件的情况下预览压缩包内的内容，包含文件数量、名称、文件大小、修改时间等，接口为同步请求方式。 要求权限： 非 acl 鉴权：admin、space_admin； acl 鉴权：canDownload（当前文件夹可下载）。 支持格式：zip、tar、gz、7zip、rar（不支持 apk，apk 仅支持解压不支持预览）； 大小限制：zip/7zip 无大小限制，tar/gz/rar 需小于 128MB； 文件数限制：压缩包内文件数最多 1000 个，超出部分截断（isTruncated 为 true）； 需要在 library 级别开启 enableFileUncompress 功能； FilePath 必须指向一个文件（非目录），否则返回 FileUncompressNotAllowed 错误。 
+         * @summary 解压预览
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+         * @param {PreviewZipFileZipPreviewEnum} zipPreview 解压预览标识，固定值为 1
+         * @param {PreviewZipFileFormatEnum} [format] 返回格式，可选值：flat（默认，扁平列表）、tree（树形结构）；传入其他值返回 ParamInvalid 错误
+         * @param {string} [password] 加密压缩包的密码，可选参数，默认无密码；对非加密压缩包传入密码会被忽略，不影响预览结果
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async previewZipFile(libraryId: string, spaceId: string, filePath: string, zipPreview: PreviewZipFileZipPreviewEnum, format?: PreviewZipFileFormatEnum, password?: string, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PreviewZipFile200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.previewZipFile(libraryId, spaceId, filePath, zipPreview, format, password, accessToken, librarySecret, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FileApi.previewZipFile']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 用于根据增量游标（cursor）拉取文件系统的增量变更日志列表，返回从 cursor 位置之后发生的所有文件/目录变动事件。返回的新 cursor 可用于下次请求，实现连续的增量同步。  - 首次调用时传入通过获取增量游标接口获取的 cursor，后续传入上次返回的 cursor 进行连续拉取； - 当返回的 hasMore 为 true 时，应继续使用返回的 cursor 拉取后续数据，直到 hasMore 为 false； - 变更日志按数据库事务提交顺序有序返回，保证事件的全局一致性顺序。注意 eventTime 在并发场景下未必严格递增； - 变更日志记录了文件/目录的创建、修改、删除、移动、复制、放入回收站、从回收站恢复等事件； - cursor 的最大有效期为 180 天（可通过服务端配置调整），使用过期 cursor 时服务端会返回 HTTP 400 错误，错误码为 CursorExpired，此时应重新获取 cursor 并进行全量同步。 
          * @summary 查询增量变动日志
          * @param {string} libraryId 媒体库 ID，必选参数
@@ -2384,6 +2560,27 @@ export const FileApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.simpleUploadFile(libraryId, spaceId, filePath, conflictResolutionStrategy, contentCas, filesize, accessToken, librarySecret, userId, xSmhMeta, trafficLimit, preferSameOrigin, withContentCas, internalDomain, simpleUploadFileRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.simpleUploadFile']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 将压缩包中的文件解压到 SMH 网盘的指定目录下，无需下载到本地。解压为异步任务，提交后返回 taskId，通过查询任务接口轮询进度。 要求权限： 非 acl 鉴权：需同时具备下载权限（admin、space_admin 或 read_only）和上传权限（admin、space_admin 或 upload_file）； acl 鉴权：源文件所在文件夹需具备 canDownload（可下载），目标文件夹需具备 canUpload（可上传）； 跨空间解压：仅 admin 权限用户可进行跨空间解压（即 targetSpaceId 与源文件所在 SpaceId 不同时）；非 admin 用户仅允许同空间解压。 支持格式：zip、tar、gz、7zip、rar、apk； 需要在 library 级别开启 enableFileUncompress 功能； 解压为异步任务，提交后返回 taskId，前端通过任务查询接口轮询状态； 支持整包解压和选择性解压（通过 selectedFilePaths 参数指定需要解压的文件/文件夹）； 支持跨空间解压（通过 targetSpaceId 参数指定目标空间）； 支持加密压缩包解压（通过 password 参数传入密码）； 支持文件名冲突处理策略（rename / overwrite / ask）； FilePath 必须指向一个文件（非目录），否则返回 FileUncompressNotAllowed 错误。 
+         * @summary 文件解压
+         * @param {string} libraryId 媒体库 ID，必选参数
+         * @param {string} spaceId 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+         * @param {string} filePath 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+         * @param {UncompressFileUncompressEnum} uncompress 解压标识，固定值为 1
+         * @param {UncompressFileRequest} uncompressFileRequest 
+         * @param {UncompressFileConflictResolutionStrategyEnum} [conflictResolutionStrategy] 文件名冲突时的处理方式，可选参数，默认为 rename：rename: 冲突时自动重命名文件（如 file(1).ext）；overwrite: 冲突时覆盖已有文件（冲突目标为目录时返回错误）；ask: 冲突时该文件解压失败，记入 failedItems 明细（整体任务返回 207 部分成功）
+         * @param {string} [accessToken] 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+         * @param {string} [librarySecret] 访问媒体库密钥，可选参数
+         * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async uncompressFile(libraryId: string, spaceId: string, filePath: string, uncompress: UncompressFileUncompressEnum, uncompressFileRequest: UncompressFileRequest, conflictResolutionStrategy?: UncompressFileConflictResolutionStrategyEnum, accessToken?: string, librarySecret?: string, userId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UncompressFile202Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.uncompressFile(libraryId, spaceId, filePath, uncompress, uncompressFileRequest, conflictResolutionStrategy, accessToken, librarySecret, userId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['FileApi.uncompressFile']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -2596,6 +2793,16 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
             return localVarFp.previewFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.preview, requestParameters.historyId, requestParameters.type, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
+         * 在不解压文件的情况下预览压缩包内的内容，包含文件数量、名称、文件大小、修改时间等，接口为同步请求方式。 要求权限： 非 acl 鉴权：admin、space_admin； acl 鉴权：canDownload（当前文件夹可下载）。 支持格式：zip、tar、gz、7zip、rar（不支持 apk，apk 仅支持解压不支持预览）； 大小限制：zip/7zip 无大小限制，tar/gz/rar 需小于 128MB； 文件数限制：压缩包内文件数最多 1000 个，超出部分截断（isTruncated 为 true）； 需要在 library 级别开启 enableFileUncompress 功能； FilePath 必须指向一个文件（非目录），否则返回 FileUncompressNotAllowed 错误。 
+         * @summary 解压预览
+         * @param {FileApiPreviewZipFileRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        previewZipFile(requestParameters: FileApiPreviewZipFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<PreviewZipFile200Response> {
+            return localVarFp.previewZipFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.zipPreview, requestParameters.format, requestParameters.password, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 用于根据增量游标（cursor）拉取文件系统的增量变更日志列表，返回从 cursor 位置之后发生的所有文件/目录变动事件。返回的新 cursor 可用于下次请求，实现连续的增量同步。  - 首次调用时传入通过获取增量游标接口获取的 cursor，后续传入上次返回的 cursor 进行连续拉取； - 当返回的 hasMore 为 true 时，应继续使用返回的 cursor 拉取后续数据，直到 hasMore 为 false； - 变更日志按数据库事务提交顺序有序返回，保证事件的全局一致性顺序。注意 eventTime 在并发场景下未必严格递增； - 变更日志记录了文件/目录的创建、修改、删除、移动、复制、放入回收站、从回收站恢复等事件； - cursor 的最大有效期为 180 天（可通过服务端配置调整），使用过期 cursor 时服务端会返回 HTTP 400 错误，错误码为 CursorExpired，此时应重新获取 cursor 并进行全量同步。 
          * @summary 查询增量变动日志
          * @param {FileApiQueryDeltaLogRequest} requestParameters Request parameters.
@@ -2624,6 +2831,16 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          */
         simpleUploadFile(requestParameters: FileApiSimpleUploadFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<SimpleUploadFile201Response | void | SimpleUploadFile200Response> {
             return localVarFp.simpleUploadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.filesize, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.xSmhMeta, requestParameters.trafficLimit, requestParameters.preferSameOrigin, requestParameters.withContentCas, requestParameters.internalDomain, requestParameters.simpleUploadFileRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 将压缩包中的文件解压到 SMH 网盘的指定目录下，无需下载到本地。解压为异步任务，提交后返回 taskId，通过查询任务接口轮询进度。 要求权限： 非 acl 鉴权：需同时具备下载权限（admin、space_admin 或 read_only）和上传权限（admin、space_admin 或 upload_file）； acl 鉴权：源文件所在文件夹需具备 canDownload（可下载），目标文件夹需具备 canUpload（可上传）； 跨空间解压：仅 admin 权限用户可进行跨空间解压（即 targetSpaceId 与源文件所在 SpaceId 不同时）；非 admin 用户仅允许同空间解压。 支持格式：zip、tar、gz、7zip、rar、apk； 需要在 library 级别开启 enableFileUncompress 功能； 解压为异步任务，提交后返回 taskId，前端通过任务查询接口轮询状态； 支持整包解压和选择性解压（通过 selectedFilePaths 参数指定需要解压的文件/文件夹）； 支持跨空间解压（通过 targetSpaceId 参数指定目标空间）； 支持加密压缩包解压（通过 password 参数传入密码）； 支持文件名冲突处理策略（rename / overwrite / ask）； FilePath 必须指向一个文件（非目录），否则返回 FileUncompressNotAllowed 错误。 
+         * @summary 文件解压
+         * @param {FileApiUncompressFileRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        uncompressFile(requestParameters: FileApiUncompressFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<UncompressFile202Response> {
+            return localVarFp.uncompressFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.uncompress, requestParameters.uncompressFileRequest, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -3675,6 +3892,56 @@ export interface FileApiPreviewFileRequest {
 }
 
 /**
+ * Request parameters for previewZipFile operation in FileApi.
+ */
+export interface FileApiPreviewZipFileRequest {
+    /**
+     * 媒体库 ID，必选参数
+     */
+    readonly libraryId: string
+
+    /**
+     * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+     */
+    readonly spaceId: string
+
+    /**
+     * 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+     */
+    readonly filePath: string
+
+    /**
+     * 解压预览标识，固定值为 1
+     */
+    readonly zipPreview: PreviewZipFileZipPreviewEnum
+
+    /**
+     * 返回格式，可选值：flat（默认，扁平列表）、tree（树形结构）；传入其他值返回 ParamInvalid 错误
+     */
+    readonly format?: PreviewZipFileFormatEnum
+
+    /**
+     * 加密压缩包的密码，可选参数，默认无密码；对非加密压缩包传入密码会被忽略，不影响预览结果
+     */
+    readonly password?: string
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
+     * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+     */
+    readonly userId?: string
+}
+
+/**
  * Request parameters for queryDeltaLog operation in FileApi.
  */
 export interface FileApiQueryDeltaLogRequest {
@@ -3839,6 +4106,53 @@ export interface FileApiSimpleUploadFileRequest {
     readonly internalDomain?: SimpleUploadFileInternalDomainEnum
 
     readonly simpleUploadFileRequest?: SimpleUploadFileRequest
+}
+
+/**
+ * Request parameters for uncompressFile operation in FileApi.
+ */
+export interface FileApiUncompressFileRequest {
+    /**
+     * 媒体库 ID，必选参数
+     */
+    readonly libraryId: string
+
+    /**
+     * 空间 ID，如果媒体库为单租户模式，则该参数固定为连字符(-)；如果媒体库为多租户模式，则必须指定该参数
+     */
+    readonly spaceId: string
+
+    /**
+     * 文件路径｜目录路径，对于多级文件路径，使用斜杠(/)分隔，例如 foo/bar/file.txt；对于根目录，该参数留空
+     */
+    readonly filePath: string
+
+    /**
+     * 解压标识，固定值为 1
+     */
+    readonly uncompress: UncompressFileUncompressEnum
+
+    readonly uncompressFileRequest: UncompressFileRequest
+
+    /**
+     * 文件名冲突时的处理方式，可选参数，默认为 rename：rename: 冲突时自动重命名文件（如 file(1).ext）；overwrite: 冲突时覆盖已有文件（冲突目标为目录时返回错误）；ask: 冲突时该文件解压失败，记入 failedItems 明细（整体任务返回 207 部分成功）
+     */
+    readonly conflictResolutionStrategy?: UncompressFileConflictResolutionStrategyEnum
+
+    /**
+     * 访问令牌，对于公有读媒体库或租户空间，可不指定该参数，否则必须指定该参数
+     */
+    readonly accessToken?: string
+
+    /**
+     * 访问媒体库密钥，可选参数
+     */
+    readonly librarySecret?: string
+
+    /**
+     * 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
+     */
+    readonly userId?: string
 }
 
 /**
@@ -4066,6 +4380,17 @@ export class FileApi extends BaseAPI {
     }
 
     /**
+     * 在不解压文件的情况下预览压缩包内的内容，包含文件数量、名称、文件大小、修改时间等，接口为同步请求方式。 要求权限： 非 acl 鉴权：admin、space_admin； acl 鉴权：canDownload（当前文件夹可下载）。 支持格式：zip、tar、gz、7zip、rar（不支持 apk，apk 仅支持解压不支持预览）； 大小限制：zip/7zip 无大小限制，tar/gz/rar 需小于 128MB； 文件数限制：压缩包内文件数最多 1000 个，超出部分截断（isTruncated 为 true）； 需要在 library 级别开启 enableFileUncompress 功能； FilePath 必须指向一个文件（非目录），否则返回 FileUncompressNotAllowed 错误。 
+     * @summary 解压预览
+     * @param {FileApiPreviewZipFileRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public previewZipFile(requestParameters: FileApiPreviewZipFileRequest, options?: RawAxiosRequestConfig) {
+        return FileApiFp(this.configuration).previewZipFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.zipPreview, requestParameters.format, requestParameters.password, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 用于根据增量游标（cursor）拉取文件系统的增量变更日志列表，返回从 cursor 位置之后发生的所有文件/目录变动事件。返回的新 cursor 可用于下次请求，实现连续的增量同步。  - 首次调用时传入通过获取增量游标接口获取的 cursor，后续传入上次返回的 cursor 进行连续拉取； - 当返回的 hasMore 为 true 时，应继续使用返回的 cursor 拉取后续数据，直到 hasMore 为 false； - 变更日志按数据库事务提交顺序有序返回，保证事件的全局一致性顺序。注意 eventTime 在并发场景下未必严格递增； - 变更日志记录了文件/目录的创建、修改、删除、移动、复制、放入回收站、从回收站恢复等事件； - cursor 的最大有效期为 180 天（可通过服务端配置调整），使用过期 cursor 时服务端会返回 HTTP 400 错误，错误码为 CursorExpired，此时应重新获取 cursor 并进行全量同步。 
      * @summary 查询增量变动日志
      * @param {FileApiQueryDeltaLogRequest} requestParameters Request parameters.
@@ -4096,6 +4421,17 @@ export class FileApi extends BaseAPI {
      */
     public simpleUploadFile(requestParameters: FileApiSimpleUploadFileRequest, options?: RawAxiosRequestConfig) {
         return FileApiFp(this.configuration).simpleUploadFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.conflictResolutionStrategy, requestParameters.contentCas, requestParameters.filesize, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.xSmhMeta, requestParameters.trafficLimit, requestParameters.preferSameOrigin, requestParameters.withContentCas, requestParameters.internalDomain, requestParameters.simpleUploadFileRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 将压缩包中的文件解压到 SMH 网盘的指定目录下，无需下载到本地。解压为异步任务，提交后返回 taskId，通过查询任务接口轮询进度。 要求权限： 非 acl 鉴权：需同时具备下载权限（admin、space_admin 或 read_only）和上传权限（admin、space_admin 或 upload_file）； acl 鉴权：源文件所在文件夹需具备 canDownload（可下载），目标文件夹需具备 canUpload（可上传）； 跨空间解压：仅 admin 权限用户可进行跨空间解压（即 targetSpaceId 与源文件所在 SpaceId 不同时）；非 admin 用户仅允许同空间解压。 支持格式：zip、tar、gz、7zip、rar、apk； 需要在 library 级别开启 enableFileUncompress 功能； 解压为异步任务，提交后返回 taskId，前端通过任务查询接口轮询状态； 支持整包解压和选择性解压（通过 selectedFilePaths 参数指定需要解压的文件/文件夹）； 支持跨空间解压（通过 targetSpaceId 参数指定目标空间）； 支持加密压缩包解压（通过 password 参数传入密码）； 支持文件名冲突处理策略（rename / overwrite / ask）； FilePath 必须指向一个文件（非目录），否则返回 FileUncompressNotAllowed 错误。 
+     * @summary 文件解压
+     * @param {FileApiUncompressFileRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public uncompressFile(requestParameters: FileApiUncompressFileRequest, options?: RawAxiosRequestConfig) {
+        return FileApiFp(this.configuration).uncompressFile(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.uncompress, requestParameters.uncompressFileRequest, requestParameters.conflictResolutionStrategy, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -4302,6 +4638,15 @@ export const PreviewFilePreviewEnum = {
     NUMBER_1: 1
 } as const;
 export type PreviewFilePreviewEnum = typeof PreviewFilePreviewEnum[keyof typeof PreviewFilePreviewEnum];
+export const PreviewZipFileZipPreviewEnum = {
+    NUMBER_1: 1
+} as const;
+export type PreviewZipFileZipPreviewEnum = typeof PreviewZipFileZipPreviewEnum[keyof typeof PreviewZipFileZipPreviewEnum];
+export const PreviewZipFileFormatEnum = {
+    Flat: 'flat',
+    Tree: 'tree'
+} as const;
+export type PreviewZipFileFormatEnum = typeof PreviewZipFileFormatEnum[keyof typeof PreviewZipFileFormatEnum];
 export const RenewMultipartUploadRenewEnum = {
     NUMBER_1: 1
 } as const;
@@ -4327,3 +4672,13 @@ export const SimpleUploadFileInternalDomainEnum = {
     NUMBER_1: 1
 } as const;
 export type SimpleUploadFileInternalDomainEnum = typeof SimpleUploadFileInternalDomainEnum[keyof typeof SimpleUploadFileInternalDomainEnum];
+export const UncompressFileUncompressEnum = {
+    NUMBER_1: 1
+} as const;
+export type UncompressFileUncompressEnum = typeof UncompressFileUncompressEnum[keyof typeof UncompressFileUncompressEnum];
+export const UncompressFileConflictResolutionStrategyEnum = {
+    Rename: 'rename',
+    Overwrite: 'overwrite',
+    Ask: 'ask'
+} as const;
+export type UncompressFileConflictResolutionStrategyEnum = typeof UncompressFileConflictResolutionStrategyEnum[keyof typeof UncompressFileConflictResolutionStrategyEnum];
