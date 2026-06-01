@@ -1,0 +1,30 @@
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  id-token: write   # 可信发布(OIDC)必需
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'              # 需 >= 22.14
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: npm install -g npm@latest     # 确保 npm >= 11.5.1（可信发布要求）
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - run: npm publish --access public
+        # 无需 NPM_TOKEN，OIDC 自动换取短期令牌并生成 provenance
