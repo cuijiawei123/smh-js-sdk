@@ -71,6 +71,14 @@ NEXT_VERSION="$(node -e "
 
 # ---- 内网发布函数（内联，正确捕获失败 + 必恢复 package.json）----
 publish_internal() {
+  # 登录预检：未登录内网 registry 时友好提示并终止，避免后续 401 一堆报错
+  if ! npm whoami --registry="$INTERNAL_REGISTRY" >/dev/null 2>&1; then
+    red "未登录内网 registry：$INTERNAL_REGISTRY"
+    red "请先登录后重试："
+    echo "  npm login --registry=$INTERNAL_REGISTRY"
+    echo "  （登录信息参考司内 npm 镜像文档）"
+    return 1
+  fi
   green "→ 发布内网包 $INTERNAL_NAME@$NEXT_VERSION → $INTERNAL_REGISTRY"
   cp package.json .package.json.bak
   cp package-lock.json .package-lock.json.bak
@@ -103,6 +111,16 @@ if [[ "$INTERNAL_ONLY" -eq 1 ]]; then
 fi
 
 # ============ 模式 B：标准发版（内网 + 外网）============
+# 发版前置预检：需发内网时，先探内网 registry 登录态，避免打完 tag 才发现没登录
+if [[ "$SKIP_INTERNAL" -eq 0 ]]; then
+  if ! npm whoami --registry="$INTERNAL_REGISTRY" >/dev/null 2>&1; then
+    red "未登录内网 registry：$INTERNAL_REGISTRY"
+    red "内网发布需先登录。请执行后重试（或加 --skip-internal 只发外网）："
+    echo "  npm login --registry=$INTERNAL_REGISTRY"
+    exit 1
+  fi
+fi
+
 blue "==================== 发版确认 ===================="
 echo "  当前版本 : $CURRENT_VERSION"
 echo "  升级类型 : $BUMP"
@@ -128,6 +146,9 @@ if [[ "$SKIP_INTERNAL" -eq 0 ]]; then
   if ! publish_internal; then
     red "=================================================="
     red "内网发布失败，已终止。外网 tag 尚未推送，不会发布外网。"
+    red "常见原因：当前账号不是 $INTERNAL_NAME 的 maintainer（无发布权限）。"
+    red "  内网私服不支持命令行查权限，请到司内 npm 镜像平台确认/申请权限。"
+    red "  或临时用 --skip-internal 只发外网。"
     red "如需回滚本地 tag 与 commit："
     echo "  git tag -d v$NEXT_VERSION"
     echo "  git reset --hard HEAD~1"
