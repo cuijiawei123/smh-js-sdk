@@ -9,3 +9,4 @@ _debug_upload.js
 .openapi-generator
 .openapi-generator-ignore
 .workbuddy
+sdk-docs/RELEASE.md
