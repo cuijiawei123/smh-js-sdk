@@ -220,6 +220,72 @@ if (res.status === 302) {
 
 ---
 
+## 打开在线文档编辑入口
+
+### 功能说明
+
+officeEdit 实现打开在线文档编辑入口，返回包含【文档服务】SDK 的 HTML 页面，用户可在浏览器中直接编辑文档。
+
+> **⚠️ 需开白支持**：该功能默认未开启，使用前需联系管理员为对应媒体库开通【文档编辑】能力（`enableDocEdit`）。未开白时调用会返回 `DocEditNotEnabled` 错误。
+
+**接口说明：**
+
+- 支持的文档类型：
+  - 文字：.doc / .docx / .wps / .dot / .wpt / .dotx / .docm / .dotm
+  - 表格：.xls / .xlsx / .et / .xlt / .xltx / .xlsm / .xltm
+  - 演示：.ppt / .pptx / .dps / .pps / .ppsx / .ppsm / .pptm / .potx / .potm / .dpt
+  - PDF：.pdf
+- 媒体库必须开启文档编辑功能，否则返回 `DocEditNotEnabled`；
+- 文件大小不得超过 200MB；
+- 该接口返回 HTML 页面（非 JSON）。
+
+### 使用示例
+
+```typescript
+// 打开在线文档编辑入口，返回 HTML 页面
+const editRes = await smh.file.officeEdit({
+    spaceId: 'your-space-id',
+    filePath: 'foo/bar.docx',
+    lang: 'zh_CN',
+    pf: 'meeting',
+});
+
+if (editRes.status === 200) {
+    // editRes.data 为 HTML 页面内容，可直接嵌入 iframe 或跳转
+    console.log('已获取文档编辑页面');
+}
+```
+
+### 参数说明
+
+| 参数名 | 参数描述 | 类型 | 是否必填 |
+|--------|----------|------|----------|
+| libraryId | 媒体库 ID | String | 是 |
+| spaceId | 空间 ID，单租户模式固定为连字符(-) | String | 是 |
+| filePath | 文件路径，多级目录使用斜杠(/)分隔 | String | 是 |
+| accessToken | 访问令牌，公有读媒体库或租户空间可不指定 | String | 否 |
+| librarySecret | 访问媒体库密钥 | String | 否 |
+| userId | 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份 | String | 否 |
+| lang | 语言偏好，例如 `zh_CN`、`en` | String | 否 |
+| pf | 平台标识，例如 `meeting` | String | 否 |
+
+### 返回值说明
+
+**HTTP 状态码：**
+
+- `200`：成功，`response.data` 为编辑器 HTML 页面（字符串）。
+
+**常见错误：**
+
+| 错误码 | 说明 |
+|--------|------|
+| `DocEditNotEnabled` | 媒体库未开启文档编辑功能 |
+| `FileNotFound` | 文件不存在 |
+| `FileTypeNotSupported` | 文件类型不支持在线编辑 |
+| `FileSizeExceeded` | 文件大小超过 200MB 限制 |
+
+---
+
 ## 下载文件
 
 ### 功能说明
