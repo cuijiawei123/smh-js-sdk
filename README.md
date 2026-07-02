@@ -443,6 +443,27 @@ await client.file.uncompressFile({
 
 > 解压支持格式：zip、tar、gz、7zip、rar、apk；支持选择性解压、跨空间解压（`targetSpaceId`，需 admin 权限）、加密包解压（`password`）。`targetPath` 目录必须已存在，否则返回 `DirectoryNotFound`。
 
+### 10. 在线文档编辑
+
+`officeEdit` 打开在线文档编辑入口，返回包含【文档服务】SDK 的 HTML 页面，用户可在浏览器中直接编辑文档。
+
+> 该功能需在 library 级别开白 `enableDocEdit`，未开启时调用返回 `DocEditNotEnabled`。支持 Word / Excel / PPT / PDF 系列格式，文件不超过 200MB。
+
+```typescript
+// 同步接口：返回编辑器 HTML 页面（字符串，非 JSON）
+const editRes = await client.file.officeEdit({
+  filePath: 'foo/bar.docx',
+  lang: 'zh_CN',        // 可选：语言偏好，如 zh_CN / en
+})
+
+if (editRes.status === 200) {
+  // editRes.data 为 HTML，可直接嵌入 iframe 或跳转，无需 JSON.parse
+  document.querySelector('iframe').srcdoc = editRes.data
+}
+```
+
+> 支持格式：文字（.doc/.docx/.wps 等）、表格（.xls/.xlsx/.et 等）、演示（.ppt/.pptx/.dps 等）、PDF。常见错误：`DocEditNotEnabled`（未开白）、`FileTypeNotSupported`（类型不支持）、`FileSizeExceeded`（超 200MB）。详见 [FileApi.md](./sdk-docs/FileApi.md)。
+
 ## SMHClient 初始化参数
 
 | 参数 | 类型 | 默认值 | 说明 |
