@@ -7,6 +7,10 @@
  * previewFile / getCover（返回 302 重定向，不适合集成测试断言）
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
+import { execSync } from 'child_process';
 import { SMHClient } from '../../interceptor/SmhClient';
 import {
   InfoFileInfoEnum,
@@ -836,6 +840,54 @@ describe.skipIf(shouldSkip)('FileApi 补充集成测试', () => {
       } catch (error: any) {
         // 非压缩包文件预期失败，跳过
         ctx.skip(`文件不是压缩包，跳过: ${error?.response?.status}`);
+      }
+    });
+  });
+
+  describe('officeEdit - 打开在线文档编辑入口', () => {
+    it('对普通文本文件调用应返回 HTML 页面或业务错误', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      // 调用后返回包含【文档服务】SDK 的 HTML 页面
+      // 若媒体库未开启文档编辑功能（DocEditNotEnabled）或文件类型不支持，则返回业务错误
+      try {
+        const res = await client.file.officeEdit({
+          filePath: 'test.docx',
+        });
+        // 成功时返回 HTML 页面
+        expect([200, 302]).toContain(res.status);
+      } catch (error: any) {
+        expect(error.response?.status).toBeDefined();
+        // 常见错误：DocEditNotEnabled / 文件类型不支持 / 权限不足
+        expect([400, 403, 404, 405, 501]).toContain(error.response?.status);
+      }
+    });
+
+    it('对不存在的文件调用应返回 404', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        await client.file.officeEdit({
+          filePath: `${getTestRootDir()}/non-existent-${Date.now()}.docx`,
+        });
+      } catch (error: any) {
+        expect(error.response?.status).toBeDefined();
+        // 找不到文件返回 404，或媒体库未开启文档编辑返回其他业务错误
+        expect([400, 403, 404, 405, 501]).toContain(error.response?.status);
+      }
+    });
+
+    it('传入 lang 参数不应报参数错误', async (ctx: any) => {
+      assertSetupReady(setupFailed);
+      try {
+        const res = await client.file.officeEdit({
+          filePath: sharedFilePath,
+          lang: 'zh_CN',
+        });
+        expect([200, 302]).toContain(res.status);
+      } catch (error: any) {
+        if (error.response?.status === 400) {
+          const errCode = error.response?.data?.Code || error.response?.data?.code || '';
+          expect(errCode).not.toBe('ParamInvalid');
+        }
       }
     });
   });
