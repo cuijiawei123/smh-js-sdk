@@ -106,6 +106,11 @@ export interface UploadOptions {
   trafficLimit?: number;               // 单链接限速，范围100KB/s-100MB/s，单位B
   internalDomain?: 0 | 1;             // 是否使用内网域名，0不使用，1使用，默认不使用
   protocol?: 'https:' | 'http:';      // 直传COS时使用的协议，默认 'https:'
+
+  // 上传到不存在的目录时，是否自动创建所需的父目录后重试，默认 false。
+  // 开启后：若上传因 DirectoryNotFound 失败，SDK 会对目标文件所在目录调用一次
+  // createDirectory（服务端会自动递归创建中间各级父目录），然后重试上传一次。
+  autoCreateDir?: boolean;
   
   // 文件元信息
   labels?: string[];                   // 文件标签列表

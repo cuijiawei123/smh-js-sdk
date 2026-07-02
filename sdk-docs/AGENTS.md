@@ -44,6 +44,7 @@
 | 空间容量、配额、用量 | `client.space` / `client.quota` / `client.usage` | 区分空间属性、配额和用量统计 |
 | 增量同步 | `client.file.getDeltaCursor` + `client.file.queryDeltaLog` | cursor 要持久化，过期后回退全量 |
 | 压缩包预览/解压 | 预览 `client.file.previewZipFile`（同步）；解压 `client.file.uncompressFile`（异步，返回 taskId 要轮询） | 预览不解压、解压不要当同步接口；都需开启 `enableFileUncompress` |
+| 在线文档编辑 | `client.file.officeEdit`（同步，返回编辑器 HTML 页面而非 JSON） | 需开白 `enableDocEdit`，否则报 `DocEditNotEnabled`；返回的是 HTML 字符串，直接嵌 iframe，不要当 JSON 解析 |
 | HLS/m3u8、转码、媒体信息 | `client.hls.*` 或 `client.file.convertFile` | 不要把普通文件下载当转码任务 |
 
 ---
@@ -379,6 +380,22 @@ const task = await client.task.queryTaskV2({ taskId: res.data.taskId })
 - 选择性解压用 `selectedFilePaths`（路径取自预览返回的 `key`，目录以 `/` 结尾）；`targetPath` 目录不存在会报 `DirectoryNotFound`。
 - 预览支持 zip/tar/gz/7zip/rar（apk 不支持预览）；解压额外支持 apk。
 
+### 7.2 在线文档编辑
+
+需在 library 级别开白 `enableDocEdit`；`filePath` 指向待编辑文档，支持 Word / Excel / PPT / PDF 系列格式，文件不超过 200MB。
+
+```typescript
+// 同步接口：返回编辑器 HTML 页面（字符串，非 JSON）
+const editRes = await client.file.officeEdit({
+  filePath: 'foo/bar.docx',
+  lang: 'zh_CN',   // 可选，如 zh_CN / en
+})
+// editRes.data 为 HTML，直接嵌 iframe 或跳转，不要当 JSON 解析
+```
+
+- `officeEdit` 是**同步**接口，`res.data` 即编辑器 HTML 页面；不要当异步任务轮询，也不要 `JSON.parse`。
+- 未开白报 `DocEditNotEnabled`；文件类型不支持报 `FileTypeNotSupported`；超过 200MB 报 `FileSizeExceeded`。
+
 ---
 
 ## 8. 增量同步与目录统计
@@ -556,7 +573,7 @@ Agent 输出 SMH 相关代码前必须确认：
 - [Started.md](./Started.md) - 快速开始与初始化
 - [Uploader.md](./Uploader.md) - 高层上传任务
 - [Downloader.md](./Downloader.md) - 高层下载任务
-- [FileApi.md](./FileApi.md) - 文件详情、下载链接、短链、底层上传、增量同步、文件操作
+- [FileApi.md](./FileApi.md) - 文件详情、下载链接、短链、底层上传、增量同步、文件操作、在线文档编辑
 - [DirectoryApi.md](./DirectoryApi.md) - 目录列表、详情、统计、创建、移动、删除
 - [SearchApi.md](./SearchApi.md) - `searchFs` / `searchAI` / `searchFsStats`
 - [share-api.ts](../apis/share-api.ts) - 分享链接 OpenAPI 类型与方法

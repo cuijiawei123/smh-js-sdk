@@ -37,6 +37,7 @@
 import { SMHClient } from '@tencent/smh-js-sdk';
 
 const smh = new SMHClient({
+    basePath: 'https://smhxxx.api.tencentsmh.cn', // 专属域名（推荐）
     accessToken: 'your-access-token',
     libraryId: 'your-library-id',
     spaceId: 'your-space-id',
@@ -94,6 +95,7 @@ input.addEventListener('change', () => {
 | parallel | 并发上传数（分片上传时同时上传的分片数） | Number | 否 | 2 |
 | partFileSize | 触发分片上传的文件大小阈值（MB），超过此大小自动使用分片上传 | Number | 否 | 32 |
 | conflictResolutionStrategy | 文件冲突解决策略，可选值：ask、overwrite、rename | String | 否 | rename |
+| autoCreateDir | 上传到不存在的目录时是否自动创建所需父目录后重试。开启后，若上传因 `DirectoryNotFound` 失败，SDK 会对目标文件所在目录调用一次 `createDirectory`（服务端自动递归创建中间各级父目录），然后重试上传一次 | Boolean | 否 | false |
 | enableInstantUpload | 是否启用秒传功能，当文件已存在时直接完成上传 | Boolean | 否 | true |
 | trafficLimit | 单链接上传限速，范围 100KB/s - 100MB/s，单位：字节/秒（B/s） | Number | 否 | - |
 | checkpoint | 断点信息（用于恢复上传） | UploadCheckpoint | 否 | - |
@@ -246,6 +248,33 @@ task.on('statechange', (data) => {
 
 await task.start();
 ```
+
+---
+
+## 自动创建目录（autoCreateDir）
+
+将文件上传到不存在的目录（例如 `reports/2026/q2/data.csv`，而 `reports/2026/q2` 尚未创建）时，上传接口会返回 `DirectoryNotFound` 错误导致失败。
+
+开启 `autoCreateDir` 后，SDK 会在捕获到该错误时，自动对目标文件所在目录调用一次创建目录接口，然后重试上传一次。SMH 服务端会自动递归创建中间所需的各级父目录，因此无需逐级手动创建。
+
+### 使用示例
+
+```typescript
+const task = smh.createUploadTask({
+    filePath: 'reports/2026/q2/data.csv',  // reports/2026/q2 目录可不存在
+    file: browserFile,
+    autoCreateDir: true,                   // 开启自动建目录
+});
+
+await task.start();   // 目录会被自动创建，文件成功上传
+```
+
+### 说明
+
+- 默认值为 `false`，不开启时行为不变（上传到不存在的目录仍会失败）。
+- 简单上传与分片上传两种模式均生效。
+- 仅在确为"目标父目录不存在"（`DirectoryNotFound`）时触发，且最多自动重试一次；若创建目录后上传仍失败（如父级路径上存在同名文件、媒体库限制目录层数等），将抛出原始错误。
+- 上传到空间根目录（`filePath` 不含 `/`）时无需创建目录，该选项不产生额外请求。
 
 ---
 

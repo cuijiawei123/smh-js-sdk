@@ -725,6 +725,70 @@ describe.skipIf(shouldSkip)('文件上传 / 下载 E2E', () => {
     });
   });
 
+  // ─── autoCreateDir 自动创建目录 ──────────────────────────
+
+  describe('autoCreateDir 自动创建父目录', () => {
+    it('开启 autoCreateDir 后，上传到不存在的多级目录应自动创建并成功', async () => {
+      const content = Buffer.from('autoCreateDir deep test ' + Date.now());
+      // 在测试根目录下构造一段全新的、确定不存在的多级路径
+      const subDir = `auto-dir-${Date.now()}-${Math.random().toString(36).slice(2, 8)}/a/b/c`;
+      const filePath = `${getTestRootDir()}/${subDir}/deep.txt`;
+      const file = createMockFile('deep.txt', content);
+
+      const uploader = client.createUploadTask({
+        file,
+        filePath,
+        autoCreateDir: true,
+      });
+
+      uploadedFiles.push(filePath);
+
+      const endPromise = waitForUploadEnd(uploader);
+      uploader.start();
+      const endState = await endPromise;
+
+      expect([TaskStatus.SUCCESS, TaskStatus.RAPID_SUCCESS]).toContain(endState);
+      expect(uploader.state).toBe(endState);
+
+      await sleep(1000);
+
+      // 文件确实落在了自动创建的深层目录下
+      const res = await client.file.infoFile({ filePath, info: InfoFileInfoEnum.NUMBER_1 });
+      expect(res.status).toBe(200);
+
+      // 清理自动创建的目录树
+      try {
+        await client.directory.deleteDirectory({
+          filePath: `${getTestRootDir()}/${subDir.split('/')[0]}`,
+        });
+      } catch { /* ignore */ }
+    });
+
+    it('未开启 autoCreateDir 时，上传到不存在的目录应失败（保持现有行为）', async () => {
+      const content = Buffer.from('no autoCreateDir test ' + Date.now());
+      const subDir = `no-auto-dir-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const filePath = `${getTestRootDir()}/${subDir}/should-fail.txt`;
+      const file = createMockFile('should-fail.txt', content);
+
+      const uploader = client.createUploadTask({
+        file,
+        filePath,
+        // autoCreateDir 默认 false
+      });
+
+      const endPromise = waitForUploadEnd(uploader)
+        .then(() => ({ failed: false }))
+        .catch(() => ({ failed: true }));
+      uploader.start();
+      const settled = await endPromise;
+
+      // 父目录不存在，上传应进入 ERROR 终态
+      expect(settled.failed).toBe(true);
+      expect(uploader.state).toBe(TaskStatus.ERROR);
+    });
+  });
+
+
   // ─── 文件删除 ───────────────────────────────────────────
 
   describe('文件删除', () => {

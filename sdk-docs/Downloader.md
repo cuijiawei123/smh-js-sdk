@@ -44,6 +44,7 @@ JS SDK 提供两种下载方式：
 import { SMHClient } from '@tencent/smh-js-sdk';
 
 const smh = new SMHClient({
+    basePath: 'https://smhxxx.api.tencentsmh.cn', // 专属域名（推荐）
     accessToken: 'your-access-token',
     libraryId: 'your-library-id',
     spaceId: 'your-space-id',
