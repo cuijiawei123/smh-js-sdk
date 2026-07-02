@@ -6,6 +6,7 @@
 
 import axios, { AxiosInstance } from 'axios';
 import { FileApi } from '../apis/file-api';
+import { DirectoryApi } from '../apis/directory-api';
 import { Configuration } from '../configuration';
 import { formatSize, formatTime } from '../utils/Formatter';
 import { parseCOSDomain, parallelLimit } from '../utils/index';
@@ -17,7 +18,7 @@ import {
   CRC64_INIT_VALUE,
   calculateBlobCRC64
 } from '../utils/crc64';
-import { SMHError, ErrorCode, newError, analyzeError, wrapErrorToSMHError } from '../utils/ErrorHandler';
+import { SMHError, ErrorCode, newError, analyzeError, wrapErrorToSMHError, extractAxiosErrorInfo, ServerErrorCode } from '../utils/ErrorHandler';
 import { CommonLoader } from './CommonLoader';
 import { 
   TaskStatus, 
@@ -48,6 +49,10 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
   private crc64?: string;
   
   private fileApi: FileApi;
+  private directoryApi: DirectoryApi;
+
+  // autoCreateDir：标记是否已经尝试过"自动创建目录后重试"，防止死循环
+  private autoCreateDirAttempted: boolean = false;
   
   // 续期定时器
   private renewTimer?: ReturnType<typeof setTimeout>;
@@ -84,6 +89,7 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
     // 透传 axiosInstance，确保 FileApi 复用 SMHClient 配置好的 axios 实例
     // （包含 Client-Version 等默认请求头、重试拦截器等）
     this.fileApi = new FileApi(configuration, undefined, axiosInstance);
+    this.directoryApi = new DirectoryApi(configuration, undefined, axiosInstance);
     
     const partFileSize = options.partFileSize || 32;
     const MIN_PART_FILE_SIZE = 1;
@@ -307,7 +313,53 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
   /**
    * 执行上传流程
    */
+  /**
+   * 执行上传流程
+   *
+   * 外层包装：当开启 autoCreateDir 且上传因目标父目录不存在（DirectoryNotFound）
+   * 失败时，自动创建所需父目录后重试一次。
+   */
   private async executeUpload(): Promise<void> {
+    try {
+      await this.dispatchUpload();
+    } catch (error) {
+      // 仅在以下条件全部满足时才尝试自动创建目录并重试：
+      // 1. 开启了 autoCreateDir
+      // 2. 尚未尝试过（防止死循环）
+      // 3. 未处于暂停/取消状态
+      // 4. 错误确实是目标父目录不存在（serverCode === DirectoryNotFound）
+      if (
+        !this.options.autoCreateDir ||
+        this.autoCreateDirAttempted ||
+        this.pauseFlag ||
+        this.cancelFlag ||
+        !this.isDirectoryNotFoundError(error)
+      ) {
+        throw error;
+      }
+
+      this.autoCreateDirAttempted = true;
+
+      const dirPath = this.getParentDirPath(this.options.filePath);
+      // 根目录下的文件没有父目录可建，直接抛出原始错误
+      if (!dirPath) {
+        throw error;
+      }
+
+      this.logWarn(`Upload failed with DirectoryNotFound, auto-creating parent directory: ${dirPath}`);
+      await this.ensureDirectory(dirPath);
+
+      this.throwIfStopped('after auto-creating directory');
+
+      // 创建目录后重试一次上传
+      await this.dispatchUpload();
+    }
+  }
+
+  /**
+   * 派发上传：根据文件大小选择简单上传或分块上传
+   */
+  private async dispatchUpload(): Promise<void> {
     const fileSize = this.file.size;
     const threshold = this.CHUNK_FILE_SIZE;
     const enableInstantUpload = this.options.enableInstantUpload !== false;
@@ -329,6 +381,71 @@ export class Uploader extends CommonLoader<UploadCheckpoint> {
       await this.executeMultipartUpload(beginningHash);
     } else {
       await this.executeSimpleUpload(beginningHash);
+    }
+  }
+
+  /**
+   * 判断错误是否为"目标父目录不存在"（DirectoryNotFound）
+   *
+   * 上传任务内部直接使用原始 axios 实例（未经过 SmhClient 的 SMHError 包装），
+   * 因此这里从 AxiosError 中提取 serverCode 进行判断，避免依赖中文 message。
+   */
+  private isDirectoryNotFoundError(error: any): boolean {
+    if (error instanceof SMHError) {
+      return error.response?.serverCode === ServerErrorCode.DirectoryNotFound;
+    }
+    const { serverCode } = extractAxiosErrorInfo(error);
+    return serverCode === ServerErrorCode.DirectoryNotFound;
+  }
+
+  /**
+   * 提取文件路径的父目录部分。
+   * - "a/b/c.txt" -> "a/b"
+   * - "c.txt"     -> ""（根目录下的文件，无父目录）
+   */
+  private getParentDirPath(filePath: string): string {
+    const normalized = filePath.replace(/^\/+/, '').replace(/\/+$/, '');
+    const idx = normalized.lastIndexOf('/');
+    return idx > 0 ? normalized.slice(0, idx) : '';
+  }
+
+  /**
+   * 确保目录存在。
+   *
+   * SMH 服务端的 createDirectory 会自动递归创建中间所需的各级父目录，
+   * 因此这里只需对完整目录路径调用一次即可。
+   *
+   * 使用默认的 ask 冲突策略（不可用 rename：rename 会把已存在的目录重命名为
+   * "bar (1)" 导致后续上传路径错位）。对"目录已存在"产生的 409 /
+   * SameNameDirectoryOrFileExists 视为成功并吞掉——若父级实际是同名文件（真冲突），
+   * 后续重试上传仍会报 DirectoryNotFound，届时由外层抛出原始错误。
+   */
+  private async ensureDirectory(dirPath: string): Promise<void> {
+    try {
+      await this.directoryApi.createDirectory({
+        libraryId: this.options.libraryId,
+        spaceId: this.options.spaceId,
+        filePath: dirPath,
+        accessToken: this.options.accessToken,
+        userId: this.options.userId,
+      });
+    } catch (error) {
+      const { serverCode, status } = extractAxiosErrorInfo(error);
+      // 目录已存在（ask 策略下冲突返回 409 SameNameDirectoryOrFileExists）：视为成功
+      if (
+        serverCode === ServerErrorCode.SameNameDirectoryOrFileExists ||
+        status === 409
+      ) {
+        this.logInfo(`Directory already exists, skip: ${dirPath}`);
+        return;
+      }
+      // 其它错误（如 DirectoryLevelExceed / DirectoryNotAllowed / 权限不足）原样抛出
+      throw newError(
+        ErrorCode.UPLOAD_FAILED,
+        `Failed to auto-create directory: ${dirPath}`,
+        error as Error,
+        { fileName: this.file.name, dirPath }
+      );
     }
   }
   
