@@ -875,13 +875,12 @@ describe.skipIf(shouldSkip)('FileApi 补充集成测试', () => {
       }
     });
 
-    it('同时传入 lang 与 pf 参数不应报参数错误', async (ctx: any) => {
+    it('传入 lang 参数不应报参数错误', async (ctx: any) => {
       assertSetupReady(setupFailed);
       try {
         const res = await client.file.officeEdit({
           filePath: sharedFilePath,
           lang: 'zh_CN',
-          pf: 'meeting',
         });
         expect([200, 302]).toContain(res.status);
       } catch (error: any) {

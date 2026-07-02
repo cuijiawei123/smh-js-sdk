@@ -247,7 +247,6 @@ const editRes = await smh.file.officeEdit({
     spaceId: 'your-space-id',
     filePath: 'foo/bar.docx',
     lang: 'zh_CN',
-    pf: 'meeting',
 });
 
 if (editRes.status === 200) {
@@ -267,7 +266,6 @@ if (editRes.status === 200) {
 | librarySecret | 访问媒体库密钥 | String | 否 |
 | userId | 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份 | String | 否 |
 | lang | 语言偏好，例如 `zh_CN`、`en` | String | 否 |
-| pf | 平台标识，例如 `meeting` | String | 否 |
 
 ### 返回值说明
 

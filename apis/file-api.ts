@@ -1571,11 +1571,10 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [lang] 语言偏好，可选参数，例如 zh_CN、en
-         * @param {string} [pf] 平台标识，可选参数，例如 meeting
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        officeEdit: async (libraryId: string, spaceId: string, filePath: string, accessToken?: string, librarySecret?: string, userId?: string, lang?: string, pf?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        officeEdit: async (libraryId: string, spaceId: string, filePath: string, accessToken?: string, librarySecret?: string, userId?: string, lang?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'libraryId' is not null or undefined
             assertParamExists('officeEdit', 'libraryId', libraryId)
             // verify required parameter 'spaceId' is not null or undefined
@@ -1611,10 +1610,6 @@ export const FileApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (lang !== undefined) {
                 localVarQueryParameter['lang'] = lang;
-            }
-
-            if (pf !== undefined) {
-                localVarQueryParameter['pf'] = pf;
             }
 
 
@@ -2530,12 +2525,11 @@ export const FileApiFp = function(configuration?: Configuration) {
          * @param {string} [librarySecret] 访问媒体库密钥，可选参数
          * @param {string} [userId] 用户身份识别，当访问令牌对应的权限为管理员权限且申请访问令牌时的用户身份识别为空时用来临时指定用户身份，详情请参阅生成访问令牌接口，可选参数
          * @param {string} [lang] 语言偏好，可选参数，例如 zh_CN、en
-         * @param {string} [pf] 平台标识，可选参数，例如 meeting
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async officeEdit(libraryId: string, spaceId: string, filePath: string, accessToken?: string, librarySecret?: string, userId?: string, lang?: string, pf?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.officeEdit(libraryId, spaceId, filePath, accessToken, librarySecret, userId, lang, pf, options);
+        async officeEdit(libraryId: string, spaceId: string, filePath: string, accessToken?: string, librarySecret?: string, userId?: string, lang?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<string>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.officeEdit(libraryId, spaceId, filePath, accessToken, librarySecret, userId, lang, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FileApi.officeEdit']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -2877,7 +2871,7 @@ export const FileApiFactory = function (configuration?: Configuration, basePath?
          * @throws {RequiredError}
          */
         officeEdit(requestParameters: FileApiOfficeEditRequest, options?: RawAxiosRequestConfig): AxiosPromise<string> {
-            return localVarFp.officeEdit(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.lang, requestParameters.pf, options).then((request) => request(axios, basePath));
+            return localVarFp.officeEdit(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.lang, options).then((request) => request(axios, basePath));
         },
         /**
          * 用于获取 HTML 格式文档预览。 返回HTML或JPG格式的文档用于预览； 如果文件不属于可预览的文档类型，则会跳转至文件的下载链接。 
@@ -3976,11 +3970,6 @@ export interface FileApiOfficeEditRequest {
      * 语言偏好，可选参数，例如 zh_CN、en
      */
     readonly lang?: string
-
-    /**
-     * 平台标识，可选参数，例如 meeting
-     */
-    readonly pf?: string
 }
 
 /**
@@ -4518,7 +4507,7 @@ export class FileApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public officeEdit(requestParameters: FileApiOfficeEditRequest, options?: RawAxiosRequestConfig) {
-        return FileApiFp(this.configuration).officeEdit(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.lang, requestParameters.pf, options).then((request) => request(this.axios, this.basePath));
+        return FileApiFp(this.configuration).officeEdit(requestParameters.libraryId, requestParameters.spaceId, requestParameters.filePath, requestParameters.accessToken, requestParameters.librarySecret, requestParameters.userId, requestParameters.lang, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
